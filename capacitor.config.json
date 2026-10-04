@@ -1,0 +1,9 @@
+{
+  "appId": "com.mxteb.gymtracker",
+  "appName": "Gym Tracker",
+  "webDir": "www",
+  "backgroundColor": "#070b19",
+  "android": {
+    "allowMixedContent": false
+  }
+}

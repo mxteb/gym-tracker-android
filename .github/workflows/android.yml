@@ -1,0 +1,69 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get the latest website files
+        uses: actions/checkout@v4
+        with:
+          repository: mxteb/gym-tracker
+          path: site
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Copy web files into the app
+        run: |
+          mkdir -p www
+          cp site/index.html site/app.js site/data.js site/storage.js site/styles.css site/sw.js site/manifest.json www/
+          cp -r site/assets www/
+          cp native-bridge.js www/
+          sed -i 's#<script src="./storage.js" defer></script>#<script src="./native-bridge.js"></script>\n    <script src="./storage.js" defer></script>#' www/index.html
+          grep -q native-bridge.js www/index.html
+
+      - name: Install Capacitor
+        run: npm install
+
+      - name: Create Android project
+        run: |
+          npx cap add android
+          npx cap sync android
+
+      - name: App icon
+        run: |
+          mkdir -p resources
+          cp site/assets/icon-512.png resources/icon-only.png
+          npx @capacitor/assets generate --android \
+            --iconBackgroundColor '#070b19' --iconBackgroundColorDark '#070b19' \
+            --splashBackgroundColor '#070b19' --splashBackgroundColorDark '#070b19'
+
+      - name: Signing key (same key every build so updates install over the old app)
+        run: |
+          mkdir -p ~/.android
+          cp debug.keystore ~/.android/debug.keystore
+
+      - name: Build APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+          cp app/build/outputs/apk/debug/app-debug.apk ../GymTracker.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: GymTracker-APK
+          path: GymTracker.apk
