@@ -21,15 +21,6 @@
     };
   }
 
-  // CSS للأجهزة اللي محرك WebView فيها قديم (أقدم من 87): خاصية inset ما تنفهم، فالنوافذ المنبثقة تطلع برا الشاشة
-  try {
-    if (!(window.CSS && CSS.supports && CSS.supports('inset', '0'))) {
-      var legacy = document.createElement('style');
-      legacy.textContent = '.inset-0{top:0;right:0;bottom:0;left:0}';
-      (document.head || document.documentElement).appendChild(legacy);
-    }
-  } catch (e) {}
-
   var cap = window.Capacitor;
   if (!cap || !cap.isNativePlatform || !cap.isNativePlatform()) return;
 

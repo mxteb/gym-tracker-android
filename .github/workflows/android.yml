@@ -33,6 +33,9 @@ jobs:
           distribution: temurin
           java-version: 21
 
+      - name: Website calculation tests (stop here if any number changed)
+        run: node --test site/tests/*.test.mjs
+
       - name: Prepare web files
         run: ./scripts/prepare-www.sh site
 

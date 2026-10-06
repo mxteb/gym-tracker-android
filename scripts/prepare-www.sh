@@ -3,8 +3,10 @@
 set -euo pipefail
 SITE="${1:-site}"
 rm -rf www && mkdir -p www
-cp "$SITE"/index.html "$SITE"/app.js "$SITE"/data.js "$SITE"/storage.js "$SITE"/styles.css "$SITE"/manifest.json www/
-cp -r "$SITE"/assets www/
+# everything the site serves, except its tests, git files and the service worker (not used inside the app)
+( cd "$SITE" && find . -type f ! -path './.git/*' ! -path './.github/*' ! -path './tests/*' ! -name 'sw.js' ! -name '*.md' -print0 ) |
+  while IFS= read -r -d '' f; do mkdir -p "www/$(dirname "$f")"; cp "$SITE/$f" "www/$f"; done
+for f in index.html app.js data.js storage.js styles.css manifest.json; do test -f "www/$f" || { echo "missing $f"; exit 1; }; done
 cp native-bridge.js www/
 python3 - <<'PY'
 p = 'www/index.html'
