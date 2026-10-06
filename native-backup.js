@@ -8,9 +8,10 @@
   'use strict';
   var cap = window.Capacitor;
   if (!cap || !cap.isNativePlatform || !cap.isNativePlatform()) return;
-  var Filesystem = cap.registerPlugin('Filesystem');
-  var Share = cap.registerPlugin('Share');
-  var LocalNotifications = cap.registerPlugin('LocalNotifications');
+  function plugin(name) { return (cap.Plugins && cap.Plugins[name]) || (typeof cap.registerPlugin === 'function' ? cap.registerPlugin(name) : undefined); }
+  var Filesystem = plugin('Filesystem');
+  var Share = plugin('Share');
+  var LocalNotifications = plugin('LocalNotifications');
   var N = window.__gymNative || (window.__gymNative = { exports: [], notifications: [], errors: [] });
   N.backups = [];
   function note(where, e) { try { N.errors.push(where + ': ' + (e && e.message ? e.message : String(e))); } catch (x) {} }

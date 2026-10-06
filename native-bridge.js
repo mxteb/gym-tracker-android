@@ -24,10 +24,7 @@
   var cap = window.Capacitor;
   if (!cap || !cap.isNativePlatform || !cap.isNativePlatform()) return;
 
-  function plugin(name) {
-    try { if (cap.registerPlugin) return cap.registerPlugin(name); } catch (e) {}
-    return cap.Plugins ? cap.Plugins[name] : undefined;
-  }
+  function plugin(name) { return (cap.Plugins && cap.Plugins[name]) || (typeof cap.registerPlugin === 'function' ? cap.registerPlugin(name) : undefined); }
   var Filesystem = plugin('Filesystem');
   var Share = plugin('Share');
   var App = plugin('App');

@@ -174,13 +174,19 @@ async function attach() {
     } else if (m.method === 'Runtime.consoleAPICalled' && m.params.type === 'error') {
       jsErrors.push('console.error: ' + m.params.args.map(a => a.value ?? a.description).join(' '));
     } else if (m.method === 'Log.entryAdded' && m.params.entry.level === 'error') {
-      if (!ANDROID && /favicon\.ico|fetching the script/.test(m.params.entry.text + (m.params.entry.url || ''))) return;
+      if (!ANDROID && /favicon\.ico|fetching the script|api\.github\.com/.test(m.params.entry.text + (m.params.entry.url || ''))) return;
       jsErrors.push('log: ' + m.params.entry.text + ' ' + (m.params.entry.url || ''));
     }
   });
   await cdp.send('Runtime.enable');
   await cdp.send('Log.enable');
   await cdp.send('Page.enable');
+  if (!ANDROID && !attach.mocked) {
+    attach.mocked = true;
+    await cdp.send('Page.addScriptToEvaluateOnNewDocument', { source: MOCK_CAPACITOR });
+    await cdp.send('Page.reload', {});
+    await sleep(1500);
+  }
   if (!ANDROID) {
     await cdp.send('Emulation.setDeviceMetricsOverride', { width: 393, height: 852, deviceScaleFactor: 2.75, mobile: true });
     await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 });
@@ -188,6 +194,33 @@ async function attach() {
   await waitFor(`!!document.getElementById('db-status-badge') && /محفوظ/.test(document.getElementById('db-status-badge').textContent) && !!document.querySelector('#exercise-dropdown option')`, 30000, 'app ready');
   if (ANDROID) { const h = await ev(`document.activeElement && document.activeElement.blur && document.activeElement.blur(); return window.innerHeight`); baseHeight = Math.max(baseHeight, h); }
 }
+
+// A stand-in for the phone's Capacitor bridge, so the Android layer's own code runs in desktop Chromium:
+// in-memory files, notifications that record what was scheduled, and fixed app info.
+const MOCK_CAPACITOR = `(() => {
+  const files = {}; const scheduled = []; const listeners = {}; const shared = [];
+  const ok = v => Promise.resolve(v);
+  const dirOf = p => p.split('/').slice(0, -1).join('/');
+  window.__mock = { files, scheduled, shared, fire: (ev, data) => (listeners[ev] || []).forEach(f => f(data)) };
+  const Plugins = {
+    Filesystem: {
+      writeFile: o => { files[o.directory + ':' + o.path] = { data: o.data, mtime: Date.now(), size: o.data.length }; return ok({ uri: 'file:///mock/' + o.path }); },
+      readFile: o => { const f = files[o.directory + ':' + o.path]; return f ? ok({ data: f.data }) : Promise.reject(new Error('not found')); },
+      readdir: o => { const pre = o.directory + ':' + o.path + '/'; const out = Object.keys(files).filter(k => k.startsWith(pre) && !k.slice(pre.length).includes('/')).map(k => ({ name: k.slice(pre.length), type: 'file', mtime: files[k].mtime, size: files[k].size }));
+        const dirs = new Set(Object.keys(files).filter(k => k.startsWith(pre) && k.slice(pre.length).includes('/')).map(k => k.slice(pre.length).split('/')[0])); dirs.forEach(d => out.push({ name: d, type: 'directory' })); return ok({ files: out }); },
+      deleteFile: o => { delete files[o.directory + ':' + o.path]; return ok({}); }
+    },
+    Share: { share: o => { shared.push(o); return ok({}); } },
+    App: { getInfo: () => ok({ build: '100', version: '1.100' }), addListener: (ev, f) => { (listeners[ev] = listeners[ev] || []).push(f); return ok({ remove() {} }); }, minimizeApp: () => ok({}) },
+    LocalNotifications: {
+      checkPermissions: () => ok({ display: 'granted' }), requestPermissions: () => ok({ display: 'granted' }),
+      createChannel: () => ok({}), schedule: o => { o.notifications.forEach(n => { const i = scheduled.findIndex(x => x.id === n.id); if (i >= 0) scheduled.splice(i, 1); scheduled.push(n); }); return ok({}); },
+      cancel: o => { o.notifications.forEach(n => { const i = scheduled.findIndex(x => x.id === n.id); if (i >= 0) scheduled.splice(i, 1); }); return ok({}); },
+      addListener: (ev, f) => { (listeners[ev] = listeners[ev] || []).push(f); return ok({ remove() {} }); }
+    }
+  };
+  window.Capacitor = { isNativePlatform: () => true, getPlatform: () => 'android', Plugins };
+})();`;
 
 async function ev(body) {
   const statements = /\breturn\b/.test(body) || /;\s*\S/.test(body.trim().replace(/;\s*$/, '')) || /;\s*$/.test(body.trim());
@@ -293,8 +326,9 @@ function expect(cond, msg) { if (!cond) throw new Error(msg); }
 function near(a, b, tol = 0.051) { return Math.abs(Number(a) - Number(b)) <= tol; }
 const digits = s => String(s ?? '').replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[٬,]/g, '');
 let current = null;
-async function test(id, title, fn, { androidOnly = false } = {}) {
+async function test(id, title, fn, { androidOnly = false, localOnly = false } = {}) {
   if (androidOnly && !ANDROID) { results.push({ id, title, status: 'skip', detail: 'android only' }); return; }
+  if (localOnly && ANDROID) { results.push({ id, title, status: 'skip', detail: 'local only' }); return; }
   current = { id, title, checks: [] };
   if (ANDROID && await dismissSystemDialogs()) { try { if (!appInForeground()) { startApp(); await sleep(1500); } await attach(); } catch { } }
   const t0 = Date.now();
@@ -912,6 +946,36 @@ async function main() {
     await attach();
     check(c, 'كل البيانات موجودة بعد التحديث (' + count + ' جولة)', (await logsCount()) === count);
   }, { androidOnly: true });
+
+  await test('T30', 'طبقة أندرويد على محاكاة Capacitor (فحص سريع قبل المحاكي)', async c => {
+    check(c, 'الطبقة اشتغلت بدون أخطاء', await ev(`!!window.__gymNative && !!window.__gymNativeUI`), JSON.stringify(await ev(`window.__gymNative?.errors`)));
+    const autos = await ev(`return Object.keys(__mock.files).filter(k=>k.includes('/auto/')).length`);
+    check(c, 'D1: إنهاء الجلسة كتب نسخة تلقائية', autos >= 1, autos);
+    await tap('#nav-profile');
+    check(c, 'بطاقة النسخ الاحتياطية موجودة', /آخر نسخة/.test(await text('#gt-backup-status') || ''), await text('#gt-backup-status'));
+    await tap('#gt-open-restore');
+    await waitFor(`!!document.getElementById('gt-backup-0')`, 5000, 'list');
+    await tap('#gt-backup-0');
+    await waitFor(`!!document.getElementById('gt-restore-confirm')`, 4000, 'confirm');
+    await tap('#gt-restore-confirm');
+    await waitToast(/تم دمج النسخة/, 8000);
+    check(c, 'D2: الاسترجاع من القائمة اشتغل', true);
+    await choose('#gt-weekly-day', '6');
+    await tap('#gt-weekly-on');
+    await waitFor(`__mock.scheduled.some(n=>n.id===7100)`, 4000, 'weekly scheduled');
+    const n = await ev(`return __mock.scheduled.find(n=>n.id===7100).schedule.on`);
+    check(c, 'D3: التذكير انجدول الجمعة الساعة 8 المساء', n.weekday === 6 && n.hour === 20, JSON.stringify(n));
+    await tap('#gt-weekly-on');
+    await waitFor(`!__mock.scheduled.some(n=>n.id===7100)`, 4000, 'weekly cancelled');
+    check(c, 'D3: الإطفاء يلغي التذكير', true);
+    await ev(`window.__realFetch = window.__realFetch || fetch; window.fetch = (u, o) => /api\\.github\\.com/.test(String(u)) ? Promise.resolve(new Response(JSON.stringify({tag_name:'v1.101', body:'• تجربة'}),{status:200})) : window.__realFetch(u, o); await __gymNative.update.check(true); return true`);
+    await waitFor(`!!document.getElementById('gt-update-banner')`, 4000, 'banner');
+    check(c, 'E3: شريط التحديث يطلع لنسخة أحدث', true);
+    await tap('#gt-update-open');
+    check(c, 'E3: يعرض وش الجديد', /تجربة/.test(await text('#gt-native-dialog')));
+    await ev(`window.__gymNativeUI.close(); document.getElementById('gt-update-banner').remove(); window.fetch = window.__realFetch; return true`);
+    await tap('#nav-workout');
+  }, { localOnly: true });
 
   await test('T21', 'D2: استرجاع نسخة من القائمة داخل التطبيق', async c => {
     await tap('#nav-profile');

@@ -7,7 +7,8 @@
   'use strict';
   var cap = window.Capacitor;
   if (!cap || !cap.isNativePlatform || !cap.isNativePlatform()) return;
-  var App = cap.registerPlugin('App');
+  function plugin(name) { return (cap.Plugins && cap.Plugins[name]) || (typeof cap.registerPlugin === 'function' ? cap.registerPlugin(name) : undefined); }
+  var App = plugin('App');
   var N = window.__gymNative || (window.__gymNative = { exports: [], notifications: [], errors: [] });
   var REPO = 'mxteb/gym-tracker-android';
   var API = 'https://api.github.com/repos/' + REPO + '/releases/latest';
