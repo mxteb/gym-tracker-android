@@ -63,6 +63,31 @@ function activeNotifs() {
   } catch { }
   try { return Number(sh(`dumpsys notification | sed -n '/Notification List:/,/^  [A-Z]/p' | grep -c "pkg=${PKG}" || true`).trim()) || 0; } catch { return -1; }
 }
+async function dismissSystemDialogs() {
+  if (!ANDROID) return false;
+  let did = false;
+  for (let i = 0; i < 4; i++) {
+    const f = focused();
+    if (!/Not Responding|Application Error|isn't responding|aerr/i.test(f)) break;
+    const nodes = uiNodes(uiDump());
+    const btn = nodes.find(n => /aerr_wait$/.test(n.id)) || nodes.find(n => /^(Wait|انتظار)$/i.test(n.text)) || nodes.find(n => /aerr_close$/.test(n.id));
+    if (btn) uiTap(btn); else key(4);
+    did = true; info.systemDialogsDismissed = (info.systemDialogsDismissed || 0) + 1;
+    await sleep(1500);
+  }
+  return did;
+}
+let baseHeight = 0;
+async function keyboardOpen() {
+  if (!ANDROID) return false;
+  const h = await ev(`window.innerHeight`);
+  return baseHeight && h < baseHeight - 120;
+}
+async function hideKeyboard() {
+  if (!(await keyboardOpen())) return;
+  key(4);
+  for (let i = 0; i < 10 && (await keyboardOpen()); i++) await sleep(200);
+}
 function uiTap(node) { sh(`input tap ${Math.round(node.x)} ${Math.round(node.y)}`); }
 async function allowPermissionDialogIfShown(timeout = 6000) {
   const end = Date.now() + timeout;
@@ -161,6 +186,7 @@ async function attach() {
     await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 });
   }
   await waitFor(`!!document.getElementById('db-status-badge') && /محفوظ/.test(document.getElementById('db-status-badge').textContent) && !!document.querySelector('#exercise-dropdown option')`, 30000, 'app ready');
+  if (ANDROID) { const h = await ev(`document.activeElement && document.activeElement.blur && document.activeElement.blur(); return window.innerHeight`); baseHeight = Math.max(baseHeight, h); }
 }
 
 async function ev(body) {
@@ -187,7 +213,12 @@ async function visible(sel) {
 }
 
 async function tap(sel, { allowCovered = false } = {}) {
-  const r = await ev(`
+  let r = await measure(sel);
+  if (!r.missing && !r.ok && ANDROID) { await hideKeyboard(); await dismissSystemDialogs(); await sleep(300); r = await measure(sel); }
+  return tapAt(sel, r, allowCovered);
+}
+async function measure(sel) {
+  return ev(`
     const el=document.querySelector(${q(sel)});
     if(!el) return {missing:true};
     el.scrollIntoView({block:'center',inline:'center'});
@@ -198,6 +229,8 @@ async function tap(sel, { allowCovered = false } = {}) {
     const label=el.closest('label');
     const ok=!!hit&&(hit===el||el.contains(hit)||(!!label&&label.contains(hit)));
     return {x,y,w:b.width,h:b.height,ok,disabled:!!el.disabled,hit:hit?(hit.id?'#'+hit.id:hit.tagName.toLowerCase()+'.'+String(hit.className).split(' ').slice(0,3).join('.')):null};`);
+}
+async function tapAt(sel, r, allowCovered) {
   if (r.missing) throw new Error('element not found: ' + sel);
   if (!(r.w > 0 && r.h > 0)) throw new Error('element not visible: ' + sel);
   if (!r.ok) {
@@ -225,7 +258,8 @@ async function typeInto(sel, value) {
   await ev(`const el=document.querySelector(${q(sel)}); el.scrollIntoView({block:'center'}); el.focus(); el.value=''; el.dispatchEvent(new Event('input',{bubbles:true}));`);
   await cdp.send('Input.insertText', { text: String(value) });
   await ev(`const el=document.querySelector(${q(sel)}); el.dispatchEvent(new Event('change',{bubbles:true})); el.blur();`);
-  await sleep(200);
+  await sleep(250);
+  await hideKeyboard();
 }
 async function choose(sel, value) {
   const ok = await ev(`const el=document.querySelector(${q(sel)}); if(!el) return 'missing'; if(![...el.options].some(o=>o.value===${q(String(value))})) return 'no-option'; el.value=${q(String(value))}; el.dispatchEvent(new Event('input',{bubbles:true})); el.dispatchEvent(new Event('change',{bubbles:true})); return 'ok';`);
@@ -251,6 +285,7 @@ let current = null;
 async function test(id, title, fn, { androidOnly = false } = {}) {
   if (androidOnly && !ANDROID) { results.push({ id, title, status: 'skip', detail: 'android only' }); return; }
   current = { id, title, checks: [] };
+  if (ANDROID && await dismissSystemDialogs()) { try { if (!appInForeground()) { startApp(); await sleep(1500); } await attach(); } catch { } }
   const t0 = Date.now();
   log('▶', id, title);
   try {
@@ -262,7 +297,7 @@ async function test(id, title, fn, { androidOnly = false } = {}) {
     log('  ✘', id, e.message);
     try { await shot(`FAIL-${id}`); } catch { }
     if (ANDROID) {
-      try { if (!appInForeground()) { key(4); await sleep(500); } if (!appInForeground()) { startApp(); await sleep(1500); } await attach(); } catch (err) { log('   recovery failed', err.message); }
+      try { await dismissSystemDialogs(); if (!appInForeground()) { key(4); await sleep(500); } if (!appInForeground()) { startApp(); await sleep(1500); } await attach(); } catch (err) { log('   recovery failed', err.message); }
     }
     try { await ev(`document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true})); return true`); } catch { }
   }
@@ -323,6 +358,9 @@ async function setupAndroid() {
   key(224); key(82); // wake + unlock
   try { sh('cmd uimode night no'); } catch { }
   try { sh('logcat -c'); } catch { }
+  await sleep(15000); // let a freshly booted emulator settle (launcher ANRs on slow CI machines)
+  await dismissSystemDialogs();
+  key(3); await sleep(1000);
   startApp();
   await sleep(2500);
 }
@@ -764,6 +802,7 @@ async function main() {
     await tap('#nav-workout');
     check(c, 'السجل فاضي', (await logsCount()) === 0);
     // the real system file picker
+    await tap('#nav-profile');
     await ev(`document.getElementById('import-file-input').closest('label').id='gt-import-label'; return true`);
     await tap('#gt-import-label');
     await sleep(2500);
