@@ -1006,19 +1006,20 @@ async function main() {
 
   await test('T22', 'D3: تذكير أسبوعي بالنسخة (تشغيل وإيقاف)', async c => {
     await tap('#nav-profile');
-    const count = () => (sh('dumpsys alarm | grep -c "com.mxteb.gymtracker" || true').trim() | 0);
-    const base = count();
+    const pending = () => ev(`return (await Capacitor.Plugins.LocalNotifications.getPending()).notifications.filter(n => Number(n.id) === 7100).map(n => n.schedule)`);
+    check(c, 'قبل التشغيل ما فيه تذكير', (await pending()).length === 0);
     await choose('#gt-weekly-day', '6');
     await tap('#gt-weekly-on');
     await waitFor(`/بيجيك التذكير كل الجمعة/.test(document.getElementById('gt-weekly-msg').textContent)`, 6000, 'weekly msg');
     check(c, 'رسالة التأكيد: كل الجمعة', true);
-    await sleep(1000);
-    const on = count();
-    check(c, 'انضاف تنبيه في نظام أندرويد', on > base, base + ' -> ' + on);
+    await sleep(800);
+    const on = await pending();
+    check(c, 'التذكير انجدول في أندرويد: الجمعة الساعة 8 المساء', on.length === 1 && on[0].on && on[0].on.weekday === 6 && on[0].on.hour === 20, JSON.stringify(on));
+    soft(c, 'وموجود في منبّه النظام', /com\.mxteb\.gymtracker/.test(sh('dumpsys alarm | grep -A3 -i "pending" | grep -i gymtracker || true')), '');
     await shot('22-weekly-on');
     await tap('#gt-weekly-on');
-    await sleep(1500);
-    check(c, 'لما أطفيه ينشال التنبيه', count() <= base, count());
+    await sleep(1200);
+    check(c, 'لما أطفيه ينلغي', (await pending()).length === 0, JSON.stringify(await pending()));
     check(c, 'اختيار الأيام والساعة انخفى', !(await visible('#gt-weekly-day')));
   }, { androidOnly: true });
 
@@ -1054,11 +1055,13 @@ async function main() {
     await attach();
     // what's new after an update
     await ev(`localStorage.setItem('gt_seen_build','1'); return true`);
+    await sleep(3000); // let the WebView write storage to disk before the app is force-closed
     await restartApp(c);
     await waitFor(`/وش الجديد/.test(document.getElementById('gt-native-dialog')?.textContent||'')`, 8000, "what's new");
     check(c, '«وش الجديد» يطلع مرة بعد التحديث', /تلقائية/.test(await text('#gt-native-dialog')));
     await shot('23-whats-new');
     await tap('#gt-whatsnew-ok');
+    await sleep(3000);
     await restartApp(c);
     await sleep(2500);
     check(c, 'وما يتكرر بعدها', !(await ev(`!!document.getElementById('gt-native-dialog')`)));
