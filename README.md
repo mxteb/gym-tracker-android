@@ -4,7 +4,8 @@
 ملفات الموقع تنضم داخل التطبيق، فيشتغل بدون إنترنت.
 
 ## تنزيل الـ APK
-Actions ← آخر تشغيل لـ **Build Android APK** ← تحت Artifacts نزّل **GymTracker-APK**، فك الضغط وثبّت `GymTracker.apk`.
+رابط مباشر لآخر نسخة:
+https://github.com/mxteb/gym-tracker-android/releases/latest/download/GymTracker.apk
 
 ## تحديث التطبيق بعد تعديل الموقع
 Actions ← Build Android APK ← **Run workflow**. البناء يسحب آخر نسخة من ريبو gym-tracker.

@@ -5,6 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -67,3 +70,14 @@ jobs:
         with:
           name: GymTracker-APK
           path: GymTracker.apk
+
+      - name: Publish as release (direct download link)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="build-${{ github.run_number }}"
+          gh release create "$TAG" GymTracker.apk \
+            --repo "${{ github.repository }}" \
+            --title "Gym Tracker ${TAG}" \
+            --notes "نزّل GymTracker.apk وثبّته. التحديث ينثبت فوق النسخة القديمة وبياناتك تبقى." \
+            --latest
