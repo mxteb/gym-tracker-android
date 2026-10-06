@@ -115,18 +115,25 @@
       showDialog('تعذر تجهيز الملف', 'صار خطأ أثناء تجهيز النسخة الاحتياطية. حاول مرة ثانية.', [{ label: 'حسنًا', primary: true }]);
       return;
     }
-    var savedUri = null, shareUri = null;
-    try {
-      var r = await Filesystem.writeFile({ path: 'GymTracker/' + finalName, data: text, directory: 'DOCUMENTS', encoding: 'utf8', recursive: true });
-      savedUri = shareUri = r.uri;
-    } catch (e) { note('export-documents', e); }
+    var savedUri = null, shareUri = null, place = null;
+    // التنزيلات أسهل مكان يلقاه منتقي الملفات وقت الاستيراد (له اختصار مباشر)، والمستندات احتياط
+    var targets = [
+      { dir: 'EXTERNAL_STORAGE', path: 'Download/GymTracker/', label: 'التنزيلات (Download) ← GymTracker' },
+      { dir: 'DOCUMENTS', path: 'GymTracker/', label: 'المستندات (Documents) ← GymTracker' }
+    ];
+    for (var i = 0; i < targets.length && !savedUri; i++) {
+      try {
+        var r = await Filesystem.writeFile({ path: targets[i].path + finalName, data: text, directory: targets[i].dir, encoding: 'utf8', recursive: true });
+        savedUri = shareUri = r.uri; place = targets[i].label;
+      } catch (e) { note('export-' + targets[i].dir, e); }
+    }
     if (!shareUri) {
       try {
         var c = await Filesystem.writeFile({ path: finalName, data: text, directory: 'CACHE', encoding: 'utf8' });
         shareUri = c.uri;
       } catch (e) { note('export-cache', e); }
     }
-    state.exports.push({ name: finalName, savedToDocuments: !!savedUri, uri: shareUri, bytes: text.length });
+    state.exports.push({ name: finalName, saved: !!savedUri, place: place, uri: shareUri, bytes: text.length });
     if (!shareUri) {
       showDialog('تعذر حفظ الملف', 'ما قدرت أحفظ النسخة على الجهاز. تأكد إن فيه مساحة كافية وحاول مرة ثانية.', [{ label: 'حسنًا', primary: true }]);
       return;
@@ -138,7 +145,8 @@
     };
     if (savedUri) {
       showDialog('تم حفظ النسخة الاحتياطية ✅',
-        'انحفظت في جوالك داخل:\nالمستندات (Documents) ← GymTracker\n' + finalName +
+        'انحفظت في جوالك داخل:\n' + place + '\n' + finalName +
+        '\n\nوقت الاستيراد: اضغط ☰ في منتقي الملفات واختر التنزيلات ثم GymTracker.' +
         '\n\nللأمان أكثر أرسلها لـ Google Drive أو لنفسك في واتساب، عشان ما تضيع لو ضاع الجوال.',
         [{ label: 'إرسال / حفظ في Drive', primary: true, action: share, id: 'gt-share-btn' }, { label: 'تم', id: 'gt-done-btn' }]);
     } else {

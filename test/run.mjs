@@ -778,16 +778,16 @@ async function main() {
   });
 
   let exported = null;
-  await test('T15', 'تصدير نسخة احتياطية: ينحفظ ملف في المستندات + المشاركة', async c => {
+  await test('T15', 'تصدير نسخة احتياطية: ينحفظ ملف في التنزيلات + المشاركة', async c => {
     await tap('#nav-profile');
     await tap('#btn-export-json');
     await waitFor(`!!document.getElementById('gt-native-dialog')`, 10000, 'export dialog');
     const ex = await ev(`return window.__gymNative.exports.slice(-1)[0]`);
-    check(c, 'النسخة انحفظت في المستندات/GymTracker', ex && ex.savedToDocuments, JSON.stringify(ex) + ' ' + JSON.stringify(await ev(`window.__gymNative.errors`)));
+    check(c, 'النسخة انحفظت في التنزيلات/GymTracker', ex && ex.saved && /Download/.test(ex.uri), JSON.stringify(ex) + ' ' + JSON.stringify(await ev(`window.__gymNative.errors`)));
     await shot('15-export-dialog');
-    const ls = sh('ls /sdcard/Documents/GymTracker/ 2>&1 || true');
+    const ls = sh('ls /sdcard/Download/GymTracker/ 2>&1 || true');
     check(c, 'الملف موجود فعلاً في ذاكرة الجوال', ls.includes(ex.name), ls);
-    const raw = sh(`cat "/sdcard/Documents/GymTracker/${ex.name}"`);
+    const raw = sh(`cat "/sdcard/Download/GymTracker/${ex.name}"`);
     exported = JSON.parse(raw);
     fs.writeFileSync(path.join(OUT, 'exported-backup.json'), raw);
     check(c, 'الملف JSON سليم وإصدار 10', exported.schemaVersion === 10);
@@ -821,13 +821,27 @@ async function main() {
     check(c, 'زر الاستيراد يفتح منتقي الملفات حق أندرويد', /documentsui|DocumentsActivity|PickActivity|FilesActivity/i.test(f), f);
     screenshotDevice('16-file-picker');
     const exName = (await ev(`return window.__gymNative.exports.slice(-1)[0].name`));
+    // pick the file like a person: ☰ → Downloads → GymTracker → file
     let pickedNative = false;
-    for (let i = 0; i < 2 && !pickedNative; i++) {
-      const nodes = uiNodes(uiDump());
-      const n = nodes.find(x => x.text === exName || x.text.startsWith(exName.slice(0, 26)));
-      if (n) { uiTap(n); pickedNative = true; break; }
-      await sleep(1500);
-    }
+    const findTap = async (pred, tries = 4) => {
+      for (let i = 0; i < tries; i++) {
+        const n = uiNodes(uiDump()).find(pred);
+        if (n) { uiTap(n); await sleep(1500); return true; }
+        await sleep(1000);
+      }
+      return false;
+    };
+    const steps = [];
+    const isFile = x => x.text === exName || (x.text.length > 20 && x.text.startsWith(exName.slice(0, 26)));
+    if (!(await findTap(isFile, 1))) {
+      steps.push('menu:' + await findTap(x => /Show roots|إظهار الجذور|Navigate up|عرض/i.test(x.desc)));
+      steps.push('downloads:' + await findTap(x => /^(Downloads|Download|التنزيلات|عمليات التنزيل)$/i.test(x.text)));
+      steps.push('folder:' + await findTap(x => x.text === 'GymTracker'));
+      pickedNative = await findTap(isFile);
+    } else pickedNative = true;
+    info.pickerSteps = steps.join(' ');
+    soft(c, 'اختيار الملف من منتقي أندرويد نفسه (☰ ← التنزيلات ← GymTracker)', pickedNative, info.pickerSteps);
+    screenshotDevice('16-file-picker-browsed');
     info.importViaNativePicker = pickedNative;
     if (!pickedNative) { key(4); await sleep(1200); }
     await sleep(1500);
@@ -848,7 +862,7 @@ async function main() {
     await waitFor(`window.__gymNative.exports.length>=2`, 10000, 'second export');
     const ex2 = await ev(`return window.__gymNative.exports.slice(-1)[0]`);
     await ev(`document.getElementById('gt-done-btn')?.click(); return true`);
-    const again = JSON.parse(sh(`cat "/sdcard/Documents/GymTracker/${ex2.name}"`));
+    const again = JSON.parse(sh(`cat "/sdcard/Download/GymTracker/${ex2.name}"`));
     const pick = (o, keys) => JSON.stringify(keys.map(k => o[k] ?? null));
     const lk = ['id', 'date', 'exerciseId', 'type', 'weight', 'displayWeight', 'unit', 'reps', 'rir', 'setType', 'loadMode', 'sessionId', 'calories', 'duration', 'durationSeconds', 'effectiveLoadKg', 'volumeLoadKg', 'oneRepMax'];
     const A = new Map(exported.logs.map(l => [l.id, pick(l, lk)])), B = new Map(again.logs.map(l => [l.id, pick(l, lk)]));
