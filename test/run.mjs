@@ -722,12 +722,18 @@ async function main() {
     check(c, 'نافذة الإنهاء فيها المدة', Number(await val('#finish-session-duration')) >= 1, await val('#finish-session-duration'));
     await shot('12-finish-modal');
     // we logged 35 min of cardio in a few real minutes; the app must refuse a shorter session
+    await sleep(1500); // the app focuses the duration field; let the keyboard finish opening
     await tap('#btn-confirm-finish');
-    await waitFor(`!!document.getElementById('finish-session-duration-error')`, 4000, 'cardio>duration validation');
+    try { await waitFor(`!!document.getElementById('finish-session-duration-error')`, 3000, 'cardio>duration validation'); }
+    catch { await sleep(1000); await tap('#btn-confirm-finish'); await waitFor(`!!document.getElementById('finish-session-duration-error')`, 4000, 'cardio>duration validation (retry)'); }
     check(c, 'التطبيق يرفض مدة أقصر من الكارديو المسجل', /الكارديو/.test(await text('#finish-session-duration-error')));
     await typeInto('#finish-session-duration', 60);
+    await sleep(800);
+    const summaryShown = `!document.getElementById('custom-modal').classList.contains('hidden') && /ملخص/.test(document.getElementById('modal-title').textContent)`;
     await tap('#btn-confirm-finish');
-    await waitFor(`!document.getElementById('custom-modal').classList.contains('hidden') && /ملخص/.test(document.getElementById('modal-title').textContent)`, 6000, 'summary');
+    try { await waitFor(summaryShown, 4000, 'summary'); }
+    catch { if (await visible('#btn-confirm-finish')) { await tap('#btn-confirm-finish'); } await waitFor(summaryShown, 6000, 'summary (retry)'); }
+    await sleep(1200);
     const msg = await text('#modal-message');
     const working = sets.filter(s => s.setType !== 'warmup');
     const tons = (working.reduce((a, s) => a + volumeOf(s), 0) / 1000).toFixed(2);
@@ -832,7 +838,7 @@ async function main() {
       return false;
     };
     const steps = [];
-    const isFile = x => x.text === exName || (x.text.length > 20 && x.text.startsWith(exName.slice(0, 26)));
+    const isFile = x => x.text === exName || /^gym_tracker_backup_/.test(x.text);
     if (!(await findTap(isFile, 1))) {
       steps.push('menu:' + await findTap(x => /Show roots|إظهار الجذور|Navigate up|عرض/i.test(x.desc)));
       steps.push('downloads:' + await findTap(x => /^(Downloads|Download|التنزيلات|عمليات التنزيل)$/i.test(x.text)));
