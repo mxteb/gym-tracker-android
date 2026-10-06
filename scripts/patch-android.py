@@ -71,7 +71,23 @@ g, n = re.subn(r'versionCode\s+\d+', 'versionCode %d' % BUILD_NUMBER, g, count=1
 must(n == 1, 'versionCode')
 g, n = re.subn(r'versionName\s+"[^"]*"', 'versionName "1.%d"' % BUILD_NUMBER, g, count=1)
 must(n == 1, 'versionName')
-g, n = re.subn(r'(release\s*\{\s*\n\s*minifyEnabled false)', r'\1\n            signingConfig signingConfigs.debug', g, count=1)
+if os.environ.get('GT_KEYSTORE'):
+    # private key from the repository secret; passwords stay in environment variables, never in files
+    g, n = re.subn(r'(\n\s*buildTypes\s*\{)', '''
+    signingConfigs {
+        gymtracker {
+            storeFile file(System.getenv("GT_KEYSTORE"))
+            storePassword System.getenv("GT_KEYSTORE_PASSWORD")
+            keyAlias System.getenv("GT_KEY_ALIAS") ?: "gymtracker"
+            keyPassword System.getenv("GT_KEYSTORE_PASSWORD")
+        }
+    }\\1''', g, count=1)
+    must(n == 1, 'signingConfigs block')
+    g, n = re.subn(r'(release\s*\{\s*\n\s*minifyEnabled false)', r'\1\n            signingConfig signingConfigs.gymtracker', g, count=1)
+    print('signing: private key from secret')
+else:
+    g, n = re.subn(r'(release\s*\{\s*\n\s*minifyEnabled false)', r'\1\n            signingConfig signingConfigs.debug', g, count=1)
+    print('signing: repository debug key (add the GT_KEYSTORE_B64 secret to switch)')
 must(n == 1, 'release signing')
 write(gradle_path, g)
 

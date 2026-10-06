@@ -58,7 +58,18 @@ jobs:
             --iconBackgroundColor '#070b19' --iconBackgroundColorDark '#070b19' \
             --splashBackgroundColor '#070b19' --splashBackgroundColorDark '#070b19'
 
-      - name: Android settings (permissions, theme, version, notification icon)
+      - name: Signing key (private secret if set, else the repository key)
+        env:
+          KS_B64: ${{ secrets.GT_KEYSTORE_B64 }}
+        run: |
+          mkdir -p ~/.android
+          cp debug.keystore ~/.android/debug.keystore
+          if [ -n "$KS_B64" ]; then
+            echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/gt.keystore"
+            echo "GT_KEYSTORE=$RUNNER_TEMP/gt.keystore" >> "$GITHUB_ENV"
+          fi
+
+      - name: Android settings (permissions, theme, version, notification icon, signing)
         env:
           BUILD_NUMBER: ${{ github.run_number }}
         run: python3 scripts/patch-android.py
@@ -73,19 +84,18 @@ jobs:
           cp android/app/src/main/AndroidManifest.xml android/app/src/main/res/values/styles.xml build-info/
           grep -E "versionCode|versionName|signingConfig" android/app/build.gradle | tee build-info/gradle.txt
 
-      - name: Signing key (same key every build so updates install over the old app)
-        run: |
-          mkdir -p ~/.android
-          cp debug.keystore ~/.android/debug.keystore
-
       - name: Build release APK
         working-directory: android
+        env:
+          GT_KEYSTORE_PASSWORD: ${{ secrets.GT_KEYSTORE_PASSWORD }}
         run: |
           chmod +x gradlew
           ./gradlew assembleRelease --no-daemon -q
           cp app/build/outputs/apk/release/app-release.apk ../GymTracker.apk
 
       - name: Build test APK (identical, plus WebView inspection for the automated tests)
+        env:
+          GT_KEYSTORE_PASSWORD: ${{ secrets.GT_KEYSTORE_PASSWORD }}
         run: |
           node -e "const f='capacitor.config.json';const c=require('./'+f);c.android.webContentsDebuggingEnabled=true;require('fs').writeFileSync(f,JSON.stringify(c,null,2))"
           npx cap copy android
@@ -179,5 +189,5 @@ jobs:
           gh release create "$TAG" dl/apks/GymTracker.apk \
             --repo "${{ github.repository }}" \
             --title "Gym Tracker $TAG" \
-            --notes "نسخة مختبرة آلياً على محاكي أندرويد 11 و15 و16. نزّل GymTracker.apk وثبّته. التحديث ينثبت فوق النسخة القديمة وبياناتك تبقى." \
+            --notes-file release-notes.md \
             --latest

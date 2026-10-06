@@ -745,6 +745,14 @@ async function main() {
     check(c, 'الجلسة انتهت', /لا توجد جلسة نشطة/.test(await text('#active-session-title')));
     const cals = Number(digits(await text('#header-today-cals')));
     check(c, 'سعرات الحديد انضافت للعداد', cals > 202.5, cals);
+    if (ANDROID) {
+      await waitToast(/نسخة احتياطية تلقائية/, 8000);
+      const auto = sh('ls /sdcard/Download/GymTracker/auto/ 2>&1 || true');
+      check(c, 'D1: انحفظت نسخة تلقائية بعد إنهاء الجلسة', /gym_tracker_auto_.*\.json/.test(auto), auto);
+      const f = auto.split(/\s+/).find(x => x.endsWith('.json'));
+      const j = JSON.parse(sh(`cat "/sdcard/Download/GymTracker/auto/${f}"`));
+      check(c, 'D1: النسخة التلقائية فيها الجلسة منتهية وكل الجولات', j.sessions.some(x => x.status === 'completed') && j.logs.length >= sets.length, j.logs.length + ' logs');
+    }
   });
 
   await test('T13', 'شاشة التطور: الإحصائيات والرسم البياني', async c => {
@@ -903,6 +911,94 @@ async function main() {
     startApp(); await sleep(2000);
     await attach();
     check(c, 'كل البيانات موجودة بعد التحديث (' + count + ' جولة)', (await logsCount()) === count);
+  }, { androidOnly: true });
+
+  await test('T21', 'D2: استرجاع نسخة من القائمة داخل التطبيق', async c => {
+    await tap('#nav-profile');
+    const before = await ev(`GymApp.logCount()`);
+    check(c, 'بطاقة النسخ الاحتياطية ظاهرة وفيها آخر نسخة', /آخر نسخة/.test(await text('#gt-backup-status')), await text('#gt-backup-status'));
+    // keep a fresh copy, then wipe everything
+    await tap('#btn-export-json');
+    await waitFor(`!!document.getElementById('gt-done-btn')`, 10000, 'export dialog');
+    await tap('#gt-done-btn');
+    await tap('#btn-wipe-all-data');
+    await waitFor(`!document.getElementById('custom-modal').classList.contains('hidden')`, 4000, 'wipe confirm');
+    await tap('#modal-confirm-btn');
+    await waitToast(/إعادة ضبط/, 8000);
+    check(c, 'انمسح كل شي', (await ev(`GymApp.logCount()`)) === 0);
+    await tap('#gt-open-restore');
+    await waitFor(`!!document.getElementById('gt-backup-0')`, 8000, 'backup list');
+    const rows = await ev(`return document.querySelectorAll('.gt-row').length`);
+    check(c, 'القائمة فيها النسخ المحفوظة (' + rows + ')', rows >= 2);
+    await shot('21-restore-list');
+    await tap('#gt-backup-0');
+    await waitFor(`!!document.getElementById('gt-restore-confirm')`, 4000, 'restore confirm');
+    await tap('#gt-restore-confirm');
+    await waitToast(/تم دمج النسخة/, 10000);
+    check(c, 'كل الجولات رجعت (' + before + ')', (await ev(`GymApp.logCount()`)) === before, await ev(`GymApp.logCount()`));
+    check(c, 'النافذة انقفلت بعد الاسترجاع', !(await ev(`!!document.getElementById('gt-native-dialog')`)));
+    await tap('#nav-workout');
+  }, { androidOnly: true });
+
+  await test('T22', 'D3: تذكير أسبوعي بالنسخة (تشغيل وإيقاف)', async c => {
+    await tap('#nav-profile');
+    const count = () => (sh('dumpsys alarm | grep -c "com.mxteb.gymtracker" || true').trim() | 0);
+    const base = count();
+    await choose('#gt-weekly-day', '6');
+    await tap('#gt-weekly-on');
+    await waitFor(`/بيجيك التذكير كل الجمعة/.test(document.getElementById('gt-weekly-msg').textContent)`, 6000, 'weekly msg');
+    check(c, 'رسالة التأكيد: كل الجمعة', true);
+    await sleep(1000);
+    const on = count();
+    check(c, 'انضاف تنبيه في نظام أندرويد', on > base, base + ' -> ' + on);
+    await shot('22-weekly-on');
+    await tap('#gt-weekly-on');
+    await sleep(1500);
+    check(c, 'لما أطفيه ينشال التنبيه', count() <= base, count());
+    check(c, 'اختيار الأيام والساعة انخفى', !(await visible('#gt-weekly-day')));
+  }, { androidOnly: true });
+
+  await test('T23', 'E3: تنبيه التحديث و«وش الجديد»', async c => {
+    const fake = async (tag, body) => {
+      await cdp.send('Fetch.enable', { patterns: [{ urlPattern: '*api.github.com*' }] });
+      const h = async m => {
+        if (m.method !== 'Fetch.requestPaused') return;
+        const json = JSON.stringify({ tag_name: tag, body });
+        await cdp.send('Fetch.fulfillRequest', { requestId: m.params.requestId, responseCode: 200, responseHeaders: [{ name: 'Content-Type', value: 'application/json' }, { name: 'Access-Control-Allow-Origin', value: '*' }], body: Buffer.from(json).toString('base64') });
+      };
+      cdp.handlers.push(h);
+      return () => { cdp.handlers.splice(cdp.handlers.indexOf(h), 1); return cdp.send('Fetch.disable'); };
+    };
+    let undo = await fake('v1.1', 'old');
+    await ev(`localStorage.removeItem('gt_update_dismissed'); await __gymNative.update.check(true); return true`);
+    check(c, 'نسخة أقدم: ما يطلع تنبيه', !(await ev(`!!document.getElementById('gt-update-banner')`)), JSON.stringify(await ev(`__gymNative.update`)));
+    await undo();
+    undo = await fake('v1.99999', '• ميزة تجريبية');
+    await ev(`await __gymNative.update.check(true); return true`);
+    await waitFor(`!!document.getElementById('gt-update-banner')`, 5000, 'update banner');
+    check(c, 'نسخة أحدث: يطلع شريط التحديث', true);
+    await ev(`window.scrollTo(0,0); return true`);
+    await shot('23-update-banner');
+    await tap('#gt-update-open');
+    check(c, '«وش الجديد؟» يعرض ملاحظات النسخة', /ميزة تجريبية/.test(await text('#gt-native-dialog')));
+    await undo();
+    await tap('#gt-update-download');
+    await sleep(3000);
+    check(c, 'زر التحميل يفتح المتصفح لتنزيل التحديث', !appInForeground(), focused());
+    key(4); await sleep(800);
+    if (!appInForeground()) { startApp(); await sleep(1500); }
+    await attach();
+    // what's new after an update
+    await ev(`localStorage.setItem('gt_seen_build','1'); return true`);
+    await restartApp(c);
+    await waitFor(`/وش الجديد/.test(document.getElementById('gt-native-dialog')?.textContent||'')`, 8000, "what's new");
+    check(c, '«وش الجديد» يطلع مرة بعد التحديث', /تلقائية/.test(await text('#gt-native-dialog')));
+    await shot('23-whats-new');
+    await tap('#gt-whatsnew-ok');
+    await restartApp(c);
+    await sleep(2500);
+    check(c, 'وما يتكرر بعدها', !(await ev(`!!document.getElementById('gt-native-dialog')`)));
+    await ev(`document.getElementById('gt-update-banner')?.remove(); return true`);
   }, { androidOnly: true });
 
   await test('T19', 'خط الجوال كبير (130%) والوضع الليلي: الشكل ما يخرب', async c => {

@@ -53,7 +53,7 @@
   var css = document.createElement('style');
   css.textContent =
     '#gt-native-dialog{position:fixed;top:0;right:0;bottom:0;left:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(2,6,23,.75)}' +
-    '#gt-native-dialog .box{width:100%;max-width:380px;background:#0f172a;border:1px solid rgba(34,211,238,.35);border-radius:20px;padding:18px;color:#e2e8f0;font-family:Tahoma,Arial,sans-serif;direction:rtl;text-align:right;box-shadow:0 20px 50px rgba(0,0,0,.5)}' +
+    '#gt-native-dialog .box{width:100%;max-width:380px;max-height:90vh;overflow-y:auto;box-sizing:border-box;background:#0f172a;border:1px solid rgba(34,211,238,.35);border-radius:20px;padding:18px;color:#e2e8f0;font-family:Tahoma,Arial,sans-serif;direction:rtl;text-align:right;box-shadow:0 20px 50px rgba(0,0,0,.5)}' +
     '#gt-native-dialog h3{margin:0 0 8px;font-size:15px;color:#67e8f9}' +
     '#gt-native-dialog p{margin:0 0 14px;font-size:13px;line-height:1.7;white-space:pre-line;color:#cbd5e1;word-break:break-word}' +
     '#gt-native-dialog .row{display:flex;gap:8px;flex-wrap:wrap}' +
@@ -67,7 +67,7 @@
     d.remove();
     return true;
   }
-  function showDialog(title, message, buttons) {
+  function showDialog(title, message, buttons, extra) {
     closeDialog();
     var wrap = document.createElement('div');
     wrap.id = 'gt-native-dialog';
@@ -77,20 +77,23 @@
     var h = document.createElement('h3'); h.textContent = title;
     var p = document.createElement('p'); p.textContent = message;
     var row = document.createElement('div'); row.className = 'row';
-    buttons.forEach(function (b) {
+    (buttons || []).forEach(function (b) {
       var btn = document.createElement('button');
       btn.type = 'button';
       btn.textContent = b.label;
       if (b.primary) btn.className = 'primary';
       if (b.id) btn.id = b.id;
-      btn.addEventListener('click', function () { closeDialog(); if (b.action) b.action(); });
+      btn.addEventListener('click', function () { if (!b.keepOpen) closeDialog(); if (b.action) b.action(); });
       row.appendChild(btn);
     });
-    box.appendChild(h); box.appendChild(p); box.appendChild(row);
+    box.appendChild(h); box.appendChild(p);
+    if (extra) box.appendChild(extra);
+    box.appendChild(row);
     wrap.appendChild(box);
     wrap.addEventListener('click', function (e) { if (e.target === wrap) closeDialog(); });
     document.body.appendChild(wrap);
   }
+  window.__gymNativeUI = { show: showDialog, close: closeDialog };
 
   /* ---------- 1) التصدير ---------- */
   function stamp() {
