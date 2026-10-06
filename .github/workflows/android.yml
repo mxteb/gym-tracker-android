@@ -18,10 +18,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Get the latest website files
+      - name: Which website branch to build (site-ref.txt)
+        id: siteref
+        run: echo "ref=$(tr -d '[:space:]' < site-ref.txt)" >> "$GITHUB_OUTPUT"
+
+      - name: Get the website files
         uses: actions/checkout@v4
         with:
           repository: mxteb/gym-tracker
+          ref: ${{ steps.siteref.outputs.ref }}
           path: site
 
       - uses: actions/setup-node@v4
