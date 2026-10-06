@@ -5,6 +5,13 @@
   "backgroundColor": "#070b19",
   "android": {
     "allowMixedContent": false,
-    "adjustMarginsForEdgeToEdge": "auto"
+    "adjustMarginsForEdgeToEdge": "auto",
+    "webContentsDebuggingEnabled": false
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_timer",
+      "iconColor": "#22D3EE"
+    }
   }
 }

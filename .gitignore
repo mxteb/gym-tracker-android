@@ -3,3 +3,6 @@ www/
 android/
 resources/
 site/
+results/
+build-info/
+*.apk

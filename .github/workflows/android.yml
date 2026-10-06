@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build, test on Android, release
 
 on:
   push:
@@ -7,6 +7,10 @@ on:
 
 permissions:
   contents: write
+
+concurrency:
+  group: android-build
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -29,24 +33,16 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - name: Copy web files into the app
-        run: |
-          mkdir -p www
-          cp site/index.html site/app.js site/data.js site/storage.js site/styles.css site/sw.js site/manifest.json www/
-          cp -r site/assets www/
-          cp native-bridge.js www/
-          sed -i 's#<script src="./storage.js" defer></script>#<script src="./native-bridge.js"></script>\n    <script src="./storage.js" defer></script>#' www/index.html
-          grep -q native-bridge.js www/index.html
+      - name: Prepare web files
+        run: ./scripts/prepare-www.sh site
 
       - name: Install Capacitor
-        run: npm install
+        run: npm install --no-audit --no-fund
 
       - name: Create Android project
-        run: |
-          npx cap add android
-          npx cap sync android
+        run: npx cap add android
 
-      - name: App icon
+      - name: App icon and splash
         run: |
           mkdir -p resources
           cp site/assets/icon-512.png resources/icon-only.png
@@ -54,30 +50,126 @@ jobs:
             --iconBackgroundColor '#070b19' --iconBackgroundColorDark '#070b19' \
             --splashBackgroundColor '#070b19' --splashBackgroundColorDark '#070b19'
 
+      - name: Android settings (permissions, theme, version, notification icon)
+        env:
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: python3 scripts/patch-android.py
+
+      - name: Sync web files and plugins
+        run: npx cap sync android
+
+      - name: Record versions
+        run: |
+          mkdir -p build-info
+          node -e "const p=['@capacitor/android','@capacitor/core','@capacitor/app','@capacitor/filesystem','@capacitor/share','@capacitor/local-notifications'];const o={};for(const n of p)o[n]=require('./node_modules/'+n+'/package.json').version;o.edgeToEdgeOption=require('child_process').execSync('grep -rl adjustMarginsForEdgeToEdge node_modules/@capacitor/android/capacitor/src || true').toString().trim().length>0;console.log(JSON.stringify(o,null,2))" | tee build-info/versions.json
+          cp android/app/src/main/AndroidManifest.xml android/app/src/main/res/values/styles.xml build-info/
+          grep -E "versionCode|versionName|signingConfig" android/app/build.gradle | tee build-info/gradle.txt
+
       - name: Signing key (same key every build so updates install over the old app)
         run: |
           mkdir -p ~/.android
           cp debug.keystore ~/.android/debug.keystore
 
-      - name: Build APK
+      - name: Build release APK
         working-directory: android
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
-          cp app/build/outputs/apk/debug/app-debug.apk ../GymTracker.apk
+          ./gradlew assembleRelease --no-daemon -q
+          cp app/build/outputs/apk/release/app-release.apk ../GymTracker.apk
+
+      - name: Build test APK (identical, plus WebView inspection for the automated tests)
+        run: |
+          node -e "const f='capacitor.config.json';const c=require('./'+f);c.android.webContentsDebuggingEnabled=true;require('fs').writeFileSync(f,JSON.stringify(c,null,2))"
+          npx cap copy android
+          (cd android && ./gradlew assembleRelease --no-daemon -q)
+          cp android/app/build/outputs/apk/release/app-release.apk GymTracker-test.apk
+          git checkout capacitor.config.json
+          ls -la *.apk
 
       - uses: actions/upload-artifact@v4
         with:
-          name: GymTracker-APK
-          path: GymTracker.apk
+          name: apks
+          path: |
+            GymTracker.apk
+            GymTracker-test.apk
+            build-info/
 
-      - name: Publish as release (direct download link)
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        api: [30, 35, 36]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: apks
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run tests on Android ${{ matrix.api }} emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          OUT_DIR: results/api-${{ matrix.api }}
+          APK: GymTracker-test.apk
+        with:
+          api-level: ${{ matrix.api }}
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: node test/run.mjs android
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: results-api-${{ matrix.api }}
+          path: results/
+
+  publish:
+    needs: [build, test]
+    if: always() && needs.build.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dl
+
+      - name: Save test results to the test-results branch
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG="build-${{ github.run_number }}"
-          gh release create "$TAG" GymTracker.apk \
+          mkdir -p out && cp -r dl/results-api-*/* out/ 2>/dev/null || true
+          cp -r dl/apks/build-info out/ 2>/dev/null || true
+          cd out
+          echo "run ${{ github.run_number }} — test job: ${{ needs.test.result }} — commit ${{ github.sha }}" > RUN.txt
+          git init -q -b test-results
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add -A && git commit -q -m "Test results for run ${{ github.run_number }}"
+          git push -f "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" test-results
+
+      - name: Publish release (only when every test passed)
+        if: needs.test.result == 'success' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v1.${{ github.run_number }}"
+          gh release create "$TAG" dl/apks/GymTracker.apk \
             --repo "${{ github.repository }}" \
-            --title "Gym Tracker ${TAG}" \
-            --notes "نزّل GymTracker.apk وثبّته. التحديث ينثبت فوق النسخة القديمة وبياناتك تبقى." \
+            --title "Gym Tracker $TAG" \
+            --notes "نسخة مختبرة آلياً على محاكي أندرويد 11 و15 و16. نزّل GymTracker.apk وثبّته. التحديث ينثبت فوق النسخة القديمة وبياناتك تبقى." \
             --latest
