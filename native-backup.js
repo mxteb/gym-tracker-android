@@ -135,7 +135,7 @@
     if (p.display !== 'granted') return false;
     await LocalNotifications.createChannel({ id: 'backup-reminder', name: 'تذكير النسخة الاحتياطية', description: 'تذكير أسبوعي ترسل نسختك لـ Drive', importance: 4, visibility: 1 }).catch(function () {});
     await LocalNotifications.schedule({ notifications: [{
-      id: WEEKLY_ID, title: 'وقت النسخة الاحتياطية 💾', body: 'اضغط هنا وأرسل نسخة تمارينك لـ Google Drive عشان تكون بأمان.',
+      id: WEEKLY_ID, title: 'وقت النسخة الاحتياطية', body: 'اضغط هنا وأرسل نسخة تمارينك لـ Google Drive عشان تكون بأمان.',
       channelId: 'backup-reminder', schedule: { on: { weekday: cfg.day, hour: cfg.hour, minute: 0 }, allowWhileIdle: true }
     }] });
     return true;
@@ -211,13 +211,13 @@
   var css = document.createElement('style');
   css.textContent =
     '.gt-weekly{display:flex;flex-direction:column;gap:8px}' +
-    '.gt-switch{display:flex;align-items:center;gap:10px;font-size:13px;color:#e2e8f0;min-height:44px;cursor:pointer}' +
-    '.gt-switch input{width:20px;height:20px;accent-color:#22d3ee;flex:none}' +
+    '.gt-switch{display:flex;align-items:center;gap:10px;font-size:13px;color:#EDEBE6;min-height:44px;cursor:pointer}' +
+    '.gt-switch input{width:20px;height:20px;accent-color:#E3B21B;flex:none}' +
     '.gt-when{display:grid;grid-template-columns:1fr 1fr;gap:8px}' +
     '.gt-when[hidden]{display:none}' +
     '.gt-list{display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow-y:auto;margin:0 0 12px}' +
-    '.gt-row{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:right;width:100%;min-height:52px;padding:8px 12px;border-radius:12px;border:1px solid #334155;background:#111a2e;color:#e2e8f0;font:inherit;cursor:pointer}' +
-    '.gt-row-title{font-size:13px;font-weight:700}.gt-row-sub{font-size:12px;color:#94a3b8}';
+    '.gt-row{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:right;width:100%;min-height:52px;padding:8px 12px;border-radius:4px;border:1px solid #333331;background:#0A0A0A;color:#EDEBE6;font:inherit;cursor:pointer}' +
+    '.gt-row-title{font-size:13px;font-weight:700}.gt-row-sub{font-size:12px;color:#9A978F}';
   (document.head || document.documentElement).appendChild(css);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', buildCard); else buildCard();
   document.addEventListener('visibilitychange', function () { if (!document.hidden) renderStatus(); });

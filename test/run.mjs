@@ -362,12 +362,13 @@ async function formSnapshot() {
   return ev(`return {weight:Number(document.getElementById('input-weight').value), reps:Number(document.getElementById('input-reps').value),
     unit:document.getElementById('unit-btn-lbs').className.includes('bg-cyan-500')?'lbs':'kg', mode:document.getElementById('load-mode-select').value,
     setType:(document.querySelector('.set-type-btn.active')||{}).dataset?.settype||'normal', ex:document.getElementById('exercise-dropdown').value,
-    secs:Number(document.getElementById('input-duration-sec').value)}`);
+    secs:Number(document.getElementById('input-duration-sec').value),
+    machine:(document.getElementById('load-mode-select').value==='external'&&document.getElementById('machine-weight-row')&&!document.getElementById('machine-weight-row').classList.contains('hidden'))?Number(document.getElementById('input-machine-kg').value)||0:0}`);
 }
 function volumeOf(s) {
   if (s.setType === 'warmup' || s.mode === 'timed') return 0;
   const kg = s.unit === 'lbs' ? s.weight / 2.20462 : s.weight;
-  const eff = s.mode === 'bodyweight' ? BODY : s.mode === 'added' ? BODY + kg : s.mode === 'assisted' ? Math.max(0, BODY - kg) : kg;
+  const eff = s.mode === 'bodyweight' ? BODY : s.mode === 'added' ? BODY + kg : s.mode === 'assisted' ? Math.max(0, BODY - kg) : kg + (s.machine || 0);
   return (s.mode === 'per_hand' ? kg * 2 : eff) * s.reps;
 }
 async function logsCount() { return ev(`return document.querySelectorAll('#today-logs-container [data-action="delete-log"]').length`); }
@@ -648,6 +649,33 @@ async function main() {
     const total = Math.round((cal + bike) * 10) / 10;
     check(c, `سعرات الدراجة ${bike} والمجموع ${total}`, digits(await text('#header-today-cals')) === String(total), await text('#header-today-cals'));
     check(c, 'انضاف سجلين', (await logsCount()) === before + 2);
+    await choose('#exercise-dropdown', 'ex_1');
+  });
+
+  await test('T24', 'v10.6: الرسمة حسب نوع التمرين + وزن الجهاز', async c => {
+    const kind = () => ev(`return document.getElementById('equip-visual')?.dataset.kind || ''`);
+    await choose('#exercise-dropdown', 'ex_1'); await choose('#load-mode-select', 'external'); await typeInto('#input-weight', 70);
+    check(c, 'البار: 70 = البار 20 + قرص 25 كل جهة', (await kind()) === 'bar' && /كل جهة: 25 ·/.test(await text('.equip-caption')), await text('.equip-caption'));
+    check(c, 'البار: خانة وزن البار ظاهرة', await visible('#input-bar-kg'));
+    await choose('#exercise-dropdown', 'ex_47'); await typeInto('#input-weight', 100);
+    check(c, 'مكبس الأرجل: جهاز بأقراص (25 + 25 كل جهة)', (await kind()) === 'plates' && /25 \+ 25/.test(await text('.equip-caption')), await text('.equip-caption'));
+    await choose('#exercise-dropdown', 'ex_3');
+    check(c, 'دمبل: رسمة دمبلين', (await kind()) === 'dumbbell');
+    await choose('#exercise-dropdown', 'ex_62');
+    check(c, 'بلانك: ساعة', (await kind()) === 'timed');
+    await choose('#exercise-dropdown', 'ex_64');
+    check(c, 'جهاز المشي: شاشة السرعة والميل والوقت', (await kind()) === 'treadmill');
+    await choose('#exercise-dropdown', 'ex_49');
+    check(c, 'جهاز تمديد: بدبوس وخانة وزن الجهاز ظاهرة', (await kind()) === 'pin' && await visible('#input-machine-kg'));
+    await typeInto('#input-machine-kg', 5);
+    await sleep(600);
+    await typeInto('#input-weight', 30); await typeInto('#input-reps', 12);
+    await tap('.rir-btn[data-rir=""]');
+    check(c, '1RM المباشر يحسب الجهاز (35×12 = 49)', /49 كجم/.test(await text('#val-1rm-live')), await text('#val-1rm-live'));
+    const m = await saveWeights(c, 'تمديد 30 + جهاز 5 ×12');
+    const lt = await logText(m.id);
+    check(c, 'السجل يعرض الأقراص 30 و1RM 49', /30 كجم/.test(lt) && /1RM: 49 كجم/.test(lt), lt);
+    await shot('24-machine');
     await choose('#exercise-dropdown', 'ex_1');
   });
 

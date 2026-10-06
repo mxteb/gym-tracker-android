@@ -83,10 +83,10 @@
 
   var css = document.createElement('style');
   css.textContent =
-    '#gt-update-banner{display:flex;align-items:center;gap:10px;margin:0 16px 12px;padding:8px 12px;border-radius:14px;background:#0c2a33;border:1px solid #22d3ee;color:#cffafe;font-size:13px;font-weight:600}' +
+    '#gt-update-banner{display:flex;align-items:center;gap:10px;margin:0 16px 12px;padding:8px 12px;border-radius:4px;background:#000;border:1px solid #E3B21B;color:#EDEBE6;font-size:13px;font-weight:600}' +
     '#gt-update-banner span{flex:1}' +
-    '#gt-update-banner button{font:inherit;font-size:13px;min-height:40px;border-radius:10px;border:none;background:#22d3ee;color:#04212a;font-weight:700;padding:6px 12px;cursor:pointer}' +
-    '#gt-update-banner .gt-x{background:transparent;color:#67e8f9;min-width:40px;padding:6px}';
+    '#gt-update-banner button{font:inherit;font-size:13px;min-height:40px;border-radius:4px;border:none;background:#E3B21B;color:#111;font-weight:700;padding:6px 12px;cursor:pointer}' +
+    '#gt-update-banner .gt-x{background:transparent;color:#9A978F;min-width:40px;padding:6px}';
   (document.head || document.documentElement).appendChild(css);
 
   function start() {

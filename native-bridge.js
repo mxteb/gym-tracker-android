@@ -49,13 +49,13 @@
   /* ---------- واجهة صغيرة (نافذة) بنفس ألوان التطبيق ---------- */
   var css = document.createElement('style');
   css.textContent =
-    '#gt-native-dialog{position:fixed;top:0;right:0;bottom:0;left:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(2,6,23,.75)}' +
-    '#gt-native-dialog .box{width:100%;max-width:380px;max-height:90vh;overflow-y:auto;box-sizing:border-box;background:#0f172a;border:1px solid rgba(34,211,238,.35);border-radius:20px;padding:18px;color:#e2e8f0;font-family:Tahoma,Arial,sans-serif;direction:rtl;text-align:right;box-shadow:0 20px 50px rgba(0,0,0,.5)}' +
-    '#gt-native-dialog h3{margin:0 0 8px;font-size:15px;color:#67e8f9}' +
-    '#gt-native-dialog p{margin:0 0 14px;font-size:13px;line-height:1.7;white-space:pre-line;color:#cbd5e1;word-break:break-word}' +
+    '#gt-native-dialog{position:fixed;top:0;right:0;bottom:0;left:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.82)}' +
+    '#gt-native-dialog .box{width:100%;max-width:380px;max-height:90vh;overflow-y:auto;box-sizing:border-box;background:#1B1B1A;border:1px solid #333331;border-radius:4px;padding:18px;color:#EDEBE6;font-family:Alexandria,Tahoma,Arial,sans-serif;direction:rtl;text-align:right;box-shadow:0 12px 40px rgba(0,0,0,.6)}' +
+    '#gt-native-dialog h3{margin:0 0 8px;font-size:16px;font-weight:800;color:#EDEBE6}' +
+    '#gt-native-dialog p{margin:0 0 14px;font-size:13px;line-height:1.7;white-space:pre-line;color:#C9C6BE;word-break:break-word}' +
     '#gt-native-dialog .row{display:flex;gap:8px;flex-wrap:wrap}' +
-    '#gt-native-dialog button{flex:1;min-height:44px;border-radius:12px;border:1px solid #334155;background:#1e293b;color:#e2e8f0;font:inherit;font-size:13px;font-weight:700;padding:8px 10px}' +
-    '#gt-native-dialog button.primary{background:linear-gradient(90deg,#06b6d4,#2563eb);border-color:transparent;color:#fff}';
+    '#gt-native-dialog button{flex:1;min-height:44px;border-radius:8px;border:1px solid #333331;background:#222221;color:#EDEBE6;font:inherit;font-size:13px;font-weight:700;padding:8px 10px}' +
+    '#gt-native-dialog button.primary{background:#C8322A;border-color:transparent;color:#fff}';
   (document.head || document.documentElement).appendChild(css);
 
   function closeDialog() {
@@ -135,7 +135,7 @@
       });
     };
     if (savedUri) {
-      showDialog('تم حفظ النسخة الاحتياطية ✅',
+      showDialog('تم حفظ النسخة الاحتياطية',
         'انحفظت في جوالك داخل:\n' + place + '\n' + finalName +
         '\n\nوقت الاستيراد: اضغط ☰ في منتقي الملفات واختر التنزيلات ثم GymTracker.' +
         '\n\nللأمان أكثر أرسلها لـ Google Drive أو لنفسك في واتساب، عشان ما تضيع لو ضاع الجوال.',
@@ -166,7 +166,7 @@
     if (!channelReady) {
       channelReady = LocalNotifications.createChannel({
         id: 'rest-timer', name: 'مؤقت الراحة', description: 'تنبيه لما يخلص وقت الراحة بين الجولات',
-        importance: 5, visibility: 1, vibration: true, lights: true, lightColor: '#22D3EE'
+        importance: 5, visibility: 1, vibration: true, lights: true, lightColor: '#C8322A'
       }).catch(function (e) { note('channel', e); });
     }
     return channelReady;
@@ -193,7 +193,7 @@
     try {
       await LocalNotifications.schedule({ notifications: [{
         id: REST_ID,
-        title: 'انتهى وقت الراحة ⏱️',
+        title: 'انتهى وقت الراحة',
         body: 'حان وقت الجولة التالية' + (d.name ? ' — ' + d.name : ''),
         channelId: 'rest-timer',
         schedule: { at: new Date(d.endsAt), allowWhileIdle: true }

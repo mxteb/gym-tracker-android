@@ -48,9 +48,9 @@ write(manifest_path, m)
 styles_path = os.path.join(MAIN, 'res', 'values', 'styles.xml')
 s = read(styles_path)
 bars = ''.join([
-    '\n        <item name="android:windowBackground">#FF070B19</item>',
-    '\n        <item name="android:statusBarColor">#FF070B19</item>',
-    '\n        <item name="android:navigationBarColor">#FF070B19</item>',
+    '\n        <item name="android:windowBackground">#FF121212</item>',
+    '\n        <item name="android:statusBarColor">#FF121212</item>',
+    '\n        <item name="android:navigationBarColor">#FF121212</item>',
     '\n        <item name="android:windowLightStatusBar">false</item>',
     '\n        <item name="android:windowLightNavigationBar">false</item>',
     '\n        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>',
@@ -58,9 +58,9 @@ bars = ''.join([
 s, n = re.subn(r'(<style name="AppTheme\.NoActionBar"[^>]*>)', lambda mm: mm.group(1) + bars, s, count=1)
 must(n == 1, 'AppTheme.NoActionBar style')
 s, n = re.subn(r'(<style name="AppTheme\.NoActionBarLaunch"[^>]*>)',
-               lambda mm: mm.group(1) + '\n        <item name="windowSplashScreenBackground">#FF070B19</item>'
-               '\n        <item name="android:statusBarColor">#FF070B19</item>'
-               '\n        <item name="android:navigationBarColor">#FF070B19</item>', s, count=1)
+               lambda mm: mm.group(1) + '\n        <item name="windowSplashScreenBackground">#FF121212</item>'
+               '\n        <item name="android:statusBarColor">#FF121212</item>'
+               '\n        <item name="android:navigationBarColor">#FF121212</item>', s, count=1)
 must(n == 1, 'AppTheme.NoActionBarLaunch style')
 write(styles_path, s)
 

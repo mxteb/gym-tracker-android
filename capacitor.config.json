@@ -2,7 +2,7 @@
   "appId": "com.mxteb.gymtracker",
   "appName": "Gym Tracker",
   "webDir": "www",
-  "backgroundColor": "#070b19",
+  "backgroundColor": "#121212",
   "android": {
     "allowMixedContent": false,
     "adjustMarginsForEdgeToEdge": "auto",
@@ -11,7 +11,7 @@
   "plugins": {
     "LocalNotifications": {
       "smallIcon": "ic_stat_timer",
-      "iconColor": "#22D3EE"
+      "iconColor": "#C8322A"
     }
   }
 }
