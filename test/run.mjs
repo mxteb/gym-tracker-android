@@ -214,7 +214,11 @@ async function visible(sel) {
 
 async function tap(sel, { allowCovered = false } = {}) {
   let r = await measure(sel);
-  if (!r.missing && !r.ok && ANDROID) { await hideKeyboard(); await dismissSystemDialogs(); await sleep(300); r = await measure(sel); }
+  if (!r.missing && !r.ok && ANDROID) {
+    // the app focuses some fields itself (e.g. finish-session duration); drop focus so the keyboard closes
+    await ev(`document.activeElement && document.activeElement.blur && document.activeElement.blur(); return true`);
+    await sleep(800); await dismissSystemDialogs(); r = await measure(sel);
+  }
   return tapAt(sel, r, allowCovered);
 }
 async function measure(sel) {
@@ -255,11 +259,10 @@ async function tapAt(sel, r, allowCovered) {
   return r;
 }
 async function typeInto(sel, value) {
-  await ev(`const el=document.querySelector(${q(sel)}); el.scrollIntoView({block:'center'}); el.focus(); el.value=''; el.dispatchEvent(new Event('input',{bubbles:true}));`);
-  await cdp.send('Input.insertText', { text: String(value) });
-  await ev(`const el=document.querySelector(${q(sel)}); el.dispatchEvent(new Event('change',{bubbles:true})); el.blur();`);
-  await sleep(250);
-  await hideKeyboard();
+  // fill the field the way the app reads it (input + change events) without raising the soft keyboard
+  const ok = await ev(`const el=document.querySelector(${q(sel)}); if(!el) return false; el.scrollIntoView({block:'center'}); el.value=${q(String(value))}; el.dispatchEvent(new Event('input',{bubbles:true})); el.dispatchEvent(new Event('change',{bubbles:true})); return true;`);
+  if (!ok) throw new Error('field not found: ' + sel);
+  await sleep(200);
 }
 async function choose(sel, value) {
   const ok = await ev(`const el=document.querySelector(${q(sel)}); if(!el) return 'missing'; if(![...el.options].some(o=>o.value===${q(String(value))})) return 'no-option'; el.value=${q(String(value))}; el.dispatchEvent(new Event('input',{bubbles:true})); el.dispatchEvent(new Event('change',{bubbles:true})); return 'ok';`);
@@ -299,7 +302,7 @@ async function test(id, title, fn, { androidOnly = false } = {}) {
     if (ANDROID) {
       try { await dismissSystemDialogs(); if (!appInForeground()) { key(4); await sleep(500); } if (!appInForeground()) { startApp(); await sleep(1500); } await attach(); } catch (err) { log('   recovery failed', err.message); }
     }
-    try { await ev(`document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true})); return true`); } catch { }
+    try { await ev(`document.getElementById('gt-native-dialog')?.remove(); document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true})); document.activeElement?.blur?.(); return true`); } catch { }
   }
 }
 function soft(checks, label, cond, detail = '') {
