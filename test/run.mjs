@@ -96,6 +96,9 @@ async function allowPermissionDialogIfShown(timeout = 6000) {
     const allow = nodes.find(n => /permission_allow_button$/.test(n.id)) ||
       nodes.find(n => /^(Allow|السماح)$/.test(n.text));
     if (allow) { uiTap(allow); await sleep(800); return true; }
+    // the emulator's launcher sometimes throws an ANR dialog on top of the permission prompt
+    const wait = nodes.find(n => /aerr_wait$/.test(n.id)) || nodes.find(n => /^(Wait|انتظار)$/i.test(n.text));
+    if (wait) { uiTap(wait); info.systemDialogsDismissed = (info.systemDialogsDismissed || 0) + 1; await sleep(1200); continue; }
     if (nodes.some(n => n.id.startsWith('com.mxteb.gymtracker'))) { /* app UI only */ }
     await sleep(700);
   }
@@ -1086,7 +1089,8 @@ async function main() {
     await sleep(3000); // let the WebView write storage to disk before the app is force-closed
     await restartApp(c);
     await waitFor(`/وش الجديد/.test(document.getElementById('gt-native-dialog')?.textContent||'')`, 8000, "what's new");
-    check(c, '«وش الجديد» يطلع مرة بعد التحديث', /تلقائية/.test(await text('#gt-native-dialog')));
+    const firstNote = fs.readFileSync(new URL('../release-notes.md', import.meta.url), 'utf8').split('\n')[0].replace(/^[•\s]+/, '').slice(0, 12);
+    check(c, '«وش الجديد» يطلع مرة بعد التحديث ويعرض ملاحظات النسخة', (await text('#gt-native-dialog')).includes(firstNote), firstNote + ' :: ' + await text('#gt-native-dialog'));
     await shot('23-whats-new');
     await tap('#gt-whatsnew-ok');
     await sleep(3000);
