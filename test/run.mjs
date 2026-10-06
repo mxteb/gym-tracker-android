@@ -213,7 +213,15 @@ async function visible(sel) {
 }
 
 async function tap(sel, { allowCovered = false } = {}) {
+  // wait until the element stops moving (keyboard or animations can shift layout)
   let r = await measure(sel);
+  for (let i = 0; i < 8 && !r.missing; i++) {
+    await sleep(250);
+    const r2 = await measure(sel);
+    const still = Math.abs(r2.x - r.x) < 1 && Math.abs(r2.y - r.y) < 1;
+    r = r2;
+    if (still) break;
+  }
   if (!r.missing && !r.ok && ANDROID) {
     // the app focuses some fields itself (e.g. finish-session duration); drop focus so the keyboard closes
     await ev(`document.activeElement && document.activeElement.blur && document.activeElement.blur(); return true`);
