@@ -210,7 +210,8 @@
     };
     Storage.prototype.removeItem = function (k) {
       var result = originalRemove.apply(this, arguments);
-      if (k === KEY && this === window.localStorage) cancelRest();
+      // في الخلفية المؤقت يخلص لحاله (والإشعار هو التنبيه)، فلا نلغيه. نلغيه بس لو المستخدم أوقفه وهو داخل التطبيق.
+      if (k === KEY && this === window.localStorage && !document.hidden) cancelRest();
       return result;
     };
     document.addEventListener('visibilitychange', function () {

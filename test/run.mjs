@@ -109,6 +109,7 @@ class CDP {
   close() { try { this.ws.close(); } catch { } }
 }
 let cdp = null;
+let inputMode = 'touch';
 let localBrowser = null;
 
 async function findTarget() {
@@ -203,9 +204,20 @@ async function tap(sel, { allowCovered = false } = {}) {
     issues.push(`${sel} is covered by ${r.hit}`);
     if (!allowCovered) throw new Error(`${sel} is covered by ${r.hit} — a finger tap would hit that instead`);
   }
-  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: r.x, y: r.y }] });
-  await sleep(60);
-  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  if (inputMode === 'touch') {
+    try {
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: r.x, y: r.y }] }, 5000);
+      await sleep(60);
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }, 5000);
+    } catch (e) {
+      inputMode = 'mouse'; info.inputMode = 'mouse (this WebView has no CDP touch support)';
+      log('   touch dispatch unsupported, falling back to mouse events');
+    }
+  }
+  if (inputMode === 'mouse') {
+    await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: r.x, y: r.y, button: 'left', clickCount: 1 }, 8000);
+    await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: r.x, y: r.y, button: 'left', clickCount: 1 }, 8000);
+  }
   await sleep(450);
   return r;
 }
@@ -249,6 +261,9 @@ async function test(id, title, fn, { androidOnly = false } = {}) {
     results.push({ id, title, status: 'fail', ms: Date.now() - t0, error: e.message, checks: current.checks });
     log('  ✘', id, e.message);
     try { await shot(`FAIL-${id}`); } catch { }
+    if (ANDROID) {
+      try { if (!appInForeground()) { key(4); await sleep(500); } if (!appInForeground()) { startApp(); await sleep(1500); } await attach(); } catch (err) { log('   recovery failed', err.message); }
+    }
     try { await ev(`document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true})); return true`); } catch { }
   }
 }
