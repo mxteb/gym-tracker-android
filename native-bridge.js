@@ -21,6 +21,15 @@
     };
   }
 
+  // CSS للأجهزة اللي محرك WebView فيها قديم (أقدم من 87): خاصية inset ما تنفهم، فالنوافذ المنبثقة تطلع برا الشاشة
+  try {
+    if (!(window.CSS && CSS.supports && CSS.supports('inset', '0'))) {
+      var legacy = document.createElement('style');
+      legacy.textContent = '.inset-0{top:0;right:0;bottom:0;left:0}';
+      (document.head || document.documentElement).appendChild(legacy);
+    }
+  } catch (e) {}
+
   var cap = window.Capacitor;
   if (!cap || !cap.isNativePlatform || !cap.isNativePlatform()) return;
 
@@ -52,7 +61,7 @@
   /* ---------- واجهة صغيرة (نافذة) بنفس ألوان التطبيق ---------- */
   var css = document.createElement('style');
   css.textContent =
-    '#gt-native-dialog{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(2,6,23,.75)}' +
+    '#gt-native-dialog{position:fixed;top:0;right:0;bottom:0;left:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(2,6,23,.75)}' +
     '#gt-native-dialog .box{width:100%;max-width:380px;background:#0f172a;border:1px solid rgba(34,211,238,.35);border-radius:20px;padding:18px;color:#e2e8f0;font-family:Tahoma,Arial,sans-serif;direction:rtl;text-align:right;box-shadow:0 20px 50px rgba(0,0,0,.5)}' +
     '#gt-native-dialog h3{margin:0 0 8px;font-size:15px;color:#67e8f9}' +
     '#gt-native-dialog p{margin:0 0 14px;font-size:13px;line-height:1.7;white-space:pre-line;color:#cbd5e1;word-break:break-word}' +
