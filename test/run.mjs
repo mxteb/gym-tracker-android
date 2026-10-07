@@ -388,6 +388,8 @@ async function saveWeights(checks, label) {
   check(checks, label + ' انحفظت', true, JSON.stringify(snap));
   return s;
 }
+function restSecs(t) { const m = String(t || '').match(/(\d+):(\d\d)/); return m ? Number(m[1]) * 60 + Number(m[2]) : parseInt(t); }
+function notifDump() { try { return sh(`dumpsys notification --noredact | grep -B5 -A40 "pkg=${PKG}" | head -120 || true`); } catch { return ''; } }
 async function logText(id) {
   return ev(`const b=document.querySelector('[data-action="delete-log"][data-id=${q(id)}]'); return b? b.closest('.glass-card').textContent.replace(/\\s+/g,' ').trim():null`);
 }
@@ -580,7 +582,7 @@ async function main() {
     check(c, 'السجل يعرض نوع الجولة وRIR', /عادية/.test(lt) && /RIR 2/.test(lt), lt);
     check(c, 'عداد الجولات = جولة واحدة', /جولة واحدة/.test(await text('#today-sets-count')), await text('#today-sets-count'));
     check(c, 'مؤقت الراحة ظهر', await visible('#rest-timer-widget'));
-    const rem = parseInt(await text('#timer-display'));
+    const rem = restSecs(await text('#timer-display'));
     check(c, 'مؤقت الراحة يعد من 60', rem <= 60 && rem >= 50, rem);
     await shot('05-after-first-set');
     await tap('#btn-stop-timer');
@@ -682,6 +684,61 @@ async function main() {
     await choose('#exercise-dropdown', 'ex_1');
   });
 
+  await test('T25', 'v10.7: كرر الجولة، الراحة ±15، الشاشة شغالة، الاهتزاز، العداد في شاشة القفل', async c => {
+    await choose('#exercise-dropdown', 'ex_49');
+    check(c, 'زر «كرر الجولة» ظاهر بآخر جولة للتمرين (30 × 12)', (await visible('#btn-repeat-set')) && /30 كجم × 12/.test(await text('#btn-repeat-set')), await text('#btn-repeat-set'));
+    await typeInto('#input-weight', 99);
+    await choose('#rest-timer-duration', '60');
+    const before = await logsCount();
+    const h0 = ANDROID ? await ev(`return (window.__gymNative && __gymNative.haptics) || 0`) : 0;
+    await clearToasts();
+    await tap('#btn-repeat-set');
+    await waitToast(/تم حفظ/);
+    check(c, 'انحفظت جولة جديدة', (await logsCount()) === before + 1);
+    const id = await ev(`return document.querySelector('#today-logs-container [data-action="delete-log"]').dataset.id`);
+    const lt = await logText(id);
+    check(c, 'الجولة المكررة نفس الوزن والعدات (30 × 12) مو الرقم اللي في الخانة', /30 كجم/.test(lt) && /12 عدات/.test(lt), lt);
+    sets.push({ weight: 30, reps: 12, unit: 'kg', mode: 'external', setType: 'normal', ex: 'ex_49', machine: 5, id });
+    await waitFor(`!document.getElementById('rest-timer-widget').classList.contains('hidden')`, 4000, 'rest widget');
+    const r0 = restSecs(await text('#timer-display'));
+    check(c, 'المؤقت يعرض دقائق:ثواني ويبدأ من 60', r0 <= 60 && r0 >= 50, await text('#timer-display'));
+    await tap('#btn-rest-plus');
+    const r1 = restSecs(await text('#timer-display'));
+    check(c, '+15 يزيد الراحة', r1 >= r0 + 10 && r1 <= r0 + 15, r0 + ' → ' + r1);
+    await tap('#btn-rest-minus'); await tap('#btn-rest-minus');
+    const r2 = restSecs(await text('#timer-display'));
+    check(c, '−15 مرتين ينقص الراحة', r2 >= r1 - 38 && r2 <= r1 - 25, r1 + ' → ' + r2);
+    if (ANDROID) {
+      const h1 = await ev(`return (window.__gymNative && __gymNative.haptics) || 0`);
+      check(c, 'الاهتزاز وصل للجوال (حفظ + أزرار الراحة)', h1 >= h0 + 3, h0 + ' → ' + h1);
+      const awake = () => sh('dumpsys window windows | grep -c KEEP_SCREEN_ON || true').trim();
+      check(c, 'الشاشة شغالة أثناء الجلسة (KEEP_SCREEN_ON)', Number(awake()) > 0, awake());
+      await tap('#nav-profile');
+      await tap('#set-keep-awake');
+      await sleep(800);
+      check(c, 'إطفاء الخيار يخلي الشاشة تنطفي عادي', Number(awake()) === 0, awake());
+      await tap('#set-keep-awake');
+      await sleep(800);
+      check(c, 'تشغيله يرجّعها', Number(awake()) > 0, awake());
+      await tap('#nav-workout');
+      // countdown on the lock screen / shade while the app is in the background
+      key(3); await sleep(3000);
+      const d = notifDump();
+      fs.writeFileSync(path.join(OUT, 'countdown-dump.txt'), d);
+      check(c, 'بالخلفية: إشعار العداد التنازلي ظهر', /rest-countdown/.test(d), d.slice(0, 300));
+      check(c, 'العداد ينزل ثانية بثانية (chronometer countdown)', /chronometerCountDown=true/.test(d) || /showChronometer=true/.test(d), d.slice(0, 400));
+      check(c, 'يظهر في شاشة القفل (visibility public)', /vis=PUBLIC|visibility=1|VISIBILITY_PUBLIC/i.test(d), d.slice(0, 400));
+      sh('cmd statusbar expand-notifications'); await sleep(1500);
+      screenshotDevice('25-countdown');
+      sh('cmd statusbar collapse'); await sleep(800);
+      startApp(); await sleep(1500); await attach(); await sleep(1500);
+      check(c, 'لما رجعت للتطبيق العداد انشال', !/rest-countdown/.test(notifDump()), notifDump().slice(0, 200));
+    }
+    await tap('#btn-stop-timer');
+    await choose('#rest-timer-duration', '0');
+    await choose('#exercise-dropdown', 'ex_1');
+  });
+
   await test('T08', 'تعديل جولة + زر الرجوع يقفل نافذة التعديل', async c => {
     const bench = sets.find(s => s.ex === 'ex_1' && s.reps === 11);
     await tap(`[data-action="edit-log"][data-id=${q(bench.id)}]`);
@@ -762,7 +819,9 @@ async function main() {
       let posted = false, dump = '';
       const end = Date.now() + 80000;
       while (Date.now() < end) {
-        if (activeNotifs() > 0) { posted = true; dump = sh(`dumpsys notification --noredact | grep -B5 -A40 "pkg=${PKG}" | head -80 || true`); break; }
+        // v10.7: the silent countdown (channel rest-countdown) shows first; wait for the real alert on channel rest-timer
+        const d = notifDump();
+        if (/channel=rest-timer\b|rest-timer/.test(d.replace(/rest-countdown/g, ''))) { posted = true; dump = d; break; }
         await sleep(2000);
       }
       fs.writeFileSync(path.join(OUT, 'notification-dump.txt'), dump);
@@ -1099,6 +1158,41 @@ async function main() {
     check(c, 'وما يتكرر بعدها', !(await ev(`!!document.getElementById('gt-native-dialog')`)));
     await ev(`document.getElementById('gt-update-banner')?.remove(); return true`);
   }, { androidOnly: true });
+
+  await test('T26', 'v10.7: اقتراح الجولة الجاية + خطة الجلسة', async c => {
+    await tap('#nav-workout');
+    await choose('#exercise-dropdown', 'ex_1');
+    await choose('#load-mode-select', 'external');
+    check(c, 'الاقتراح ظاهر للبنش', await visible('#next-suggestion'), await text('#next-suggestion'));
+    const reason = await text('#sugg-reason');
+    check(c, 'الاقتراح يشرح السبب من آخر جلسة', /آخر جلسة/.test(reason) && /(زد|ثبّت|خفف)/.test(reason), reason);
+    const value = await text('#sugg-value');
+    await tap('#btn-apply-suggestion');
+    const w = await val('#input-weight'), r = await val('#input-reps');
+    check(c, '«عبّي الاقتراح» يعبّي نفس الأرقام', value.includes(String(Number(w))) && value.includes('× ' + Number(r)), value + ' :: ' + w + '×' + r);
+    await shot('26-suggestion');
+    const wasActive = await ev(`document.getElementById('btn-start-session').disabled`);
+    await ev(`window.scrollTo(0,0); return true`);
+    await tap('#btn-plan-session');
+    await waitFor(`!document.getElementById('plan-modal').classList.contains('hidden')`, 4000, 'plan modal');
+    await tap('#plan-quick .plan-chip:nth-child(3)'); // أرجل (Legs)
+    const count = await text('#plan-count');
+    check(c, 'اختيار قائمة جاهزة يعبي الخطة', /\d+ تمارين/.test(count), count);
+    await shot('26-plan-modal');
+    await tap('#btn-plan-confirm');
+    await waitFor(`document.getElementById('plan-modal').classList.contains('hidden')`, 4000, 'plan closes');
+    check(c, 'الجلسة شغالة بعد الخطة', await ev(`document.getElementById('btn-start-session').disabled`), 'was active: ' + wasActive);
+    const strip = await text('#session-plan');
+    check(c, 'شريط الخطة يعرض التقدم', /الخطة: \d+ من \d+/.test(strip), strip);
+    const planned = await ev(`return [...document.querySelectorAll('#session-plan .plan-step')].map(b=>b.dataset.ex)`);
+    check(c, 'أول تمرين بالخطة انختار', (await val('#exercise-dropdown')) === planned[0], planned.join(','));
+    await tap(`#session-plan .plan-step[data-ex="${planned[1]}"]`);
+    check(c, 'الضغط على تمرين بالخطة يختاره', (await val('#exercise-dropdown')) === planned[1]);
+    await choose('#exercise-dropdown', 'ex_3');
+    check(c, 'تقدر تختار تمرين برا الخطة عادي', (await val('#exercise-dropdown')) === 'ex_3');
+    await shot('26-plan-strip');
+    if (ANDROID) check(c, 'الشاشة شغالة مع الجلسة الجديدة', Number(sh('dumpsys window windows | grep -c KEEP_SCREEN_ON || true').trim()) > 0);
+  });
 
   await test('T19', 'خط الجوال كبير (130%) والوضع الليلي: الشكل ما يخرب', async c => {
     sh('settings put system font_scale 1.3');

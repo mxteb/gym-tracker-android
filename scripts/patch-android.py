@@ -96,4 +96,22 @@ dst = os.path.join(MAIN, 'res', 'drawable')
 os.makedirs(dst, exist_ok=True)
 shutil.copy(os.path.join(ROOT, 'android-res', 'drawable', 'ic_stat_timer.xml'), dst)
 
-print('patched: manifest, styles, gradle (versionCode %d), notification icon' % BUILD_NUMBER)
+# 5) Our small native plugin (keep screen on, haptics, lock-screen rest countdown) + register it in MainActivity
+java_dir = os.path.join(MAIN, 'java', 'com', 'mxteb', 'gymtracker')
+must(os.path.isdir(java_dir), 'java package folder')
+shutil.copy(os.path.join(ROOT, 'android-src', 'GymNativePlugin.java'), java_dir)
+act_path = os.path.join(java_dir, 'MainActivity.java')
+a = read(act_path)
+must('registerPlugin(GymNativePlugin.class)' not in a, 'MainActivity already patched')
+a, n = re.subn(r'public class MainActivity extends BridgeActivity\s*\{\s*\}',
+               'public class MainActivity extends BridgeActivity {\n'
+               '    @Override\n'
+               '    public void onCreate(android.os.Bundle savedInstanceState) {\n'
+               '        registerPlugin(GymNativePlugin.class);\n'
+               '        super.onCreate(savedInstanceState);\n'
+               '    }\n'
+               '}', a, count=1)
+must(n == 1, 'MainActivity body (expected an empty BridgeActivity)')
+write(act_path, a)
+
+print('patched: manifest, styles, gradle (versionCode %d), notification icon, GymNative plugin' % BUILD_NUMBER)

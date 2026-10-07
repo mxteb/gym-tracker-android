@@ -55,8 +55,8 @@ jobs:
           mkdir -p resources
           cp site/assets/icon-512.png resources/icon-only.png
           npx @capacitor/assets generate --android \
-            --iconBackgroundColor '#070b19' --iconBackgroundColorDark '#070b19' \
-            --splashBackgroundColor '#070b19' --splashBackgroundColorDark '#070b19'
+            --iconBackgroundColor '#121212' --iconBackgroundColorDark '#121212' \
+            --splashBackgroundColor '#121212' --splashBackgroundColorDark '#121212'
 
       - name: Signing key (private secret if set, else the repository key)
         env:

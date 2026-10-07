@@ -29,8 +29,22 @@
   var Share = plugin('Share');
   var App = plugin('App');
   var LocalNotifications = plugin('LocalNotifications');
+  var GymNative = plugin('GymNative');
   var state = window.__gymNative = { exports: [], notifications: [], errors: [] };
   function note(where, e) { try { state.errors.push(where + ': ' + (e && e.message ? e.message : String(e))); } catch (x) {} }
+
+  /* ---------- 5) الشاشة تبقى شغالة + الاهتزاز (v10.7) ----------
+   * الموقع ينادي window.GymNativeHooks لو موجودة، وإلا يستخدم بدائل المتصفح. */
+  if (GymNative) {
+    window.GymNativeHooks = {
+      keepAwake: function (on) {
+        return GymNative.keepAwake({ on: !!on }).then(function (r) { state.keepAwake = !!on; return r; }).catch(function (e) { note('keepAwake', e); });
+      },
+      haptic: function (kind) {
+        return GymNative.haptic({ kind: kind || 'tap' }).then(function (r) { state.haptics = (state.haptics || 0) + 1; return r; }).catch(function (e) { note('haptic', e); });
+      }
+    };
+  }
 
   /* ---------- 4) Service Worker ---------- */
   if ('serviceWorker' in navigator) {
@@ -181,6 +195,7 @@
     } catch (e) { note('permission', e); return false; }
   }
   function cancelRest() {
+    if (GymNative) GymNative.cancelRestCountdown().catch(function () {});
     if (!LocalNotifications) return Promise.resolve();
     return LocalNotifications.cancel({ notifications: [{ id: REST_ID }] }).catch(function () {});
   }
@@ -200,6 +215,11 @@
       }] });
       state.notifications.push({ at: d.endsAt, scheduledAt: Date.now() });
     } catch (e) { note('schedule', e); }
+    // عداد تنازلي في شريط الإشعارات وشاشة القفل لين يخلص الوقت
+    if (GymNative) {
+      try { var r = await GymNative.restCountdown({ endsAt: d.endsAt, title: 'الراحة', text: d.name || '' }); state.countdown = { endsAt: d.endsAt, shown: !!(r && r.shown) }; }
+      catch (e) { note('countdown', e); }
+    }
   }
   function onBackground() {
     if (!LocalNotifications || scheduling) return;
