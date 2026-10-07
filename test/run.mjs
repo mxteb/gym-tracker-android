@@ -302,6 +302,25 @@ async function tapAt(sel, r, allowCovered) {
   await sleep(450);
   return r;
 }
+async function swipe(sel, fraction) {
+  // drag a finger horizontally across an element (fraction of its width; + = right, − = left)
+  const r = await ev(`const el=document.querySelector(${q(sel)}); if(!el) return null; el.scrollIntoView({block:'center'}); await new Promise(r=>setTimeout(r,300)); const b=el.getBoundingClientRect(); const t=el.querySelector('div')?.getBoundingClientRect()||b; return {x:b.left+b.width/2, y:t.top+12, w:b.width}`);
+  if (!r) throw new Error('swipe target not found: ' + sel);
+  const steps = 14, dx = r.w * fraction;
+  const at = i => ({ x: Math.max(2, Math.min(r.x + dx * i / steps, r.x * 2 - 2)), y: r.y });
+  if (inputMode === 'touch') {
+    try {
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [at(0)] }, 5000);
+      for (let i = 1; i <= steps; i++) { await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [at(i)] }, 5000); await sleep(16); }
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }, 5000);
+      await sleep(500); return;
+    } catch (e) { inputMode = 'mouse'; }
+  }
+  await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', ...at(0), button: 'left', buttons: 1, clickCount: 1 }, 8000);
+  for (let i = 1; i <= steps; i++) { await cdp.send('Input.dispatchMouseEvent', { type: 'mouseMoved', ...at(i), button: 'left', buttons: 1 }, 8000); await sleep(16); }
+  await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', ...at(steps), button: 'left', buttons: 0, clickCount: 1 }, 8000);
+  await sleep(500);
+}
 async function typeInto(sel, value) {
   // fill the field the way the app reads it (input + change events) without raising the soft keyboard
   const ok = await ev(`const el=document.querySelector(${q(sel)}); if(!el) return false; el.scrollIntoView({block:'center'}); el.value=${q(String(value))}; el.dispatchEvent(new Event('input',{bubbles:true})); el.dispatchEvent(new Event('change',{bubbles:true})); return true;`);
@@ -778,6 +797,34 @@ async function main() {
     await waitFor(`document.querySelectorAll('#today-logs-container [data-action="delete-log"]').length===${before - 1}`, 5000, 'deleted');
     sets.splice(sets.indexOf(warm), 1);
     check(c, 'التأكيد يحذف الجولة', true);
+  });
+
+  await test('T28', 'v10.9: سحب الجولة يسار = حذف مع تراجع، يمين = تعديل، وسحبة صغيرة ما تسوي شي', async c => {
+    await choose('#exercise-dropdown', 'ex_49'); await choose('#load-mode-select', 'external');
+    await typeInto('#input-weight', 25); await typeInto('#input-reps', 9);
+    const s = await saveWeights(c, 'جولة للحذف بالسحب 25×9');
+    const row = `.log-row[data-log-id="${s.id}"]`;
+    const total = () => ev(`return GymApp.logCount()`);
+    const t0 = await total();
+    await swipe(row, -0.15);
+    check(c, 'سحبة قصيرة ما تحذف', await ev(`return !!document.querySelector(${q(row)})`) && (await visible('#undo-bar')) === false);
+    await swipe(row, -0.7);
+    await waitFor(`!document.querySelector(${q(row)})`, 3000, 'row hidden after swipe');
+    check(c, 'السحب يسار يخفي الجولة ويطلع «تراجع»', await visible('#undo-bar'), await text('#undo-text'));
+    check(c, 'ما انحذفت من التخزين قبل 6 ثواني', (await total()) === t0);
+    await shot('28-undo');
+    await tap('#btn-undo');
+    check(c, '«تراجع» يرجّعها', await ev(`return !!document.querySelector(${q(row)})`) && (await total()) === t0);
+    await swipe(row, -0.7);
+    await sleep(7000);
+    check(c, 'بعد 6 ثواني تنحذف فعلاً', (await total()) === t0 - 1 && !(await visible('#undo-bar')), (await total()) + ' vs ' + t0);
+    sets.splice(sets.findIndex(x => x.id === s.id), 1);
+    const other = await ev(`return document.querySelector('.log-row')?.dataset.logId`);
+    await swipe(`.log-row[data-log-id="${other}"]`, 0.7);
+    await waitFor(`!document.getElementById('edit-log-modal').classList.contains('hidden')`, 3000, 'edit modal');
+    check(c, 'السحب يمين يفتح التعديل لنفس الجولة', (await val('#edit-log-id')) === other);
+    await tap('#btn-cancel-edit-log');
+    await choose('#exercise-dropdown', 'ex_1');
   });
 
   await test('T10', 'قفل التطبيق بالكامل وفتحه: كل شي محفوظ والجلسة مستمرة', async c => {

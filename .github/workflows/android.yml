@@ -53,7 +53,7 @@ jobs:
       - name: App icon and splash
         run: |
           mkdir -p resources
-          cp site/assets/icon-512.png resources/icon-only.png
+          cp android-res/icon/*.png resources/
           npx @capacitor/assets generate --android \
             --iconBackgroundColor '#121212' --iconBackgroundColorDark '#121212' \
             --splashBackgroundColor '#121212' --splashBackgroundColorDark '#121212'
