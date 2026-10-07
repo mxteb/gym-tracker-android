@@ -730,7 +730,7 @@ async function main() {
       const d = notifDump();
       fs.writeFileSync(path.join(OUT, 'countdown-dump.txt'), d);
       check(c, 'بالخلفية: إشعار العداد التنازلي ظهر', /rest-countdown/.test(d), d.slice(0, 300));
-      check(c, 'العداد ينزل ثانية بثانية (chronometer countdown)', /chronometerCountDown=true/.test(d) || /showChronometer=true/.test(d), d.slice(0, 400));
+      check(c, 'العداد ينزل ثانية بثانية (chronometer countdown)', /chronometerCountDown=(Boolean \(true\)|true)/.test(d) && /showChronometer=(Boolean \(true\)|true)/.test(d), (d.match(/.*[Cc]hronometer.*/g) || ['no chronometer extras']).join(' | '));
       check(c, 'يظهر في شاشة القفل (visibility public)', /vis=PUBLIC|visibility=1|VISIBILITY_PUBLIC/i.test(d), d.slice(0, 400));
       sh('cmd statusbar expand-notifications'); await sleep(1500);
       screenshotDevice('25-countdown');
