@@ -455,8 +455,8 @@ async function main() {
       const regs = await ev(`return navigator.serviceWorker?(await navigator.serviceWorker.getRegistrations()).length:0`);
       check(c, 'Service Worker معطل داخل التطبيق', regs === 0, 'registrations=' + regs);
       check(c, 'التطبيق في الواجهة', appInForeground(), focused());
-      const kso = sh(`dumpsys window windows | awk '/Window #/{p=/${PKG}/} p' | grep -c KEEP_SCREEN_ON || true`).trim();
-      check(c, 'بدون جلسة: الشاشة ما تنقفل شغالة', Number(kso) === 0, kso + ' :: ' + sh(`dumpsys window windows | grep -B12 KEEP_SCREEN_ON | grep -E "Window #|KEEP_SCREEN_ON" | head -6 || true`).slice(0, 500));
+      // Chrome DevTools (the test's own connection) holds the screen on by itself, so we read our window flag directly.
+      check(c, 'بدون جلسة: التطبيق ما يمسك الشاشة شغالة', (await ev(`return (await Capacitor.Plugins.GymNative.keepAwakeState()).on`)) === false);
     }
     const overflow = await ev(`return document.documentElement.scrollWidth - window.innerWidth`);
     check(c, 'ما فيه تمرير أفقي (الصفحة مضبوطة على عرض الجوال)', overflow <= 1, 'overflow=' + overflow);
@@ -713,18 +713,17 @@ async function main() {
     if (ANDROID) {
       const h1 = await ev(`return (window.__gymNative && __gymNative.haptics) || 0`);
       check(c, 'الاهتزاز وصل للجوال (حفظ + أزرار الراحة)', h1 >= h0 + 3, h0 + ' → ' + h1);
-      // only our app's window block (other system windows may hold the screen on too)
-      const awake = () => sh(`dumpsys window windows | awk '/Window #/{p=/${PKG}/} p' | grep -c KEEP_SCREEN_ON || true`).trim();
-      const awakeWhy = async () => JSON.stringify({ js: await ev(`return window.__gymNative && __gymNative.keepAwake`), errors: await ev(`return (window.__gymNative && __gymNative.errors) || []`), lines: sh(`dumpsys window windows | grep -B12 KEEP_SCREEN_ON | grep -E "Window #|Window\\{|KEEP_SCREEN_ON|mHoldScreen" | head -8 || true`).slice(0, 600), hold: sh(`dumpsys window | grep -i holdscreen | head -3 || true`).slice(0, 300) });
-      check(c, 'الشاشة شغالة أثناء الجلسة (KEEP_SCREEN_ON)', Number(awake()) > 0, await awakeWhy());
+      const awakeOn = () => ev(`return (await Capacitor.Plugins.GymNative.keepAwakeState()).on`);
+      const awakeWhy = async () => JSON.stringify({ js: await ev(`return window.__gymNative && __gymNative.keepAwake`), errors: await ev(`return (window.__gymNative && __gymNative.errors) || []`) });
+      check(c, 'الشاشة شغالة أثناء الجلسة (KEEP_SCREEN_ON)', (await awakeOn()) === true, await awakeWhy());
       await tap('#nav-profile');
       try {
         await tap('#set-keep-awake');
         await sleep(1500);
-        check(c, 'إطفاء الخيار يخلي الشاشة تنطفي عادي', Number(awake()) === 0, await awakeWhy());
+        check(c, 'إطفاء الخيار يخلي الشاشة تنطفي عادي', (await awakeOn()) === false, await awakeWhy());
         await tap('#set-keep-awake');
         await sleep(1500);
-        check(c, 'تشغيله يرجّعها', Number(awake()) > 0, await awakeWhy());
+        check(c, 'تشغيله يرجّعها', (await awakeOn()) === true, await awakeWhy());
       } finally { await tap('#nav-workout'); }
       // countdown on the lock screen / shade while the app is in the background
       key(3); await sleep(3000);
@@ -872,6 +871,7 @@ async function main() {
     await shot('12-summary');
     await tap('#modal-confirm-btn');
     check(c, 'الجلسة انتهت', /لا توجد جلسة نشطة/.test(await text('#active-session-title')));
+    if (ANDROID) check(c, 'بعد إنهاء الجلسة الشاشة ترجع تنطفي عادي', (await ev(`return (await Capacitor.Plugins.GymNative.keepAwakeState()).on`)) === false);
     const cals = Number(digits(await text('#header-today-cals')));
     check(c, 'سعرات الحديد انضافت للعداد', cals > 202.5, cals);
     if (ANDROID) {
@@ -1196,7 +1196,7 @@ async function main() {
     await choose('#exercise-dropdown', 'ex_3');
     check(c, 'تقدر تختار تمرين برا الخطة عادي', (await val('#exercise-dropdown')) === 'ex_3');
     await shot('26-plan-strip');
-    if (ANDROID) check(c, 'الشاشة شغالة مع الجلسة الجديدة', Number(sh(`dumpsys window windows | awk '/Window #/{p=/${PKG}/} p' | grep -c KEEP_SCREEN_ON || true`).trim()) > 0);
+    if (ANDROID) check(c, 'الشاشة شغالة مع الجلسة الجديدة', (await ev(`return (await Capacitor.Plugins.GymNative.keepAwakeState()).on`)) === true);
   });
 
   await test('T19', 'خط الجوال كبير (130%) والوضع الليلي: الشكل ما يخرب', async c => {

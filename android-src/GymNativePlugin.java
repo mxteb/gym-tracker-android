@@ -43,6 +43,17 @@ public class GymNativePlugin extends Plugin {
         });
     }
 
+    /** حالة علم النافذة نفسه (مو المحسوب من العناصر). للاختبارات: أدوات المطور في WebView تمسك الشاشة بنفسها وقت الاتصال. */
+    @PluginMethod
+    public void keepAwakeState(PluginCall call) {
+        getActivity().runOnUiThread(() -> {
+            boolean on = (getActivity().getWindow().getAttributes().flags & WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) != 0;
+            JSObject ret = new JSObject();
+            ret.put("on", on);
+            call.resolve(ret);
+        });
+    }
+
     @PluginMethod
     public void haptic(PluginCall call) {
         String kind = call.getString("kind", "tap");
