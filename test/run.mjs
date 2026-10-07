@@ -972,6 +972,47 @@ async function main() {
     await tap('#nav-workout');
   });
 
+  await test('T29', 'v11: الثيمات — الدفتر صفوف وجداول، الساعة مؤقتات LED وأزرار ضخمة، والرجوع للأقراص', async c => {
+    await tap('#nav-profile');
+    await tap('[data-theme-pick="logbook"]');
+    await sleep(600);
+    check(c, 'الدفتر: الثيم تغيّر', (await ev(`return document.documentElement.dataset.theme`)) === 'logbook');
+    await tap('#nav-workout');
+    const rows = await ev(`return document.querySelectorAll('#today-logs-container .lb-row.log-row').length`);
+    const total = await ev(`const d=document.getElementById('logs-date-filter').value; return 0`);
+    check(c, 'الدفتر: الجولات صفوف تحت بعض مجمّعة بالتمرين', rows >= 5 && (await ev(`return document.querySelectorAll('#today-logs-container .lb-group').length`)) >= 3, rows);
+    check(c, 'الدفتر: الخلفية فاتحة', await ev(`return getComputedStyle(document.body).backgroundColor === 'rgb(242, 243, 239)'`));
+    if (ANDROID) check(c, 'الدفتر: شريط الساعة فوق صار فاتح', JSON.stringify(await ev(`return __gymNative.bars`)).includes('"light":true'), JSON.stringify(await ev(`return __gymNative.bars`)));
+    await shot('29-logbook');
+    const firstRow = await ev(`return document.querySelector('#today-logs-container .lb-row.log-row').dataset.logId`);
+    await tap(`.lb-row[data-log-id="${firstRow}"] [data-action="edit-log"]`);
+    await waitFor(`!document.getElementById('edit-log-modal').classList.contains('hidden')`, 3000, 'edit from logbook');
+    check(c, 'الدفتر: التعديل يشتغل من الصف', (await val('#edit-log-id')) === firstRow);
+    await tap('#btn-cancel-edit-log');
+    await tap('#nav-profile');
+    await tap('[data-theme-pick="clock"]');
+    await sleep(600);
+    await tap('#nav-workout');
+    check(c, 'الساعة: شريط المؤقتات فوق ظاهر', await visible('#clock-bar') && await visible('#cb-session'));
+    await choose('#exercise-dropdown', 'ex_49'); await choose('#load-mode-select', 'external'); await typeInto('#input-weight', 30);
+    const btn = await ev(`const b=document.querySelector('[data-step-target="input-weight"][data-step="2.5"]').getBoundingClientRect(); return {w:b.width,h:b.height}`);
+    check(c, 'الساعة: زر +2.5 ضخم (أكبر من 80×80)', btn.w >= 80 && btn.h >= 80, JSON.stringify(btn));
+    await tap('[data-step-target="input-weight"][data-step="2.5"]');
+    check(c, 'الساعة: الزر الضخم يزيد الوزن', Number(await val('#input-weight')) === 32.5, await val('#input-weight'));
+    await shot('29-clock');
+    await tap('#nav-progress');
+    await choose('#chart-exercise-select', 'ex_1');
+    check(c, 'الساعة: التطور أعمدة LED', (await ev(`return document.querySelectorAll('#led-columns .led-col').length`)) >= 1 && await visible('#led-columns'));
+    await shot('29-clock-progress');
+    await tap('#nav-profile');
+    await tap('[data-theme-pick="plates"]');
+    await sleep(600);
+    check(c, 'الرجوع للأقراص', !(await ev(`return document.documentElement.dataset.theme || ''`)) && !(await visible('#clock-bar')));
+    if (ANDROID) check(c, 'الأقراص: شريط الساعة غامق', JSON.stringify(await ev(`return __gymNative.bars`)).includes('"light":false'));
+    await tap('#nav-workout');
+    await choose('#exercise-dropdown', 'ex_1');
+  });
+
   await test('T14', 'إضافة تمرين مخصص وتصنيفه وحذفه', async c => {
     await tap('#nav-exercises');
     await typeInto('#new-ex-name', 'Hip Thrust Barbell');

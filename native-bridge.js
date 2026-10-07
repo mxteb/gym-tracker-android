@@ -40,6 +40,11 @@
       keepAwake: function (on) {
         return GymNative.keepAwake({ on: !!on }).then(function (r) { state.keepAwake = !!on; return r; }).catch(function (e) { note('keepAwake', e); });
       },
+      setBars: function (color, light) {
+        var c = String(color || '#121212').trim();
+        if (/^#[0-9a-f]{3}$/i.test(c)) c = '#' + c[1] + c[1] + c[2] + c[2] + c[3] + c[3];
+        return GymNative.setBars({ color: c, light: !!light }).then(function (r) { state.bars = r; return r; }).catch(function (e) { note('bars', e); });
+      },
       haptic: function (kind) {
         return GymNative.haptic({ kind: kind || 'tap' }).then(function (r) { state.haptics = (state.haptics || 0) + 1; return r; }).catch(function (e) { note('haptic', e); });
       }

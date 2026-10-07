@@ -6,6 +6,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.view.Window;
 import android.os.Build;
 import android.view.HapticFeedbackConstants;
 import android.view.View;
@@ -13,6 +15,7 @@ import android.view.WindowManager;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
@@ -51,6 +54,31 @@ public class GymNativePlugin extends Plugin {
             JSObject ret = new JSObject();
             ret.put("on", on);
             call.resolve(ret);
+        });
+    }
+
+    /** لون شريط الساعة فوق وشريط التنقل تحت حسب الثيم، وأيقوناتهم غامقة في الثيم الفاتح. */
+    @PluginMethod
+    public void setBars(PluginCall call) {
+        final String color = call.getString("color", "#121212");
+        final boolean light = Boolean.TRUE.equals(call.getBoolean("light", false));
+        getActivity().runOnUiThread(() -> {
+            try {
+                int c = Color.parseColor(color);
+                Window w = getActivity().getWindow();
+                w.setStatusBarColor(c);
+                w.setNavigationBarColor(c);
+                w.getDecorView().setBackgroundColor(c);
+                WindowInsetsControllerCompat ctl = new WindowInsetsControllerCompat(w, w.getDecorView());
+                ctl.setAppearanceLightStatusBars(light);
+                ctl.setAppearanceLightNavigationBars(light);
+                JSObject ret = new JSObject();
+                ret.put("color", color);
+                ret.put("light", light);
+                call.resolve(ret);
+            } catch (Exception e) {
+                call.reject("bad color: " + color);
+            }
         });
     }
 
