@@ -900,6 +900,31 @@ async function main() {
     await tap('#nav-workout');
   });
 
+  await test('T27', 'v10.8: الأرقام القياسية، التقويم، العضلات، سجل الجلسات، رسم الوزن', async c => {
+    await tap('#nav-progress');
+    const recs = await ev(`return [...document.querySelectorAll('#records-list .record-row')].map(r=>r.textContent.replace(/\\s+/g,' ').trim())`);
+    check(c, `الأرقام القياسية لكل تمرين (${recs.length})`, recs.length >= 4, recs.slice(0, 3).join(' | '));
+    check(c, 'البنش: أعلى حمل 61.2 × 5', recs.some(r => /بنش بريس مستوي/.test(r) && /61\.2×5/.test(r)), recs.join(' | ').slice(0, 300));
+    await tap('#progress-jump [data-jump="calendar-card"]');
+    const today = await ev(`const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')`);
+    check(c, 'التقويم معلّم اليوم يوم تمرين', await ev(`return !!document.querySelector('.cal-day.on.today')`));
+    check(c, 'الأسابيع المتتالية = 1', (await text('#cal-streak')) === '1', await text('#cal-streak'));
+    const muscles = await text('#muscle-bars');
+    check(c, 'العضلات هالأسبوع: صدر وظهر وأرجل محسوبة', /صدر\s*[1-9]/.test(muscles) && /أرجل\s*[1-9]/.test(muscles) && /ظهر\s*[1-9]/.test(muscles), muscles);
+    await shot('27-calendar');
+    const items = await ev(`return document.querySelectorAll('#sessions-list .session-item').length`);
+    check(c, 'سجل الجلسات فيه الجلسة المنتهية', items >= 1, items);
+    await tap('#sessions-list .session-item summary');
+    const body = await text('#sessions-list .session-item .session-body');
+    check(c, 'فتح الجلسة يعرض تمارينها وجولاتها', /بنش بريس مستوي/.test(body) && /×/.test(body), body.slice(0, 200));
+    await shot('27-sessions');
+    await tap(`.cal-day.on[data-date="${today}"]`);
+    check(c, 'الضغط على يوم في التقويم يفتح جولاته', (await val('#logs-date-filter')) === today && await visible('#screen-workout'));
+    await tap('#nav-profile');
+    check(c, 'رسم الوزن في البروفايل', await ev(`return !!document.querySelector('#body-chart svg polyline')`), await text('#body-chart'));
+    await tap('#nav-workout');
+  });
+
   await test('T14', 'إضافة تمرين مخصص وتصنيفه وحذفه', async c => {
     await tap('#nav-exercises');
     await typeInto('#new-ex-name', 'Hip Thrust Barbell');
