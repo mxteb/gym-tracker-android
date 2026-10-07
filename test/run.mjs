@@ -711,16 +711,19 @@ async function main() {
     if (ANDROID) {
       const h1 = await ev(`return (window.__gymNative && __gymNative.haptics) || 0`);
       check(c, 'الاهتزاز وصل للجوال (حفظ + أزرار الراحة)', h1 >= h0 + 3, h0 + ' → ' + h1);
-      const awake = () => sh('dumpsys window windows | grep -c KEEP_SCREEN_ON || true').trim();
-      check(c, 'الشاشة شغالة أثناء الجلسة (KEEP_SCREEN_ON)', Number(awake()) > 0, awake());
+      // only our app's window block (other system windows may hold the screen on too)
+      const awake = () => sh(`dumpsys window windows | awk '/Window #/{p=/${PKG}/} p' | grep -c KEEP_SCREEN_ON || true`).trim();
+      const awakeWhy = async () => JSON.stringify({ js: await ev(`return window.__gymNative && __gymNative.keepAwake`), errors: await ev(`return (window.__gymNative && __gymNative.errors) || []`), lines: sh(`dumpsys window windows | grep -n KEEP_SCREEN_ON | head -5 || true`).slice(0, 400) });
+      check(c, 'الشاشة شغالة أثناء الجلسة (KEEP_SCREEN_ON)', Number(awake()) > 0, await awakeWhy());
       await tap('#nav-profile');
-      await tap('#set-keep-awake');
-      await sleep(800);
-      check(c, 'إطفاء الخيار يخلي الشاشة تنطفي عادي', Number(awake()) === 0, awake());
-      await tap('#set-keep-awake');
-      await sleep(800);
-      check(c, 'تشغيله يرجّعها', Number(awake()) > 0, awake());
-      await tap('#nav-workout');
+      try {
+        await tap('#set-keep-awake');
+        await sleep(1500);
+        check(c, 'إطفاء الخيار يخلي الشاشة تنطفي عادي', Number(awake()) === 0, await awakeWhy());
+        await tap('#set-keep-awake');
+        await sleep(1500);
+        check(c, 'تشغيله يرجّعها', Number(awake()) > 0, await awakeWhy());
+      } finally { await tap('#nav-workout'); }
       // countdown on the lock screen / shade while the app is in the background
       key(3); await sleep(3000);
       const d = notifDump();
@@ -1191,7 +1194,7 @@ async function main() {
     await choose('#exercise-dropdown', 'ex_3');
     check(c, 'تقدر تختار تمرين برا الخطة عادي', (await val('#exercise-dropdown')) === 'ex_3');
     await shot('26-plan-strip');
-    if (ANDROID) check(c, 'الشاشة شغالة مع الجلسة الجديدة', Number(sh('dumpsys window windows | grep -c KEEP_SCREEN_ON || true').trim()) > 0);
+    if (ANDROID) check(c, 'الشاشة شغالة مع الجلسة الجديدة', Number(sh(`dumpsys window windows | awk '/Window #/{p=/${PKG}/} p' | grep -c KEEP_SCREEN_ON || true`).trim()) > 0);
   });
 
   await test('T19', 'خط الجوال كبير (130%) والوضع الليلي: الشكل ما يخرب', async c => {
