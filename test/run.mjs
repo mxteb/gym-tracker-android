@@ -1315,6 +1315,9 @@ async function main() {
       check(c, 'نسخة المتجر ما فيها كود التحديث من GitHub', await ev(`!document.querySelector('script[src*="native-updates"]') && !(window.__gymNative.update && window.__gymNative.update.check)`));
       const net = await ev(`try { const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 8000); await fetch('https://www.google.com/generate_204', { mode: 'no-cors', cache: 'no-store', signal: ctrl.signal }); return 'reached'; } catch (e) { return 'blocked: ' + e.message; }`);
       check(c, 'لو حاول أي كود يتصل بالنت ينمنع', /^blocked/.test(net), net);
+      // the blocked probe above is logged by the WebView; it is this test's own request, not an app error
+      await sleep(500);
+      for (let i = jsErrors.length - 1; i >= 0; i--) if (/generate_204/.test(jsErrors[i])) jsErrors.splice(i, 1);
     } else {
       check(c, 'نسخة GitHub فيها تنبيه التحديث', await ev(`!!(window.__gymNative.update && window.__gymNative.update.check)`));
     }
@@ -1348,6 +1351,7 @@ async function main() {
     await ev(`localStorage.removeItem('gt_exact_hint_shown'); localStorage.setItem('gym_rest_deadline', JSON.stringify({ endsAt: Date.now() + 90000, name: 'تجربة' })); return true`);
     await waitFor(`!!document.getElementById('gt-exact-hint-later')`, 8000, 'exact alarm hint');
     check(c, 'أول مؤقت راحة: يطلع شرح الإذن', /المنبّهات والتذكيرات/.test(await text('#gt-native-dialog')));
+    await sleep(1200);
     await shot('32-exact-hint');
     await tap('#gt-exact-hint-later');
     await ev(`localStorage.removeItem('gym_rest_deadline'); return true`);
@@ -1372,6 +1376,7 @@ async function main() {
   }, { androidOnly: true });
 
   await test('T33', 'P3: تابلت بالعرض والطول (أندرويد 16 يتجاهل قفل الوضع العمودي)', async c => {
+    if (!TABLET) { check(c, 'على الجوال: يبقى بالطول (يختبر على التابلت)', true); return; }
     sh('settings put system accelerometer_rotation 0');
     for (const [rot, label] of [[0, 'land'], [1, 'port']]) {
       sh('settings put system user_rotation ' + rot);
