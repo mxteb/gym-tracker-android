@@ -1,0 +1,40 @@
+Gym Tracker
+Copyright (c) 2026 mxteb (https://github.com/mxteb). All rights reserved.
+
+This repository is public so its source code can be viewed. Being able to
+see the code does not give you permission to use it.
+
+No license is granted to copy, modify, merge, publish, distribute,
+sublicense, sell, or create derivative works of this software, its design,
+its name, or its icon, in whole or in part, without prior written permission
+from the copyright holder. In particular, you may not build, sign, or publish
+this app (or an app based on it) on Google Play or any other store or site.
+
+The only permissions given are the ones GitHub's Terms of Service require
+for public repositories (viewing the code and forking it on GitHub). Those
+permissions do not extend to any use outside GitHub.
+
+Third-party components keep their own licenses and are NOT covered by the
+notice above:
+  - Fonts (taken from the gym-tracker repo, assets/fonts/) are licensed under the SIL Open Font License 1.1
+    (see the OFL-*.txt file next to each font).
+  - Capacitor and its plugins (downloaded at build time) are licensed under
+    the MIT License by their authors.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM,
+DAMAGES OR OTHER LIABILITY ARISING FROM THE SOFTWARE OR ITS USE.
+
+For permission requests, open an issue at
+https://github.com/mxteb/gym-tracker/issues
+
+---------------------------------------------------------------------------
+
+جميع الحقوق محفوظة © 2026 لصاحب المشروع (mxteb).
+
+الكود معروض للاطلاع فقط. يُمنع نسخه أو تعديله أو نشره أو بيعه أو بناء تطبيق
+منه، أو رفعه على Google Play أو أي متجر أو موقع آخر، كلياً أو جزئياً، وكذلك
+اسم التطبيق وشكله وأيقونته، إلا بإذن كتابي من صاحب الحقوق.
+
+الخطوط ومكتبة Capacitor لها رخصها الخاصة (OFL وMIT) ولا يشملها هذا المنع.
+النص الإنجليزي أعلاه هو المعتمد.
