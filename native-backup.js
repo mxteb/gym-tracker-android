@@ -175,6 +175,9 @@
     restoreBtn.className = 'w-full py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 flex items-center justify-center gap-2';
     restoreBtn.textContent = 'استرجاع نسخة محفوظة';
     restoreBtn.addEventListener('click', openRestoreList);
+    // M3: النسخ ملفات عادية في التنزيلات عشان تبقى لو انحذف التطبيق، فنقول بوضوح مين يقدر يشوفها
+    var where = document.createElement('p'); where.className = 'text-xs text-slate-500'; where.id = 'gt-backup-where';
+    where.textContent = 'النسخ تنحفظ في التنزيلات ← GymTracker عشان تبقى حتى لو حذفت التطبيق. أي أحد يفتح ملفات جوالك يقدر يشوفها (فيها وزنك وقياساتك).';
 
     var cfg = ls(LS_WEEKLY) || { on: false, day: 6, hour: 20 };
     var row = document.createElement('div'); row.className = 'gt-weekly';
@@ -203,7 +206,7 @@
     chk.addEventListener('change', save); day.addEventListener('change', save); hour.addEventListener('change', save);
     if (cfg.on) weeklyMsg.textContent = 'بيجيك التذكير كل ' + DAYS[cfg.day - 1] + ' الساعة ' + hour.options[hour.selectedIndex].textContent + '.';
     row.append(lab, when, weeklyMsg);
-    card.append(h, statusEl, restoreBtn, row);
+    card.append(h, statusEl, where, restoreBtn, row);
     dataCard.parentNode.insertBefore(card, dataCard);
     renderStatus();
     if (cfg.on) applyWeekly(cfg).catch(function () {});

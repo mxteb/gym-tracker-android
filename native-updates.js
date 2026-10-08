@@ -1,7 +1,8 @@
 /*
- * Gym Tracker — التحديثات (التطبيق فقط) — E3
- *  - يشيك على GitHub (مرة كل 6 ساعات كحد أقصى، وبصمت لو ما فيه نت) وإذا فيه نسخة أحدث يطلع شريط فوق.
- *  - بعد ما تثبّت نسخة جديدة، يعرض لك «وش الجديد» مرة وحدة.
+ * Gym Tracker — تنبيه التحديث (نسخة GitHub فقط) — E3
+ *  يشيك على GitHub (مرة كل 6 ساعات كحد أقصى، وبصمت لو ما فيه نت) وإذا فيه نسخة أحدث يطلع شريط فوق.
+ *  نسخة المتجر ما فيها هذا الملف أبداً: Google Play هو اللي يحدّثها (سياسة المتجر).
+ *  «وش الجديد» بعد التحديث في native-whatsnew.js (موجود في النسختين).
  */
 (function () {
   'use strict';
@@ -13,10 +14,11 @@
   var REPO = 'mxteb/gym-tracker-android';
   var API = 'https://api.github.com/repos/' + REPO + '/releases/latest';
   var APK = 'https://github.com/' + REPO + '/releases/latest/download/GymTracker.apk';
-  var LS_CHECK = 'gt_update_checked', LS_SEEN = 'gt_seen_build', LS_SKIP = 'gt_update_dismissed';
+  var LS_CHECK = 'gt_update_checked', LS_SKIP = 'gt_update_dismissed';
   var EVERY = 6 * 3600 * 1000;
   var info = null;
-  N.update = { checks: 0 };
+  N.update = N.update || {};
+  N.update.checks = 0;
 
   function ls(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, String(v)); } catch (e) { return null; } }
   function ui() { return window.__gymNativeUI; }
@@ -67,20 +69,6 @@
     } catch (e) { N.update.lastError = String(e && e.message || e); }
   }
 
-  async function whatsNew() {
-    var mine = Number((await appInfo()).build) || 0;
-    var seen = Number(ls(LS_SEEN)) || 0;
-    var hadData = !!(window.GymApp && GymApp.logCount && GymApp.logCount() > 0);
-    ls(LS_SEEN, mine);
-    // first ever run of a fresh install: nothing is "new" yet
-    if (mine <= seen || (!seen && !hadData)) return;
-    var notes = '';
-    try { notes = (await (await fetch('./whats-new.txt', { cache: 'no-store' })).text()).trim(); } catch (e) { }
-    if (!notes) return;
-    N.update.whatsNewShown = mine;
-    ui().show('وش الجديد في 1.' + mine, notes, [{ label: 'تمام', primary: true, id: 'gt-whatsnew-ok' }]);
-  }
-
   var css = document.createElement('style');
   css.textContent =
     '#gt-update-banner{display:flex;align-items:center;gap:10px;margin:0 16px 12px;padding:8px 12px;border-radius:4px;background:#000;border:1px solid #E3B21B;color:#EDEBE6;font-size:13px;font-weight:600}' +
@@ -90,7 +78,7 @@
   (document.head || document.documentElement).appendChild(css);
 
   function start() {
-    whatsNew().catch(function () {}); check(false);
+    check(false);
     App.addListener('resume', function () { check(false); });
   }
   var started = false;

@@ -28,11 +28,14 @@ m = read(manifest_path)
 perms = [
     '<uses-permission android:name="android.permission.VIBRATE" />',
     '<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />',
-    '<uses-permission android:name="android.permission.USE_EXACT_ALARM" />',
-    '<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" android:maxSdkVersion="32" />',
+    # P2: no USE_EXACT_ALARM (Play allows it only for alarm/timer/calendar apps). SCHEDULE_EXACT_ALARM is
+    # granted by the user from Settings ("Alarms & reminders"); without it the rest alert still comes, maybe a bit late.
+    '<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />',
     '<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" />',
     '<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="29" />',
 ]
+for name in ['android.permission.USE_EXACT_ALARM']:
+    m = re.sub(r'\s*<uses-permission[^>]*android:name="%s"[^>]*/>' % re.escape(name), '', m)
 for p in perms:
     name = re.search(r'android:name="([^"]+)"', p).group(1)
     m = re.sub(r'\s*<uses-permission[^>]*android:name="%s"[^>]*/>' % re.escape(name), '', m)
@@ -53,7 +56,10 @@ bars = ''.join([
     '\n        <item name="android:navigationBarColor">#FF121212</item>',
     '\n        <item name="android:windowLightStatusBar">false</item>',
     '\n        <item name="android:windowLightNavigationBar">false</item>',
-    '\n        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>',
+    # Android 15: keep the old layout (bars outside the app). Android 16 ignores this for apps targeting 36,
+    # so there the value is false and Capacitor ("adjustMarginsForEdgeToEdge": "auto") keeps the page off the bars.
+    '\n        <item name="android:windowOptOutEdgeToEdgeEnforcement">@bool/gt_edge_opt_out</item>',
+    '\n        <item name="android:enforceNavigationBarContrast">false</item>',
 ])
 s, n = re.subn(r'(<style name="AppTheme\.NoActionBar"[^>]*>)', lambda mm: mm.group(1) + bars, s, count=1)
 must(n == 1, 'AppTheme.NoActionBar style')
@@ -63,6 +69,25 @@ s, n = re.subn(r'(<style name="AppTheme\.NoActionBarLaunch"[^>]*>)',
                '\n        <item name="android:navigationBarColor">#FF121212</item>', s, count=1)
 must(n == 1, 'AppTheme.NoActionBarLaunch style')
 write(styles_path, s)
+for folder, value in (('values', 'true'), ('values-v36', 'false')):
+    os.makedirs(os.path.join(MAIN, 'res', folder), exist_ok=True)
+    write(os.path.join(MAIN, 'res', folder, 'gt_bools.xml'),
+          '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <bool name="gt_edge_opt_out">%s</bool>\n</resources>\n' % value)
+
+# 2b) P3: target Android 16 (API 36), required by Google Play for new apps
+ANDROID_DIR = os.path.dirname(APP)
+vars_path = os.path.join(ANDROID_DIR, 'variables.gradle')
+v = read(vars_path)
+v, n1 = re.subn(r'compileSdkVersion\s*=\s*\d+', 'compileSdkVersion = 36', v)
+v, n2 = re.subn(r'targetSdkVersion\s*=\s*\d+', 'targetSdkVersion = 36', v)
+must(n1 == 1 and n2 == 1, 'variables.gradle sdk versions')
+write(vars_path, v)
+root_gradle = os.path.join(ANDROID_DIR, 'build.gradle')
+r = read(root_gradle)
+# compileSdk 36 needs a newer Android Gradle Plugin than Capacitor 7's template (8.7.2); 8.10 still runs on its Gradle 8.11.1
+r, n = re.subn(r"com\.android\.tools\.build:gradle:[\d.]+", 'com.android.tools.build:gradle:8.10.1', r)
+must(n == 1, 'android gradle plugin version')
+write(root_gradle, r)
 
 # 3) Gradle: version number from the build, release build signed with the repo key (same key every build)
 gradle_path = os.path.join(APP, 'build.gradle')
@@ -86,8 +111,8 @@ if os.environ.get('GT_KEYSTORE'):
     g, n = re.subn(r'(release\s*\{\s*\n\s*minifyEnabled false)', r'\1\n            signingConfig signingConfigs.gymtracker', g, count=1)
     print('signing: private key from secret')
 else:
-    g, n = re.subn(r'(release\s*\{\s*\n\s*minifyEnabled false)', r'\1\n            signingConfig signingConfigs.debug', g, count=1)
-    print('signing: repository debug key (add the GT_KEYSTORE_B64 secret to switch)')
+    sys.exit('PATCH FAILED: no signing key. Add the GT_KEYSTORE_B64 and GT_KEYSTORE_PASSWORD secrets '
+             '(a build signed with any other key could not update the installed app).')
 must(n == 1, 'release signing')
 write(gradle_path, g)
 

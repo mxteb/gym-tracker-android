@@ -6,6 +6,8 @@
  *  2) زر الرجوع في الجوال: يقفل النوافذ المفتوحة، يرجع لتبويب التمرين، وبعدها يصغّر التطبيق بدل ما يقفله.
  *  3) مؤقت الراحة: لو طلعت من التطبيق أو قفلت الشاشة، يجيك إشعار بصوت واهتزاز لما يخلص الوقت.
  *  4) Service Worker: يتعطل داخل التطبيق لأن الملفات أصلاً داخل الجهاز، وعشان التحديثات ما تعلق على نسخة قديمة.
+ *  6) تنبيه الراحة على الثانية: من أندرويد 12 يحتاج إذن «المنبّهات والتذكيرات» يعطيه المستخدم بنفسه.
+ *     بدونه التنبيه يشتغل بس ممكن يتأخر والجوال مقفول، فنشرح له مرة وحدة ونحط زر في البروفايل.
  */
 (function () {
   'use strict';
@@ -74,7 +76,8 @@
     '#gt-native-dialog p{margin:0 0 14px;font-size:13px;line-height:1.7;white-space:pre-line;color:#C9C6BE;word-break:break-word}' +
     '#gt-native-dialog .row{display:flex;gap:8px;flex-wrap:wrap}' +
     '#gt-native-dialog button{flex:1;min-height:44px;border-radius:8px;border:1px solid #333331;background:#222221;color:#EDEBE6;font:inherit;font-size:13px;font-weight:700;padding:8px 10px}' +
-    '#gt-native-dialog button.primary{background:#C8322A;border-color:transparent;color:#fff}';
+    '#gt-native-dialog button.primary{background:#C8322A;border-color:transparent;color:#fff}' +
+    '#gt-exact-card[hidden]{display:none!important}';
   (document.head || document.documentElement).appendChild(css);
 
   function closeDialog() {
@@ -237,7 +240,7 @@
       if (k === KEY && this === window.localStorage && !permissionAsked) {
         permissionAsked = true;
         ensureChannel();
-        hasPermission(true);
+        hasPermission(true).then(function (ok) { if (ok) exactHintOnce(); });
       }
       return result;
     };
@@ -250,6 +253,59 @@
     document.addEventListener('visibilitychange', function () {
       if (document.hidden) onBackground(); else cancelRest();
     });
+  }
+
+  /* ---------- 6) إذن التنبيه على الثانية (المنبّهات والتذكيرات) ---------- */
+  var LS_EXACT_HINT = 'gt_exact_hint_shown';
+  var exactCard = null;
+  async function exactAllowed() {
+    if (!LocalNotifications || !LocalNotifications.checkExactNotificationSetting) return true;
+    try { return (await LocalNotifications.checkExactNotificationSetting()).exact_alarm === 'granted'; }
+    catch (e) { note('exact-check', e); return true; }
+  }
+  function openExactSettings() {
+    // يفتح صفحة الإذن لهذا التطبيق بالذات في إعدادات أندرويد، ويرجع لنا لما يضغط رجوع
+    return LocalNotifications.changeExactNotificationSetting().then(function (r) {
+      var on = r && r.exact_alarm === 'granted';
+      state.exact = on;
+      renderExact(on);
+      if (on && window.GymApp && GymApp.showToast) GymApp.showToast('تمام، تنبيه الراحة صار يجي على الثانية ✓');
+    }).catch(function (e) { note('exact-open', e); });
+  }
+  async function exactHintOnce() {
+    try { if (localStorage.getItem(LS_EXACT_HINT)) return; } catch (e) { return; }
+    if (await exactAllowed()) return;
+    try { localStorage.setItem(LS_EXACT_HINT, '1'); } catch (e) {}
+    showDialog('تنبيه الراحة والجوال مقفول',
+      'عشان يجيك تنبيه نهاية الراحة على الثانية حتى والشاشة مقفولة، فعّل «المنبّهات والتذكيرات» لـ Gym Tracker.\n\n' +
+      'بدونه التنبيه يجيك برضو، بس ممكن يتأخر شوي. والعداد اللي في شاشة القفل دقيق في الحالتين.\n\n' +
+      'تقدر تغيّره بعدين من البروفايل.',
+      [{ label: 'تفعيل', primary: true, id: 'gt-exact-hint-on', action: openExactSettings }, { label: 'بعدين', id: 'gt-exact-hint-later' }]);
+  }
+  function renderExact(on) {
+    if (exactCard) exactCard.hidden = !!on;
+  }
+  function buildExactCard() {
+    var exportBtn = document.getElementById('btn-export-json');
+    if (!exportBtn || document.getElementById('gt-exact-card') || !LocalNotifications || !LocalNotifications.checkExactNotificationSetting) return;
+    var dataCard = exportBtn.closest('.glass-card');
+    exactCard = document.createElement('div');
+    exactCard.className = 'glass-card p-4 space-y-3'; exactCard.id = 'gt-exact-card'; exactCard.hidden = true;
+    var h = document.createElement('h3'); h.className = 'font-bold text-xs text-slate-300'; h.textContent = 'تنبيه نهاية الراحة';
+    var p = document.createElement('p'); p.className = 'text-xs text-slate-400'; p.id = 'gt-exact-msg';
+    p.textContent = 'إذن «المنبّهات والتذكيرات» مطفي، فممكن يتأخر التنبيه شوي والجوال مقفول. فعّله عشان يجيك على الثانية.';
+    var b = document.createElement('button'); b.type = 'button'; b.id = 'gt-exact-on';
+    b.className = 'w-full py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 flex items-center justify-center gap-2';
+    b.textContent = 'تفعيل التنبيه على الثانية';
+    b.addEventListener('click', openExactSettings);
+    exactCard.append(h, p, b);
+    dataCard.parentNode.insertBefore(exactCard, dataCard);
+    refreshExact();
+  }
+  function refreshExact() { exactAllowed().then(function (on) { state.exact = on; renderExact(on); }); }
+  if (LocalNotifications) {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', buildExactCard); else buildExactCard();
+    document.addEventListener('visibilitychange', function () { if (!document.hidden && exactCard) refreshExact(); });
   }
 
   /* ---------- 2) زر الرجوع + الخروج/العودة ---------- */

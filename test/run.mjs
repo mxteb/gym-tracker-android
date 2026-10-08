@@ -12,6 +12,11 @@ const OUT = process.env.OUT_DIR || 'results';
 const PKG = 'com.mxteb.gymtracker';
 const APK = process.env.APK || 'GymTracker-test.apk';
 const LOCAL_URL = process.env.LOCAL_URL || 'http://localhost:8765/index.html';
+// which build is on the phone: "play" (Google Play: no internet, no self-update) or "github" (update check)
+const VARIANT = process.env.VARIANT || 'github';
+// tablet run: only the screens-and-layout tests, in landscape and portrait (Android 16 ignores the portrait lock there)
+const TABLET = !!process.env.TABLET;
+const TABLET_TESTS = new Set(['T01', 'T02', 'T31', 'T33', 'T20']);
 fs.mkdirSync(path.join(OUT, 'shots'), { recursive: true });
 
 const results = [];
@@ -204,7 +209,7 @@ const MOCK_CAPACITOR = `(() => {
   const files = {}; const scheduled = []; const listeners = {}; const shared = [];
   const ok = v => Promise.resolve(v);
   const dirOf = p => p.split('/').slice(0, -1).join('/');
-  window.__mock = { files, scheduled, shared, fire: (ev, data) => (listeners[ev] || []).forEach(f => f(data)) };
+  window.__mock = { files, scheduled, shared, exact: 'granted', fire: (ev, data) => (listeners[ev] || []).forEach(f => f(data)) };
   const Plugins = {
     Filesystem: {
       writeFile: o => { files[o.directory + ':' + o.path] = { data: o.data, mtime: Date.now(), size: o.data.length }; return ok({ uri: 'file:///mock/' + o.path }); },
@@ -217,6 +222,8 @@ const MOCK_CAPACITOR = `(() => {
     App: { getInfo: () => ok({ build: '100', version: '1.100' }), addListener: (ev, f) => { (listeners[ev] = listeners[ev] || []).push(f); return ok({ remove() {} }); }, minimizeApp: () => ok({}) },
     LocalNotifications: {
       checkPermissions: () => ok({ display: 'granted' }), requestPermissions: () => ok({ display: 'granted' }),
+      checkExactNotificationSetting: () => ok({ exact_alarm: window.__mock.exact }),
+      changeExactNotificationSetting: () => { window.__mock.exact = 'granted'; return ok({ exact_alarm: 'granted' }); },
       createChannel: () => ok({}), schedule: o => { o.notifications.forEach(n => { const i = scheduled.findIndex(x => x.id === n.id); if (i >= 0) scheduled.splice(i, 1); scheduled.push(n); }); return ok({}); },
       cancel: o => { o.notifications.forEach(n => { const i = scheduled.findIndex(x => x.id === n.id); if (i >= 0) scheduled.splice(i, 1); }); return ok({}); },
       addListener: (ev, f) => { (listeners[ev] = listeners[ev] || []).push(f); return ok({ remove() {} }); }
@@ -351,6 +358,7 @@ let current = null;
 async function test(id, title, fn, { androidOnly = false, localOnly = false } = {}) {
   if (androidOnly && !ANDROID) { results.push({ id, title, status: 'skip', detail: 'android only' }); return; }
   if (localOnly && ANDROID) { results.push({ id, title, status: 'skip', detail: 'local only' }); return; }
+  if (TABLET && !TABLET_TESTS.has(id)) { results.push({ id, title, status: 'skip', detail: 'phone only' }); return; }
   current = { id, title, checks: [] };
   if (ANDROID && await dismissSystemDialogs()) { try { if (!appInForeground()) { startApp(); await sleep(1500); } await attach(); } catch { } }
   const t0 = Date.now();
@@ -415,12 +423,15 @@ async function logText(id) {
 
 /* ---------------- setup ---------------- */
 async function setupAndroid() {
+  info.variant = VARIANT + (TABLET ? ' (tablet)' : '');
   info.device = sh('getprop ro.product.model').trim() + ' / Android ' + sh('getprop ro.build.version.release').trim() + ' (API ' + sh('getprop ro.build.version.sdk').trim() + ')';
   info.sdk = Number(sh('getprop ro.build.version.sdk').trim());
   try { sh(`pm uninstall ${PKG}`); } catch { }
   adb('install', '-r', '-g', APK.includes('/') ? APK : APK);
   // -g grants runtime permissions at install; revoke notifications so we test the real prompt
   if (info.sdk >= 33) { try { sh(`pm revoke ${PKG} android.permission.POST_NOTIFICATIONS`); } catch { } try { sh(`pm clear-permission-flags ${PKG} android.permission.POST_NOTIFICATIONS user-set user-fixed`); } catch { } }
+  // P2: "Alarms & reminders" is off by default on Android 14+. Turn it on for the main run; T32 tests it off.
+  if (info.sdk >= 31) { try { sh(`appops set ${PKG} SCHEDULE_EXACT_ALARM allow`); } catch { } }
   const pkg = sh(`dumpsys package ${PKG} | grep -E "versionName|versionCode|targetSdk" | head -3`);
   info.package = pkg.replace(/\s+/g, ' ').trim();
   sh('settings put system font_scale 1.0');
@@ -1182,6 +1193,16 @@ async function main() {
     await tap('#gt-update-open');
     check(c, 'E3: يعرض وش الجديد', /تجربة/.test(await text('#gt-native-dialog')));
     await ev(`window.__gymNativeUI.close(); document.getElementById('gt-update-banner').remove(); window.fetch = window.__realFetch; return true`);
+    await tap('#nav-profile');
+    check(c, 'P2: بطاقة الإذن مخفية والإذن مفعّل', !(await visible('#gt-exact-card')));
+    await ev(`__mock.exact = 'denied'; document.dispatchEvent(new Event('visibilitychange')); return true`);
+    await waitFor(`!document.getElementById('gt-exact-card').hidden`, 4000, 'exact card');
+    await ev(`document.getElementById('gt-exact-card').scrollIntoView({block:'center'}); return true`);
+    await shot('30-exact-card');
+    await tap('#gt-exact-on');
+    await waitFor(`document.getElementById('gt-exact-card').hidden`, 4000, 'exact card hidden');
+    check(c, 'P2: الإذن مطفي = البطاقة تطلع، والزر يفعّله ويخفيها', true);
+    check(c, 'M3: مكتوب وين تنحفظ النسخ ومين يشوفها', /أي أحد يفتح ملفات جوالك/.test(await text('#gt-backup-where') || ''));
     await tap('#nav-workout');
   }, { localOnly: true });
 
@@ -1231,7 +1252,7 @@ async function main() {
     check(c, 'اختيار الأيام والساعة انخفى', !(await visible('#gt-weekly-day')));
   }, { androidOnly: true });
 
-  await test('T23', 'E3: تنبيه التحديث و«وش الجديد»', async c => {
+  await test('T23', VARIANT === 'play' ? 'نسخة المتجر: بدون تنبيه تحديث، و«وش الجديد» يشتغل' : 'E3: تنبيه التحديث و«وش الجديد»', async c => {
     const fake = async (tag, body) => {
       await cdp.send('Fetch.enable', { patterns: [{ urlPattern: '*api.github.com*' }] });
       const h = async m => {
@@ -1242,6 +1263,9 @@ async function main() {
       cdp.handlers.push(h);
       return () => { cdp.handlers.splice(cdp.handlers.indexOf(h), 1); return cdp.send('Fetch.disable'); };
     };
+    if (VARIANT === 'play') {
+      check(c, 'ما فيه كود التحديث من GitHub', await ev(`!document.querySelector('script[src*="native-updates"]') && !(window.__gymNative.update && window.__gymNative.update.check)`));
+    } else {
     let undo = await fake('v1.1', 'old');
     await ev(`localStorage.removeItem('gt_update_dismissed'); await __gymNative.update.check(true); return true`);
     check(c, 'نسخة أقدم: ما يطلع تنبيه', !(await ev(`!!document.getElementById('gt-update-banner')`)), JSON.stringify(await ev(`__gymNative.update`)));
@@ -1261,6 +1285,7 @@ async function main() {
     key(4); await sleep(800);
     if (!appInForeground()) { startApp(); await sleep(1500); }
     await attach();
+    }
     // what's new after an update
     await ev(`localStorage.setItem('gt_seen_build','1'); return true`);
     await sleep(3000); // let the WebView write storage to disk before the app is force-closed
@@ -1275,6 +1300,97 @@ async function main() {
     await sleep(2500);
     check(c, 'وما يتكرر بعدها', !(await ev(`!!document.getElementById('gt-native-dialog')`)));
     await ev(`document.getElementById('gt-update-banner')?.remove(); return true`);
+  }, { androidOnly: true });
+
+  await test('T31', 'سياسة المتجر: أندرويد 16، بدون منبّه دقيق، ' + (VARIANT === 'play' ? 'وبدون إنترنت' : 'وتنبيه التحديث موجود') + '، والصفحة ما تدخل تحت الأشرطة', async c => {
+    const dump = sh(`dumpsys package ${PKG}`);
+    const target = (dump.match(/targetSdk=(\d+)/) || [])[1];
+    check(c, 'التطبيق مبني على أندرويد 16 (targetSdk 36)', target === '36', 'targetSdk=' + target);
+    const requested = ((dump.split('requested permissions:')[1] || '').split(/install permissions:|runtime permissions:|User \d+:/)[0] || '').replace(/\s+/g, ' ');
+    fs.writeFileSync(path.join(OUT, 'permissions.txt'), requested);
+    check(c, 'ما يطلب USE_EXACT_ALARM', !/USE_EXACT_ALARM/.test(requested), requested);
+    check(c, 'يطلب إذن «المنبّهات والتذكيرات» العادي', /SCHEDULE_EXACT_ALARM/.test(requested), requested);
+    if (VARIANT === 'play') {
+      check(c, 'نسخة المتجر ما تطلب الإنترنت', !/android\.permission\.INTERNET/.test(requested), requested);
+      check(c, 'نسخة المتجر ما فيها كود التحديث من GitHub', await ev(`!document.querySelector('script[src*="native-updates"]') && !(window.__gymNative.update && window.__gymNative.update.check)`));
+      const net = await ev(`try { const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 8000); await fetch('https://www.google.com/generate_204', { mode: 'no-cors', cache: 'no-store', signal: ctrl.signal }); return 'reached'; } catch (e) { return 'blocked: ' + e.message; }`);
+      check(c, 'لو حاول أي كود يتصل بالنت ينمنع', /^blocked/.test(net), net);
+    } else {
+      check(c, 'نسخة GitHub فيها تنبيه التحديث', await ev(`!!(window.__gymNative.update && window.__gymNative.update.check)`));
+    }
+    await tap('#nav-workout');
+    await ev(`window.scrollTo(0,0); return true`);
+    const xml = uiDump();
+    const b = xml.match(/class="android\.webkit\.WebView"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"/);
+    const size = (sh('wm size').match(/(\d+)x(\d+)\s*$/m) || []).slice(1).map(Number);
+    const rot = Number((sh('dumpsys input | grep -m1 -i "SurfaceOrientation" || true').match(/(\d)/) || [])[1] || 0);
+    const screenH = rot % 2 ? size[0] : size[1];
+    const wv = b ? { top: +b[2], bottom: +b[4] } : null;
+    info.webviewBounds = JSON.stringify({ wv, screen: size, rot });
+    check(c, 'الصفحة تبدأ تحت شريط الساعة (مو تحته)', wv && wv.top > 0, info.webviewBounds);
+    soft(c, 'والصفحة تخلص فوق شريط التنقل', wv && wv.bottom < screenH, info.webviewBounds);
+    await shot('31-bars-' + VARIANT);
+  }, { androidOnly: true });
+
+  await test('T32', 'P2: تنبيه الراحة على الثانية: الشرح مرة وحدة، وزر الإذن في البروفايل', async c => {
+    if (info.sdk < 31) {
+      const st = await ev(`return (await Capacitor.Plugins.LocalNotifications.checkExactNotificationSetting()).exact_alarm`);
+      check(c, 'أندرويد 11 وأقدم: ما يحتاج إذن', st === 'granted', st);
+      await tap('#nav-profile');
+      check(c, 'وبطاقة الإذن ما تطلع', !(await visible('#gt-exact-card')));
+      await tap('#nav-workout');
+      return;
+    }
+    sh(`appops set ${PKG} SCHEDULE_EXACT_ALARM deny`); // Android closes the app when this permission is taken away
+    await sleep(2000);
+    await restartApp(c);
+    check(c, 'الإذن مطفي', (await ev(`return (await Capacitor.Plugins.LocalNotifications.checkExactNotificationSetting()).exact_alarm`)) === 'denied');
+    await ev(`localStorage.removeItem('gt_exact_hint_shown'); localStorage.setItem('gym_rest_deadline', JSON.stringify({ endsAt: Date.now() + 90000, name: 'تجربة' })); return true`);
+    await waitFor(`!!document.getElementById('gt-exact-hint-later')`, 8000, 'exact alarm hint');
+    check(c, 'أول مؤقت راحة: يطلع شرح الإذن', /المنبّهات والتذكيرات/.test(await text('#gt-native-dialog')));
+    await shot('32-exact-hint');
+    await tap('#gt-exact-hint-later');
+    await ev(`localStorage.removeItem('gym_rest_deadline'); return true`);
+    check(c, 'وما يتكرر بعدها', (await ev(`localStorage.getItem('gt_exact_hint_shown')`)) === '1');
+    await tap('#nav-profile');
+    await waitFor(`!document.getElementById('gt-exact-card').hidden`, 6000, 'exact card');
+    await ev(`document.getElementById('gt-exact-card').scrollIntoView({block:'center'}); return true`);
+    await shot('32-exact-card');
+    check(c, 'البروفايل: بطاقة «تنبيه نهاية الراحة» تطلع والإذن مطفي', true);
+    await tap('#gt-exact-on');
+    await sleep(3000);
+    check(c, 'الزر يفتح صفحة الإذن في إعدادات الجوال', !appInForeground(), focused());
+    screenshotDevice('32-exact-settings');
+    sh(`appops set ${PKG} SCHEDULE_EXACT_ALARM allow`);
+    key(4); await sleep(2000);
+    if (!appInForeground()) { startApp(); await sleep(1500); }
+    await attach();
+    await tap('#nav-profile');
+    await waitFor(`document.getElementById('gt-exact-card').hidden`, 8000, 'exact card hidden after allowing');
+    check(c, 'بعد التفعيل البطاقة تختفي', true);
+    await tap('#nav-workout');
+  }, { androidOnly: true });
+
+  await test('T33', 'P3: تابلت بالعرض والطول (أندرويد 16 يتجاهل قفل الوضع العمودي)', async c => {
+    sh('settings put system accelerometer_rotation 0');
+    for (const [rot, label] of [[0, 'land'], [1, 'port']]) {
+      sh('settings put system user_rotation ' + rot);
+      await sleep(3000);
+      const dims = await ev(`({ w: innerWidth, h: innerHeight })`);
+      info['tablet_' + label] = JSON.stringify(dims);
+      if (label === 'land') soft(c, 'التطبيق صار بالعرض فعلاً', dims.w > dims.h, JSON.stringify(dims));
+      for (const tab of ['workout', 'exercises', 'progress', 'bento', 'profile']) {
+        await tap('#nav-' + tab);
+        await ev(`window.scrollTo(0,0); return true`);
+        await shot(`33-${label}-${tab}`);
+        const overflow = await ev(`return document.documentElement.scrollWidth - window.innerWidth`);
+        check(c, `${label} ${tab}: بدون تمرير أفقي`, overflow <= 1, 'overflow=' + overflow);
+        const dock = await ev(`const r=document.getElementById('floating-dock').getBoundingClientRect(); return {bottom:r.bottom, vh:innerHeight, left:r.left, right:r.right, vw:innerWidth}`);
+        check(c, `${label} ${tab}: الشريط السفلي كامل داخل الشاشة`, dock.bottom <= dock.vh + 1 && dock.left >= -1 && dock.right <= dock.vw + 1, JSON.stringify(dock));
+      }
+    }
+    sh('settings put system user_rotation 0');
+    await tap('#nav-workout');
   }, { androidOnly: true });
 
   await test('T26', 'v10.7: اقتراح الجولة الجاية + خطة الجلسة', async c => {
@@ -1355,7 +1471,7 @@ try {
   const failed = results.filter(r => r.status === 'fail').length;
   const summary = { info, passed, failed, skipped: results.filter(r => r.status === 'skip').length, issues, jsErrors, results };
   fs.writeFileSync(path.join(OUT, 'results.json'), JSON.stringify(summary, null, 2));
-  const md = [`# ${info.device}`, `WebView ${info.webview || '?'} — ✔ ${passed} / ✘ ${failed}`, ''];
+  const md = [`# ${info.device}${info.variant ? ' — ' + info.variant : ''}`, `WebView ${info.webview || '?'} — ✔ ${passed} / ✘ ${failed}`, ''];
   for (const r of results) {
     md.push(`## ${r.status === 'pass' ? '✔' : r.status === 'skip' ? '–' : '✘'} ${r.id} ${r.title}`);
     if (r.error) md.push('**خطأ:** ' + r.error);

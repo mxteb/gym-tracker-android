@@ -41,8 +41,8 @@ jobs:
       - name: Website calculation tests (stop here if any number changed)
         run: node --test site/tests/*.test.mjs
 
-      - name: Prepare web files
-        run: ./scripts/prepare-www.sh site
+      - name: Prepare web files (GitHub build first)
+        run: ./scripts/prepare-www.sh site github
 
       - name: Install Capacitor
         run: npm install --no-audit --no-fund
@@ -58,21 +58,24 @@ jobs:
             --iconBackgroundColor '#121212' --iconBackgroundColorDark '#121212' \
             --splashBackgroundColor '#121212' --splashBackgroundColorDark '#121212'
 
-      - name: Signing key (private secret if set, else the repository key)
+      - name: Signing key (stops here if the secret is missing)
         env:
           KS_B64: ${{ secrets.GT_KEYSTORE_B64 }}
+          KS_PW: ${{ secrets.GT_KEYSTORE_PASSWORD }}
         run: |
-          mkdir -p ~/.android
-          cp debug.keystore ~/.android/debug.keystore
-          if [ -n "$KS_B64" ]; then
-            echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/gt.keystore"
-            echo "GT_KEYSTORE=$RUNNER_TEMP/gt.keystore" >> "$GITHUB_ENV"
+          if [ -z "$KS_B64" ] || [ -z "$KS_PW" ]; then
+            echo "::error::Signing key missing: add GT_KEYSTORE_B64 and GT_KEYSTORE_PASSWORD in Settings > Secrets > Actions."
+            exit 1
           fi
+          echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/gt.keystore"
+          echo "GT_KEYSTORE=$RUNNER_TEMP/gt.keystore" >> "$GITHUB_ENV"
 
-      - name: Android settings (permissions, theme, version, notification icon, signing)
+      - name: Android settings (permissions, Android 16, theme, version, notification icon, signing)
         env:
           BUILD_NUMBER: ${{ github.run_number }}
-        run: python3 scripts/patch-android.py
+        run: |
+          python3 scripts/patch-android.py
+          python3 scripts/set-variant.py github
 
       - name: Sync web files and plugins
         run: npx cap sync android
@@ -83,6 +86,7 @@ jobs:
           node -e "const p=['@capacitor/android','@capacitor/core','@capacitor/app','@capacitor/filesystem','@capacitor/share','@capacitor/local-notifications'];const o={};for(const n of p)o[n]=require('./node_modules/'+n+'/package.json').version;o.edgeToEdgeOption=require('child_process').execSync('grep -rl adjustMarginsForEdgeToEdge node_modules/@capacitor/android/capacitor/src || true').toString().trim().length>0;console.log(JSON.stringify(o,null,2))" | tee build-info/versions.json
           cp android/app/src/main/AndroidManifest.xml android/app/src/main/res/values/styles.xml build-info/
           grep -E "versionCode|versionName|signingConfig" android/app/build.gradle | tee build-info/gradle.txt
+          grep -E "SdkVersion" android/variables.gradle | tee -a build-info/gradle.txt
 
       - name: Build release APK
         working-directory: android
@@ -102,7 +106,35 @@ jobs:
           (cd android && ./gradlew assembleRelease --no-daemon -q)
           cp android/app/build/outputs/apk/release/app-release.apk GymTracker-test.apk
           git checkout capacitor.config.json
-          ls -la *.apk
+
+      - name: Build the Google Play version (AAB for the store + a test APK of the same build)
+        env:
+          GT_KEYSTORE_PASSWORD: ${{ secrets.GT_KEYSTORE_PASSWORD }}
+        run: |
+          ./scripts/prepare-www.sh site play
+          python3 scripts/set-variant.py play
+          npx cap copy android
+          (cd android && ./gradlew bundleRelease --no-daemon -q)
+          cp android/app/build/outputs/bundle/release/app-release.aab GymTracker-play.aab
+          node -e "const f='capacitor.config.json';const c=require('./'+f);c.android.webContentsDebuggingEnabled=true;require('fs').writeFileSync(f,JSON.stringify(c,null,2))"
+          npx cap copy android
+          (cd android && ./gradlew assembleRelease --no-daemon -q)
+          cp android/app/build/outputs/apk/release/app-release.apk GymTracker-play-test.apk
+          git checkout capacitor.config.json
+          ls -la *.apk *.aab
+
+      - name: Check what each build asks for (permissions, target SDK)
+        run: |
+          AAPT2=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)aapt2
+          for f in GymTracker.apk GymTracker-play-test.apk; do
+            echo "== $f" | tee -a build-info/permissions.txt
+            "$AAPT2" dump permissions "$f" | tee -a build-info/permissions.txt
+            "$AAPT2" dump badging "$f" | grep -E "^package|targetSdkVersion" | tee -a build-info/permissions.txt
+          done
+          # fail early on anything Google Play would reject
+          if grep -q "USE_EXACT_ALARM" build-info/permissions.txt; then echo "::error::USE_EXACT_ALARM is still requested"; exit 1; fi
+          if sed -n '/== GymTracker-play-test.apk/,$p' build-info/permissions.txt | grep -q "android.permission.INTERNET"; then echo "::error::the Play build still asks for internet"; exit 1; fi
+          if ! grep -q "targetSdkVersion:'36'" build-info/permissions.txt; then echo "::error::target SDK is not 36"; exit 1; fi
 
       - uses: actions/upload-artifact@v4
         with:
@@ -110,6 +142,8 @@ jobs:
           path: |
             GymTracker.apk
             GymTracker-test.apk
+            GymTracker-play.aab
+            GymTracker-play-test.apk
             build-info/
 
   test:
@@ -119,7 +153,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        api: [30, 35, 36]
+        include:
+          # the Google Play build on three Android versions (what most people will install)
+          - { name: api-30, api: 30, variant: play, apk: GymTracker-play-test.apk, profile: pixel_6, tablet: '' }
+          - { name: api-35, api: 35, variant: play, apk: GymTracker-play-test.apk, profile: pixel_6, tablet: '' }
+          - { name: api-36, api: 36, variant: play, apk: GymTracker-play-test.apk, profile: pixel_6, tablet: '' }
+          # the GitHub build (update check) on the newest Android
+          - { name: api-36-github, api: 36, variant: github, apk: GymTracker-test.apk, profile: pixel_6, tablet: '' }
+          # Android 16 ignores the portrait lock on tablets: check the screens in landscape
+          - { name: api-36-tablet, api: 36, variant: play, apk: GymTracker-play-test.apk, profile: pixel_tablet, tablet: '1' }
     steps:
       - uses: actions/checkout@v4
 
@@ -137,16 +179,18 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
-      - name: Run tests on Android ${{ matrix.api }} emulator
+      - name: Run tests on Android ${{ matrix.api }} emulator (${{ matrix.name }})
         uses: reactivecircus/android-emulator-runner@v2
         env:
-          OUT_DIR: results/api-${{ matrix.api }}
-          APK: GymTracker-test.apk
+          OUT_DIR: results/${{ matrix.name }}
+          APK: ${{ matrix.apk }}
+          VARIANT: ${{ matrix.variant }}
+          TABLET: ${{ matrix.tablet }}
         with:
           api-level: ${{ matrix.api }}
           target: google_apis
           arch: x86_64
-          profile: pixel_6
+          profile: ${{ matrix.profile }}
           ram-size: 4096M
           cores: 4
           disk-size: 4096M
@@ -157,7 +201,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: results-api-${{ matrix.api }}
+          name: results-${{ matrix.name }}
           path: results/
 
   publish:
@@ -193,7 +237,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           TAG="v1.${{ github.run_number }}"
-          gh release create "$TAG" dl/apks/GymTracker.apk \
+          gh release create "$TAG" dl/apks/GymTracker.apk dl/apks/GymTracker-play.aab \
             --repo "${{ github.repository }}" \
             --title "Gym Tracker $TAG" \
             --notes-file repo/release-notes.md \
