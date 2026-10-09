@@ -1621,12 +1621,57 @@ async function main() {
     await waitFor(`Number((document.getElementById('today-sets-count')?.textContent||'').replace(/\\D/g,'')) === ${before + 1}`, 8000, 'repeated set');
     const top = await ev(`return document.querySelector('#today-logs-container .glass-card')?.textContent.replace(/\\s+/g,' ')`);
     check(c, 'انحفظت نفس الجولة (62.5 × 6)', /62\.5/.test(top) && /6 عدات/.test(top), top);
-    await ev(`window.__gymNativeRepeat({ exerciseId: 'ex_1' }); return true`);
-    await sleep(1500);
+    // a double tap (or the countdown and the end alert both tapped) saves once
+    await sleep(3200);
+    await ev(`window.__gymNativeRepeat({ exerciseId: 'ex_1' }); window.__gymNativeRepeat({ exerciseId: 'ex_1' }); return true`);
+    await sleep(2000);
     const after2 = await ev(`return Number((document.getElementById('today-sets-count')?.textContent||'').replace(/\\D/g,''))`);
-    check(c, 'ضغطتين ورا بعض ما تحفظ مرتين', after2 === before + 1, String(after2));
+    check(c, 'ضغطتين ورا بعض ما تحفظ مرتين', after2 === before + 2, `${before} → ${after2}`);
     await tap('#btn-stop-timer').catch(() => {});
     await choose('#rest-timer-duration', '0');
+  });
+
+  await test('T39', 'v11.6 الدفعة 4: البرامج الجاهزة، طريقة الأداء، ووضع رمضان', async c => {
+    await tap('#nav-workout');
+    await choose('#exercise-dropdown', 'ex_44');
+    check(c, 'طريقة الأداء موجودة للسكوات', await visible('#ex-guide'));
+    await tap('#ex-guide summary');
+    check(c, 'فيها 3 خطوات وغلطتين', (await ev(`return document.querySelectorAll('#ex-guide-body .guide-steps li').length`)) === 3 && (await ev(`return document.querySelectorAll('#ex-guide-body .guide-mistakes li').length`)) === 2);
+    await shot('39-guide');
+    await tap('#ex-guide summary');
+    // D1
+    await ev(`window.scrollTo(0,0); return true`);
+    await tap('#btn-plan-session');
+    await waitFor(`!document.getElementById('plan-modal').classList.contains('hidden')`, 4000, 'plan modal');
+    await choose('#plan-program', 'gzclp');
+    await waitFor(`document.querySelectorAll('#plan-days .plan-chip').length === 4`, 4000, 'GZCLP days');
+    await tap('#plan-days .plan-chip:nth-child(2)');
+    await waitFor(`[...document.querySelectorAll('#plan-list input:checked')].map(i=>i.value).includes('ex_70')`, 4000, 'deadlift added');
+    check(c, 'يوم 2 = ضغط أكتاف + ديدليفت + سحب دمبل', (await ev(`return [...document.querySelectorAll('#plan-list input:checked')].map(i=>i.value).sort().join(',')`)) === 'ex_11,ex_27,ex_70');
+    await shot('39-program');
+    await tap('#btn-plan-confirm');
+    await waitFor(`document.getElementById('plan-modal').classList.contains('hidden')`, 4000, 'plan closes');
+    await choose('#exercise-dropdown', 'ex_70');
+    check(c, 'هدف البرنامج للديدليفت 3×10', /3 جولات × 10 عدات/.test(await text('#program-target')), await text('#program-target'));
+    // I1
+    await tap('#nav-profile');
+    await tap('#set-ramadan');
+    await waitToast(/وضع رمضان شغال/);
+    await allowPermissionDialogIfShown(3000).catch(() => {});
+    await typeInto('#ramadan-iftar', '18:10');
+    await sleep(1500);
+    if (ANDROID) {
+      const pending = await ev(`return (await Capacitor.Plugins.LocalNotifications.getPending()).notifications.map(n=>n.id)`);
+      check(c, 'تذكير الماء انجدول (18:25)', pending.includes(7300) && JSON.stringify(await ev(`return window.__gymNative.water`)) === '{"hour":18,"minute":25}', JSON.stringify(pending));
+    }
+    await shot('39-ramadan');
+    await tap('#set-ramadan');
+    await sleep(1200);
+    if (ANDROID) {
+      const pending = await ev(`return (await Capacitor.Plugins.LocalNotifications.getPending()).notifications.map(n=>n.id)`);
+      check(c, 'لما ينطفي ينلغى التذكير', !pending.includes(7300), JSON.stringify(pending));
+    }
+    await tap('#nav-workout');
   });
 
   await test('T26', 'v10.7: اقتراح الجولة الجاية + خطة الجلسة', async c => {

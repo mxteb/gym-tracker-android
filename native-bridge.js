@@ -320,6 +320,38 @@
   }
   window.__gymNativeRepeat = fireRepeat; // tests
 
+  /* ---------- 5c) وضع رمضان: تذكير الماء بعد الفطور (v1.40) ----------
+   * الموقع يكتب gym_ramadan = { on, iftar: "18:05" }. نجدول إشعار يومي بعد الفطور بربع ساعة، ونلغيه لما ينطفي الوضع. */
+  var WATER_ID = 7300, lastRamadan = null;
+  async function applyRamadan(raw) {
+    if (!LocalNotifications || raw === lastRamadan) return;
+    lastRamadan = raw;
+    var cfg = null;
+    try { cfg = JSON.parse(raw || 'null'); } catch (e) { cfg = null; }
+    try { await LocalNotifications.cancel({ notifications: [{ id: WATER_ID }] }); } catch (e) {}
+    if (!cfg || !cfg.on || !/^\d\d:\d\d$/.test(cfg.iftar || '')) { state.water = null; return; }
+    var hm = cfg.iftar.split(':').map(Number), t = (hm[0] * 60 + hm[1] + 15) % 1440;
+    try {
+      var p = await LocalNotifications.checkPermissions();
+      if (p.display !== 'granted') p = await LocalNotifications.requestPermissions();
+      if (p.display !== 'granted') return;
+      await LocalNotifications.createChannel({ id: 'water-reminder', name: T('تذكير الماء في رمضان'), description: T('تذكير يومي بعد الفطور تشرب ماء'), importance: 3, visibility: 1 }).catch(function () {});
+      await LocalNotifications.schedule({ notifications: [{
+        id: WATER_ID, title: T('اشرب ماء'), body: T('كوبين ماء الحين، وكمّل شوي شوي لين السحور. جسمك يحتاجه للتمرين.'),
+        channelId: 'water-reminder', schedule: { on: { hour: Math.floor(t / 60), minute: t % 60 }, allowWhileIdle: true }
+      }] });
+      state.water = { hour: Math.floor(t / 60), minute: t % 60 };
+    } catch (e) { note('water', e); }
+  }
+  if (LocalNotifications) {
+    var setForRamadan = Storage.prototype.setItem;
+    Storage.prototype.setItem = function (k, v) {
+      var r = setForRamadan.apply(this, arguments);
+      if (k === 'gym_ramadan' && this === window.localStorage) applyRamadan(String(v));
+      return r;
+    };
+  }
+
   /* ---------- 6) إذن التنبيه على الثانية (المنبّهات والتذكيرات) ---------- */
   var LS_EXACT_HINT = 'gt_exact_hint_shown';
   var exactCard = null;
