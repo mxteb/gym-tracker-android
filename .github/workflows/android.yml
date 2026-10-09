@@ -155,6 +155,14 @@ jobs:
           if grep -q "USE_EXACT_ALARM" build-info/permissions.txt; then echo "::error::USE_EXACT_ALARM is still requested"; exit 1; fi
           if sed -n '/== GymTracker-play-test.apk/,$p' build-info/permissions.txt | grep -q "android.permission.INTERNET"; then echo "::error::the Play build still asks for internet"; exit 1; fi
           if ! grep -q "targetSdkVersion:'36'" build-info/permissions.txt; then echo "::error::target SDK is not 36"; exit 1; fi
+          # S4: the test APKs must not carry the real signature
+          APKSIGNER=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)apksigner
+          REAL=$("$APKSIGNER" verify --print-certs GymTracker.apk | grep -m1 "SHA-256 digest")
+          for t in GymTracker-test.apk GymTracker-play-test.apk; do
+            TEST=$("$APKSIGNER" verify --print-certs "$t" | grep -m1 "SHA-256 digest")
+            if [ "$REAL" = "$TEST" ]; then echo "::error::$t is signed with the real key"; exit 1; fi
+          done
+          echo "real: $REAL" | tee -a build-info/permissions.txt
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
