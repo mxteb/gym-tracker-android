@@ -237,8 +237,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           TAG="v1.${{ github.run_number }}"
+          # Arabic notes, then English after a "---" line (the app shows the part in its language)
+          { cat repo/release-notes.md; printf '\n\n---\n\n'; cat repo/release-notes.en.md; } > notes.md
           gh release create "$TAG" dl/apks/GymTracker.apk dl/apks/GymTracker-play.aab \
             --repo "${{ github.repository }}" \
             --title "Gym Tracker $TAG" \
-            --notes-file repo/release-notes.md \
+            --notes-file notes.md \
             --latest

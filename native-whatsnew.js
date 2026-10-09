@@ -24,7 +24,8 @@
     // first ever run of a fresh install: nothing is "new" yet
     if (mine <= seen || (!seen && !hadData)) return;
     var notes = '';
-    try { notes = (await (await fetch('./whats-new.txt', { cache: 'no-store' })).text()).trim(); } catch (e) { }
+    var en = window.GymI18n && GymI18n.lang === 'en';
+    try { notes = (await (await fetch(en ? './whats-new.en.txt' : './whats-new.txt', { cache: 'no-store' })).text()).trim(); } catch (e) { }
     if (!notes) return;
     N.update.whatsNewShown = mine;
     window.__gymNativeUI.show('وش الجديد في 1.' + mine, notes, [{ label: 'تمام', primary: true, id: 'gt-whatsnew-ok' }]);

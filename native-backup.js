@@ -14,6 +14,8 @@
   var LocalNotifications = plugin('LocalNotifications');
   var N = window.__gymNative || (window.__gymNative = { exports: [], notifications: [], errors: [] });
   N.backups = [];
+  // نصوص تطلع برا الصفحة (إشعارات، قائمة المشاركة) تترجم هنا؛ نصوص الصفحة تترجمها i18n.js لحالها
+  function T(s) { return window.GymI18n ? GymI18n.t(s) : s; }
   function note(where, e) { try { N.errors.push(where + ': ' + (e && e.message ? e.message : String(e))); } catch (x) {} }
 
   var ROOT = 'Download/GymTracker', AUTO = ROOT + '/auto', KEEP = 10, WEEKLY_ID = 7100;
@@ -133,9 +135,9 @@
     var p = await LocalNotifications.checkPermissions().catch(function () { return {}; });
     if (p.display !== 'granted') p = await LocalNotifications.requestPermissions().catch(function () { return {}; });
     if (p.display !== 'granted') return false;
-    await LocalNotifications.createChannel({ id: 'backup-reminder', name: 'تذكير النسخة الاحتياطية', description: 'تذكير أسبوعي ترسل نسختك لـ Drive', importance: 4, visibility: 1 }).catch(function () {});
+    await LocalNotifications.createChannel({ id: 'backup-reminder', name: T('تذكير النسخة الاحتياطية'), description: T('تذكير أسبوعي ترسل نسختك لـ Drive'), importance: 4, visibility: 1 }).catch(function () {});
     await LocalNotifications.schedule({ notifications: [{
-      id: WEEKLY_ID, title: 'وقت النسخة الاحتياطية', body: 'اضغط هنا وأرسل نسخة تمارينك لـ Google Drive عشان تكون بأمان.',
+      id: WEEKLY_ID, title: T('وقت النسخة الاحتياطية'), body: T('اضغط هنا وأرسل نسخة تمارينك لـ Google Drive عشان تكون بأمان.'),
       channelId: 'backup-reminder', schedule: { on: { weekday: cfg.day, hour: cfg.hour, minute: 0 }, allowWhileIdle: true }
     }] });
     return true;
@@ -143,7 +145,7 @@
   async function shareFreshBackup() {
     try {
       var uri = await writeBackup(ROOT, stampName('gym_tracker_backup'));
-      await Share.share({ title: 'Gym Tracker', files: [uri], dialogTitle: 'إرسال النسخة الاحتياطية' }).catch(function () {});
+      await Share.share({ title: 'Gym Tracker', files: [uri], dialogTitle: T('إرسال النسخة الاحتياطية') }).catch(function () {});
     } catch (e) { note('weekly-share', e); toast('ما قدرت أجهز النسخة. صدّرها من البروفايل.'); }
   }
   if (LocalNotifications && LocalNotifications.addListener) {
@@ -220,7 +222,8 @@
     '.gt-when[hidden]{display:none}' +
     '.gt-list{display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow-y:auto;margin:0 0 12px}' +
     '.gt-row{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:right;width:100%;min-height:52px;padding:8px 12px;border-radius:4px;border:1px solid #333331;background:#0A0A0A;color:#EDEBE6;font:inherit;cursor:pointer}' +
-    '.gt-row-title{font-size:13px;font-weight:700}.gt-row-sub{font-size:12px;color:#9A978F}';
+    '.gt-row-title{font-size:13px;font-weight:700}.gt-row-sub{font-size:12px;color:#9A978F}' +
+    ':root[dir="ltr"] .gt-row{text-align:left}';
   (document.head || document.documentElement).appendChild(css);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', buildCard); else buildCard();
   document.addEventListener('visibilitychange', function () { if (!document.hidden) renderStatus(); });

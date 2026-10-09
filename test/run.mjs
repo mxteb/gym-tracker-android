@@ -142,6 +142,7 @@ class CDP {
   close() { try { this.ws.close(); } catch { } }
 }
 let cdp = null;
+let keepArabic = true;
 let inputMode = 'touch';
 let localBrowser = null;
 
@@ -189,17 +190,26 @@ async function attach() {
   await cdp.send('Runtime.enable');
   await cdp.send('Log.enable');
   await cdp.send('Page.enable');
-  if (!ANDROID && !attach.mocked) {
-    attach.mocked = true;
+  if (!ANDROID) {
+    // the stand-in phone bridge is registered per DevTools session, so every new session adds it again
     await cdp.send('Page.addScriptToEvaluateOnNewDocument', { source: MOCK_CAPACITOR });
-    await cdp.send('Page.reload', {});
-    await sleep(1500);
+    if (!attach.mocked) { attach.mocked = true; await cdp.send('Page.reload', {}); await sleep(1500); }
   }
   if (!ANDROID) {
     await cdp.send('Emulation.setDeviceMetricsOverride', { width: 393, height: 852, deviceScaleFactor: 2.75, mobile: true });
     await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 });
   }
-  await waitFor(`!!document.getElementById('db-status-badge') && /محفوظ/.test(document.getElementById('db-status-badge').textContent) && !!document.querySelector('#exercise-dropdown option')`, 30000, 'app ready');
+  // v11.1: a fresh install on an English phone opens in English; the tests run in Arabic except T34
+  if (keepArabic) {
+    let lang = '';
+    for (let i = 0; i < 40 && !lang; i++) { try { lang = await ev(`document.documentElement.lang`); } catch { await sleep(250); } }
+    if (lang === 'en') {
+      await ev(`localStorage.setItem('gym_lang','ar'); setTimeout(() => location.reload(), 50); return true`);
+      await sleep(2500);
+      if (ANDROID) { cdp.close(); cdp = await CDP.connect(await findTarget()); await cdp.send('Runtime.enable'); }
+    }
+  }
+  await waitFor(`!!document.getElementById('db-status-badge') && /محفوظ|Saved/.test(document.getElementById('db-status-badge').textContent) && !!document.querySelector('#exercise-dropdown option')`, 30000, 'app ready');
   if (ANDROID) { const h = await ev(`document.activeElement && document.activeElement.blur && document.activeElement.blur(); return window.innerHeight`); baseHeight = Math.max(baseHeight, h); }
 }
 
@@ -360,6 +370,7 @@ async function test(id, title, fn, { androidOnly = false, localOnly = false } = 
   if (localOnly && ANDROID) { results.push({ id, title, status: 'skip', detail: 'local only' }); return; }
   if (TABLET && !TABLET_TESTS.has(id)) { results.push({ id, title, status: 'skip', detail: 'phone only' }); return; }
   current = { id, title, checks: [] };
+  keepArabic = true; // only T34 switches to English, and a failure there must not leave the next tests in English
   if (ANDROID && await dismissSystemDialogs()) { try { if (!appInForeground()) { startApp(); await sleep(1500); } await attach(); } catch { } }
   const t0 = Date.now();
   log('▶', id, title);
@@ -1397,6 +1408,45 @@ async function main() {
     sh('settings put system user_rotation 0');
     await tap('#nav-workout');
   }, { androidOnly: true });
+
+  await test('T34', 'v11.1: الإنجليزي — التطبيق كله يتحول ومن اليسار لليمين، والرجوع للعربي', async c => {
+    await tap('#nav-profile');
+    await tap('[data-lang-pick="en"]');
+    keepArabic = false;
+    await sleep(3000);
+    await attach();
+    const root = await ev(`({ lang: document.documentElement.lang, dir: document.documentElement.dir })`);
+    check(c, 'الصفحة صارت English ومن اليسار لليمين', root.lang === 'en' && root.dir === 'ltr', JSON.stringify(root));
+    check(c, 'الشريط السفلي بالإنجليزي', /Workout/.test(await text('#nav-workout')), await text('#nav-workout'));
+    const scan = `const AR=/[\\u0600-\\u06FF]/; const out=[]; const tw=document.createTreeWalker(document.getElementById('screen-'+TAB),4); let n; while((n=tw.nextNode())){ if(!AR.test(n.nodeValue)) continue; let e=n.parentNode, skip=false; for(;e&&e.nodeType===1;e=e.parentNode){ if(e.getAttribute('translate')==='no'){skip=true;break;} } if(!skip) out.push(n.nodeValue.trim()); } return out;`;
+    for (const tab of ['workout', 'exercises', 'progress', 'bento', 'profile']) {
+      await tap('#nav-' + tab);
+      await ev(`window.scrollTo(0,0); return true`);
+      await shot(`34-en-${tab}`);
+      const left = await ev(scan.replace(/TAB/g, `'${tab}'`));
+      check(c, `${tab}: ما فيه نص عربي باقي`, left.length === 0, left.slice(0, 5).join(' | '));
+      const overflow = await ev(`return document.documentElement.scrollWidth - window.innerWidth`);
+      check(c, `${tab}: بدون تمرير أفقي`, overflow <= 1, 'overflow=' + overflow);
+    }
+    await tap('#nav-profile');
+    check(c, 'بطاقة النسخ الاحتياطية بالإنجليزي', /Backups on your phone/.test(await text('#gt-backup-card') || ''), (await text('#gt-backup-card') || '').slice(0, 80));
+    await tap('#gt-open-restore');
+    await waitFor(`/Backups on your phone|No saved backups/.test(document.getElementById('gt-native-dialog')?.textContent||'')`, 8000, 'restore dialog in English');
+    const dir = await ev(`getComputedStyle(document.querySelector('#gt-native-dialog .box')).direction`);
+    check(c, 'نافذة الاسترجاع بالإنجليزي ومن اليسار', dir === 'ltr', dir);
+    await shot('34-en-restore');
+    await ev(`window.__gymNativeUI.close(); return true`);
+    const misses = await ev(`return Object.keys(GymI18n.misses)`);
+    check(c, 'كل النصوص لها ترجمة', misses.length === 0, misses.slice(0, 5).join(' | '));
+    await tap('#nav-profile');
+    await tap('[data-lang-pick="ar"]');
+    keepArabic = true;
+    await sleep(3000);
+    await attach();
+    const back = await ev(`({ lang: document.documentElement.lang, dir: document.documentElement.dir })`);
+    check(c, 'رجع عربي ومن اليمين لليسار', back.lang === 'ar' && back.dir === 'rtl', JSON.stringify(back));
+    await tap('#nav-workout');
+  });
 
   await test('T26', 'v10.7: اقتراح الجولة الجاية + خطة الجلسة', async c => {
     await tap('#nav-workout');

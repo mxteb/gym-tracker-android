@@ -33,6 +33,8 @@
   var LocalNotifications = plugin('LocalNotifications');
   var GymNative = plugin('GymNative');
   var state = window.__gymNative = { exports: [], notifications: [], errors: [] };
+  // نصوص تطلع برا الصفحة (إشعارات، قائمة المشاركة) تترجم هنا؛ نصوص الصفحة تترجمها i18n.js لحالها
+  function T(s) { return window.GymI18n ? GymI18n.t(s) : s; }
   function note(where, e) { try { state.errors.push(where + ': ' + (e && e.message ? e.message : String(e))); } catch (x) {} }
 
   /* ---------- 5) الشاشة تبقى شغالة + الاهتزاز (v10.7) ----------
@@ -77,7 +79,8 @@
     '#gt-native-dialog .row{display:flex;gap:8px;flex-wrap:wrap}' +
     '#gt-native-dialog button{flex:1;min-height:44px;border-radius:8px;border:1px solid #333331;background:#222221;color:#EDEBE6;font:inherit;font-size:13px;font-weight:700;padding:8px 10px}' +
     '#gt-native-dialog button.primary{background:#C8322A;border-color:transparent;color:#fff}' +
-    '#gt-exact-card[hidden]{display:none!important}';
+    '#gt-exact-card[hidden]{display:none!important}' +
+    ':root[dir="ltr"] #gt-native-dialog .box{direction:ltr;text-align:left}';
   (document.head || document.documentElement).appendChild(css);
 
   function closeDialog() {
@@ -152,7 +155,7 @@
       return;
     }
     var share = function () {
-      Share.share({ title: finalName, files: [shareUri], dialogTitle: 'حفظ النسخة الاحتياطية' }).catch(function (e) {
+      Share.share({ title: finalName, files: [shareUri], dialogTitle: T('حفظ النسخة الاحتياطية') }).catch(function (e) {
         if (!/cancel/i.test(String(e && e.message))) note('share', e);
       });
     };
@@ -187,7 +190,7 @@
   function ensureChannel() {
     if (!channelReady) {
       channelReady = LocalNotifications.createChannel({
-        id: 'rest-timer', name: 'مؤقت الراحة', description: 'تنبيه لما يخلص وقت الراحة بين الجولات',
+        id: 'rest-timer', name: T('مؤقت الراحة'), description: T('تنبيه لما يخلص وقت الراحة بين الجولات'),
         importance: 5, visibility: 1, vibration: true, lights: true, lightColor: '#C8322A'
       }).catch(function (e) { note('channel', e); });
     }
@@ -216,8 +219,8 @@
     try {
       await LocalNotifications.schedule({ notifications: [{
         id: REST_ID,
-        title: 'انتهى وقت الراحة',
-        body: 'حان وقت الجولة التالية' + (d.name ? ' — ' + d.name : ''),
+        title: T('انتهى وقت الراحة'),
+        body: T('حان وقت الجولة التالية' + (d.name ? ' — ' + d.name : '')),
         channelId: 'rest-timer',
         schedule: { at: new Date(d.endsAt), allowWhileIdle: true }
       }] });
@@ -225,7 +228,7 @@
     } catch (e) { note('schedule', e); }
     // عداد تنازلي في شريط الإشعارات وشاشة القفل لين يخلص الوقت
     if (GymNative) {
-      try { var r = await GymNative.restCountdown({ endsAt: d.endsAt, title: 'الراحة', text: d.name || '' }); state.countdown = { endsAt: d.endsAt, shown: !!(r && r.shown) }; }
+      try { var r = await GymNative.restCountdown({ endsAt: d.endsAt, title: T('الراحة'), text: d.name ? T(d.name) : '' }); state.countdown = { endsAt: d.endsAt, shown: !!(r && r.shown) }; }
       catch (e) { note('countdown', e); }
     }
   }

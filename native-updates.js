@@ -43,7 +43,10 @@
     var more = document.createElement('button'); more.type = 'button'; more.id = 'gt-update-open'; more.textContent = 'وش الجديد؟';
     var x = document.createElement('button'); x.type = 'button'; x.className = 'gt-x'; x.setAttribute('aria-label', 'إخفاء'); x.textContent = '✕';
     more.addEventListener('click', function () {
-      ui().show('التحديث 1.' + latest, (rel.body || '').trim() || 'تحسينات وإصلاحات.',
+      // release notes on GitHub: Arabic, then a line "---", then English
+      var parts = String(rel.body || '').split(/\n-{3,}\n/);
+      var body = ((window.GymI18n && GymI18n.lang === 'en' ? parts[1] : parts[0]) || '').trim();
+      ui().show('التحديث 1.' + latest, body || 'تحسينات وإصلاحات.',
         [{ label: 'تحميل التحديث', primary: true, id: 'gt-update-download', action: openDownload }, { label: 'بعدين' }]);
     });
     x.addEventListener('click', function () { ls(LS_SKIP, latest); bar.remove(); });
