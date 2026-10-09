@@ -1457,6 +1457,70 @@ async function main() {
     await tap('#nav-workout');
   });
 
+  await test('T35', 'v11.3 الدفعة 1: ملاحظة التمرين، الراحة لكل تمرين، سهل/مناسب/صعب، الجهاز مشغول', async c => {
+    await tap('#nav-workout');
+    await choose('#exercise-dropdown', 'ex_1');
+    check(c, 'سطر الملاحظة ظاهر', await visible('#ex-note-show'));
+    await tap('#ex-note-show');
+    await typeInto('#ex-note-input', 'الكرسي على 4، قبضة واسعة');
+    await hideKeyboard();
+    await tap('#ex-note-save');
+    await waitToast(/انحفظت الملاحظة/);
+    check(c, 'الملاحظة انحفظت وتطلع', (await text('#ex-note-show .ex-note-text')) === 'الكرسي على 4، قبضة واسعة', await text('#ex-note-show'));
+    await choose('#rest-timer-duration', '180');
+    await sleep(400);
+    await choose('#exercise-dropdown', 'ex_3');
+    await choose('#rest-timer-duration', '60');
+    await sleep(400);
+    await choose('#exercise-dropdown', 'ex_1');
+    check(c, 'الراحة رجعت 3 دقايق للبنش', (await val('#rest-timer-duration')) === '180', await val('#rest-timer-duration'));
+    await shot('35-note');
+    await tap('#nav-profile');
+    await tap('#set-feel');
+    await waitToast(/سهل/);
+    await tap('#nav-workout');
+    check(c, 'أزرار سهل/مناسب/صعب بدل RIR', await visible('#feel-container') && !(await visible('#rir-container')));
+    await tap('.feel-btn[data-feel-rir="3"]');
+    check(c, 'سهل = RIR 3', await ev(`return document.querySelector('.rir-btn[data-rir="3"]').getAttribute('aria-pressed')==='true'`));
+    await shot('35-feel');
+    await tap('.feel-btn[data-feel-rir="3"]');
+    await tap('#nav-profile');
+    await tap('#set-feel');
+    await tap('#nav-workout');
+    check(c, 'رجعت أرقام RIR', await visible('#rir-container'));
+    await ev(`window.scrollTo(0,0); return true`);
+    check(c, 'زر «الجهاز مشغول؟» ظاهر', await visible('#btn-busy'));
+    await tap('#btn-busy');
+    await waitFor(`!document.getElementById('busy-modal').classList.contains('hidden')`, 4000, 'busy modal');
+    const rows = await ev(`return document.querySelectorAll('#busy-list .busy-row').length`);
+    check(c, 'فيه بدائل', rows >= 1 && rows <= 3, rows);
+    await shot('35-busy');
+    await tap('#btn-busy-cancel');
+    check(c, 'إلغاء يقفلها', await ev(`return document.getElementById('busy-modal').classList.contains('hidden')`));
+    check(c, 'التمرين ما تغير', (await val('#exercise-dropdown')) === 'ex_1');
+  });
+
+  await test('T36', 'v11.3: تصدير Excel (CSV) ينحفظ .csv في التنزيلات ويفتحه Excel بالعربي', async c => {
+    await tap('#nav-profile');
+    await tap('#btn-export-csv');
+    await waitFor(`!!document.getElementById('gt-native-dialog')`, 10000, 'csv dialog');
+    const ex = await ev(`return window.__gymNative.exports.slice(-1)[0]`);
+    check(c, 'انحفظ باسم .csv', ex && ex.saved && /\.csv$/.test(ex.name) && /Download/.test(ex.uri), JSON.stringify(ex));
+    const dlg = await text('#gt-native-dialog');
+    check(c, 'النافذة تتكلم عن ملف Excel مو نسخة احتياطية', /Excel/.test(dlg) && !/النسخة الاحتياطية/.test(dlg), dlg.slice(0, 120));
+    await shot('36-csv-dialog');
+    const head = sh(`head -c 3 "/sdcard/Download/GymTracker/${ex.name}" | od -An -tx1`).replace(/\s+/g, ' ').trim();
+    check(c, 'الملف يبدأ بـ BOM (Excel يقرا العربي صح)', head === 'ef bb bf', head);
+    const first = sh(`head -n 2 "/sdcard/Download/GymTracker/${ex.name}"`);
+    check(c, 'أول سطر عناوين الأعمدة', /التاريخ,الجلسة,التمرين/.test(first), first.slice(0, 160));
+    await tap('#gt-done-btn');
+    // the restore list must keep showing backups only, not the CSV
+    await tap('#gt-open-restore');
+    await waitFor(`!!document.getElementById('gt-native-dialog')`, 8000, 'restore dialog');
+    check(c, 'قائمة الاسترجاع ما فيها ملف CSV', !/\.csv/.test(await text('#gt-native-dialog')), (await text('#gt-native-dialog')).slice(0, 160));
+    await ev(`window.__gymNativeUI.close(); return true`);
+  }, { androidOnly: true });
+
   await test('T26', 'v10.7: اقتراح الجولة الجاية + خطة الجلسة', async c => {
     await tap('#nav-workout');
     await choose('#exercise-dropdown', 'ex_1');

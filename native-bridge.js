@@ -123,12 +123,18 @@
     return [d.getHours(), d.getMinutes(), d.getSeconds()].map(function (n) { return String(n).padStart(2, '0'); }).join('');
   }
   async function saveBackup(blobUrl, filename) {
-    var text, finalName = String(filename).replace(/\.json$/i, '') + '_' + stamp() + '.json';
+    // v1.37: the site also exports a CSV for Excel; keep its extension and talk about "the file", not "the backup"
+    var ext = (/\.([a-z0-9]{1,5})$/i.exec(String(filename)) || [0, 'json'])[1].toLowerCase();
+    var csv = ext === 'csv';
+    var finalName = String(filename).replace(/\.[a-z0-9]{1,5}$/i, '') + '_' + stamp() + '.' + ext;
+    var text;
     try {
       text = await (await fetch(blobUrl)).text();
+      // text() drops the byte-order mark, and Excel needs it to read Arabic as UTF-8
+      if (csv && text.charCodeAt(0) !== 0xFEFF) text = '\uFEFF' + text;
     } catch (e) {
       note('export-read', e);
-      showDialog('تعذر تجهيز الملف', 'صار خطأ أثناء تجهيز النسخة الاحتياطية. حاول مرة ثانية.', [{ label: 'حسنًا', primary: true }]);
+      showDialog('تعذر تجهيز الملف', csv ? 'صار خطأ أثناء تجهيز الملف. حاول مرة ثانية.' : 'صار خطأ أثناء تجهيز النسخة الاحتياطية. حاول مرة ثانية.', [{ label: 'حسنًا', primary: true }]);
       return;
     }
     var savedUri = null, shareUri = null, place = null;
@@ -151,15 +157,23 @@
     }
     state.exports.push({ name: finalName, saved: !!savedUri, place: place, uri: shareUri, bytes: text.length });
     if (!shareUri) {
-      showDialog('تعذر حفظ الملف', 'ما قدرت أحفظ النسخة على الجهاز. تأكد إن فيه مساحة كافية وحاول مرة ثانية.', [{ label: 'حسنًا', primary: true }]);
+      showDialog('تعذر حفظ الملف', csv ? 'ما قدرت أحفظ الملف على الجهاز. تأكد إن فيه مساحة كافية وحاول مرة ثانية.' : 'ما قدرت أحفظ النسخة على الجهاز. تأكد إن فيه مساحة كافية وحاول مرة ثانية.', [{ label: 'حسنًا', primary: true }]);
       return;
     }
     var share = function () {
-      Share.share({ title: finalName, files: [shareUri], dialogTitle: T('حفظ النسخة الاحتياطية') }).catch(function (e) {
+      Share.share({ title: finalName, files: [shareUri], dialogTitle: T(csv ? 'مشاركة ملف Excel' : 'حفظ النسخة الاحتياطية') }).catch(function (e) {
         if (!/cancel/i.test(String(e && e.message))) note('share', e);
       });
     };
-    if (savedUri) {
+    if (savedUri && csv) {
+      showDialog('تم حفظ ملف Excel',
+        'انحفظ في جوالك داخل:\n' + place + '\n' + finalName +
+        '\n\nتقدر تفتحه بـ Excel أو Google Sheets، أو ترسله لنفسك.',
+        [{ label: 'إرسال / فتح', primary: true, action: share, id: 'gt-share-btn' }, { label: 'تم', id: 'gt-done-btn' }]);
+    } else if (csv) {
+      showDialog('الملف جاهز', 'اختر وين ترسله أو تفتحه من القائمة اللي بتطلع لك.',
+        [{ label: 'إرسال / فتح', primary: true, action: share, id: 'gt-share-btn' }, { label: 'إلغاء', id: 'gt-done-btn' }]);
+    } else if (savedUri) {
       showDialog('تم حفظ النسخة الاحتياطية',
         'انحفظت في جوالك داخل:\n' + place + '\n' + finalName +
         '\n\nوقت الاستيراد: اضغط ☰ في منتقي الملفات واختر التنزيلات ثم GymTracker.' +

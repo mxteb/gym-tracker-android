@@ -25,6 +25,15 @@
     'النسخة جاهزة': 'Backup ready',
     'اختر مكان الحفظ (Drive أو الملفات أو واتساب) من القائمة اللي بتطلع لك.': 'Pick where to save it (Drive, Files or WhatsApp) from the list that opens.',
     'اختيار مكان الحفظ': 'Choose where to save',
+    'صار خطأ أثناء تجهيز الملف. حاول مرة ثانية.': 'Something went wrong while preparing the file. Try again.',
+    'ما قدرت أحفظ الملف على الجهاز. تأكد إن فيه مساحة كافية وحاول مرة ثانية.': "Couldn't save the file on this phone. Make sure there is enough space and try again.",
+    'مشاركة ملف Excel': 'Share Excel file',
+    'تم حفظ ملف Excel': 'Excel file saved',
+    'انحفظ في جوالك داخل:': 'Saved on your phone in:',
+    'تقدر تفتحه بـ Excel أو Google Sheets، أو ترسله لنفسك.': 'Open it with Excel or Google Sheets, or send it to yourself.',
+    'إرسال / فتح': 'Send / open',
+    'الملف جاهز': 'File ready',
+    'اختر وين ترسله أو تفتحه من القائمة اللي بتطلع لك.': 'Pick where to send or open it from the list that opens.',
 
     /* rest notification */
     'مؤقت الراحة': 'Rest timer',
