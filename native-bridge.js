@@ -249,9 +249,16 @@
     if (!d || d.endsAt - Date.now() < 1500) return;
     if (!(await hasPermission(false))) return;
     await ensureChannel();
+    var repeatLabel = d.repeat ? T('كرر') + ': ' + T(d.repeat) : '';
+    if (repeatLabel && LocalNotifications.registerActionTypes) {
+      try { await LocalNotifications.registerActionTypes({ types: [{ id: 'GT_REST', actions: [{ id: 'repeat', title: repeatLabel }] }] }); }
+      catch (e) { note('action-types', e); repeatLabel = ''; }
+    }
     try {
       await LocalNotifications.schedule({ notifications: [{
         id: REST_ID,
+        actionTypeId: repeatLabel ? 'GT_REST' : undefined,
+        extra: d.exerciseId ? { exerciseId: d.exerciseId } : undefined,
         title: T('انتهى وقت الراحة'),
         body: T('حان وقت الجولة التالية' + (d.name ? ' — ' + d.name : '')),
         channelId: 'rest-timer',
@@ -261,7 +268,7 @@
     } catch (e) { note('schedule', e); }
     // عداد تنازلي في شريط الإشعارات وشاشة القفل لين يخلص الوقت
     if (GymNative) {
-      try { var r = await GymNative.restCountdown({ endsAt: d.endsAt, title: T('الراحة'), text: d.name ? T(d.name) : '' }); state.countdown = { endsAt: d.endsAt, shown: !!(r && r.shown) }; }
+      try { var r = await GymNative.restCountdown({ endsAt: d.endsAt, title: T('الراحة'), text: d.name ? T(d.name) : '', repeat: repeatLabel, exerciseId: d.exerciseId || '' }); state.countdown = { endsAt: d.endsAt, shown: !!(r && r.shown) }; }
       catch (e) { note('countdown', e); }
     }
   }
@@ -290,6 +297,28 @@
       if (document.hidden) onBackground(); else cancelRest();
     });
   }
+
+  /* ---------- 5b) «كرر الجولة» من الإشعار (v1.39) ----------
+   * زر في عداد شاشة القفل وفي إشعار نهاية الراحة. يفتح التطبيق ويحفظ نفس الجولة مرة ثانية.
+   * لو التطبيق كان مقفول، ننتظر لين يجهز (gym:ready). وما نكرر مرتين لنفس الضغطة. */
+  var appReady = false, pendingRepeat = null, lastRepeat = 0;
+  document.addEventListener('gym:ready', function () { appReady = true; if (pendingRepeat) { var p = pendingRepeat; pendingRepeat = null; fireRepeat(p); } });
+  function fireRepeat(detail) {
+    if (!appReady) { pendingRepeat = detail; return; }
+    if (Date.now() - lastRepeat < 3000) return;
+    lastRepeat = Date.now();
+    state.repeats = (state.repeats || 0) + 1;
+    document.dispatchEvent(new CustomEvent('gym:repeat-set', { detail: { exerciseId: detail && detail.exerciseId || null } }));
+  }
+  if (GymNative && GymNative.addListener) {
+    GymNative.addListener('notificationAction', function (data) { if (data && data.action === 'repeat') fireRepeat(data); });
+  }
+  if (LocalNotifications && LocalNotifications.addListener) {
+    LocalNotifications.addListener('localNotificationActionPerformed', function (ev) {
+      if (ev && ev.actionId === 'repeat') fireRepeat({ exerciseId: ev.notification && ev.notification.extra && ev.notification.extra.exerciseId });
+    });
+  }
+  window.__gymNativeRepeat = fireRepeat; // tests
 
   /* ---------- 6) إذن التنبيه على الثانية (المنبّهات والتذكيرات) ---------- */
   var LS_EXACT_HINT = 'gt_exact_hint_shown';

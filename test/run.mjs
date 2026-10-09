@@ -938,6 +938,8 @@ async function main() {
     check(c, `الحجم = ${tons} طن`, msg.includes(tons + ' طن'), msg);
     check(c, 'أعلى 1RM = 101.3 كجم (العقلة بوزن الجسم 80×8)', /أعلى 1RM[^|]*101\.3 كجم/.test(msg), msg);
     await shot('12-summary');
+    // the auto-backup toast shows right after finishing; catch it before the share sheet hides it
+    const autoToast = ANDROID ? await waitToast(/نسخة احتياطية تلقائية/, 8000).then(() => true, () => false) : true;
     // v11.4 C5: share the summary as an image
     check(c, 'زر «شارك كصورة» في الملخص', await visible('#modal-share-btn'));
     const before = await ev(`return window.__gymNative.exports.length`);
@@ -961,7 +963,7 @@ async function main() {
     const cals = Number(digits(await text('#header-today-cals')));
     check(c, 'سعرات الحديد انضافت للعداد', cals > 202.5, cals);
     if (ANDROID) {
-      await waitToast(/نسخة احتياطية تلقائية/, 8000);
+      check(c, 'D1: رسالة «نسخة احتياطية تلقائية» طلعت', autoToast);
       const auto = sh('ls /sdcard/Download/GymTracker/auto/ 2>&1 || true');
       check(c, 'D1: انحفظت نسخة تلقائية بعد إنهاء الجلسة', /gym_tracker_auto_.*\.json/.test(auto), auto);
       const f = auto.split(/\s+/).find(x => x.endsWith('.json'));
@@ -1360,8 +1362,9 @@ async function main() {
     check(c, 'L1: سياسة الخصوصية داخل التطبيق بالعربي والإنجليزي', priv);
     await tap('#nav-workout');
     await ev(`window.scrollTo(0,0); return true`);
-    const xml = uiDump();
-    const b = xml.match(/class="android\.webkit\.WebView"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"/);
+    // uiautomator sometimes returns an empty or partial dump on the tablet emulator: try a few times
+    let b = null;
+    for (let i = 0; i < 4 && !b; i++) { if (i) await sleep(1500); b = uiDump().match(/class="android\.webkit\.WebView"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"/); }
     const size = (sh('wm size').match(/(\d+)x(\d+)\s*$/m) || []).slice(1).map(Number);
     const rot = Number((sh('dumpsys input | grep -m1 -i "SurfaceOrientation" || true').match(/(\d)/) || [])[1] || 0);
     const screenH = rot % 2 ? size[0] : size[1];
@@ -1552,6 +1555,80 @@ async function main() {
     await tap('#nav-workout');
   });
 
+  await test('T38', 'v11.5 الدفعة 3: يمين ويسار، «عندي وقت» في الخطة، و«كرر الجولة» من الإشعار', async c => {
+    await tap('#nav-workout');
+    // B5 left / right
+    await choose('#exercise-dropdown', 'ex_55'); // Bulgarian split squat
+    check(c, 'زر «يمين ويسار مختلفة؟» يطلع للسكوات البلغاري', await visible('#btn-sides'));
+    await tap('#btn-sides');
+    check(c, 'خانة اليسار ظهرت', await visible('#input-reps-left'));
+    await typeInto('#input-weight', 12); await typeInto('#input-reps', 10); await typeInto('#input-reps-left', 8);
+    await choose('#rest-timer-duration', '0');
+    await clearToasts();
+    await tap('#btn-save-weights');
+    await waitToast(/تم حفظ/);
+    const row = await ev(`return document.querySelector('#today-logs-container .glass-card')?.textContent.replace(/\\s+/g,' ')`);
+    check(c, 'السجل يبين يمين 10 · يسار 8', /يمين 10 · يسار 8/.test(row), row);
+    await shot('38-sides');
+    await tap('#btn-sides');
+    check(c, 'رجوعها لعدات وحدة', !(await visible('#input-reps-left')));
+    await choose('#exercise-dropdown', 'ex_1');
+    check(c, 'البنش ما فيه زر يمين/يسار', !(await visible('#btn-sides')));
+
+    // I2 «عندي وقت»
+    await ev(`window.scrollTo(0,0); return true`);
+    await tap('#btn-plan-session');
+    await waitFor(`!document.getElementById('plan-modal').classList.contains('hidden')`, 4000, 'plan modal');
+    await tap('#plan-quick .plan-chip:nth-child(1)');
+    const n0 = await ev(`return document.querySelectorAll('#plan-list input:checked').length`);
+    check(c, 'تقدير وقت الخطة ظاهر', /\d+ دقيقة/.test(await text('#plan-time-est')), await text('#plan-time-est'));
+    await choose('#plan-time', '30');
+    const n1 = await ev(`return document.querySelectorAll('#plan-list input:checked').length`);
+    const hint = await text('#plan-time-hint');
+    check(c, '30 دقيقة تشيل تمارين وتقول وش شالت', n1 < n0 && /شلت/.test(hint), `${n0} → ${n1}: ${hint}`);
+    await shot('38-plan-time');
+    await tap('#btn-plan-cancel');
+
+    // B6 repeat from the notification
+    await choose('#exercise-dropdown', 'ex_1');
+    await choose('#load-mode-select', 'external');
+    await typeInto('#input-weight', 62.5); await typeInto('#input-reps', 6);
+    await choose('#rest-timer-duration', '90');
+    await clearToasts();
+    await tap('#btn-save-weights');
+    await waitToast(/تم حفظ/);
+    const before = await ev(`return Number((document.getElementById('today-sets-count')?.textContent||'').replace(/\\D/g,''))`);
+    const deadline = await ev(`return JSON.parse(localStorage.getItem('gym_rest_deadline')||'null')`);
+    check(c, 'المؤقت يعرف التمرين ونص «كرر»', deadline && deadline.exerciseId === 'ex_1' && /62\.5 كجم × 6/.test(deadline.repeat), JSON.stringify(deadline));
+    if (ANDROID) {
+      key(3); await sleep(3000);
+      const d = notifDump();
+      check(c, 'عداد الراحة في الإشعارات فيه زر «كرر»', /كرر: 62\.5 كجم × 6/.test(d) || /actions=1|actions={/.test(d), d.slice(0, 500));
+      // tap the button the way a person would; if the shade shows it collapsed, send the same intent the button sends
+      sh('cmd statusbar expand-notifications'); await sleep(1500);
+      let tapped = false;
+      const btn = uiNodes(uiDump()).find(n => /^كرر/.test(n.text));
+      if (btn) { sh(`input tap ${Math.round(btn.x)} ${Math.round(btn.y)}`); tapped = true; }
+      else { sh('cmd statusbar collapse'); await sleep(500); sh(`am start -n ${PKG}/.MainActivity --es gt_action repeat --es gt_ex ex_1 -f 0x20000000`); }
+      soft(c, 'الزر انضغط من شاشة الإشعارات نفسها', tapped, tapped ? '' : 'used the intent');
+      await sleep(3000);
+      if (!appInForeground()) { startApp(); await sleep(1500); }
+      await attach();
+      screenshotDevice('38-after-repeat');
+    } else {
+      await ev(`window.__gymNativeRepeat({ exerciseId: 'ex_1' }); return true`);
+    }
+    await waitFor(`Number((document.getElementById('today-sets-count')?.textContent||'').replace(/\\D/g,'')) === ${before + 1}`, 8000, 'repeated set');
+    const top = await ev(`return document.querySelector('#today-logs-container .glass-card')?.textContent.replace(/\\s+/g,' ')`);
+    check(c, 'انحفظت نفس الجولة (62.5 × 6)', /62\.5/.test(top) && /6 عدات/.test(top), top);
+    await ev(`window.__gymNativeRepeat({ exerciseId: 'ex_1' }); return true`);
+    await sleep(1500);
+    const after2 = await ev(`return Number((document.getElementById('today-sets-count')?.textContent||'').replace(/\\D/g,''))`);
+    check(c, 'ضغطتين ورا بعض ما تحفظ مرتين', after2 === before + 1, String(after2));
+    await tap('#btn-stop-timer').catch(() => {});
+    await choose('#rest-timer-duration', '0');
+  });
+
   await test('T26', 'v10.7: اقتراح الجولة الجاية + خطة الجلسة', async c => {
     await tap('#nav-workout');
     await choose('#exercise-dropdown', 'ex_1');
@@ -1608,7 +1685,9 @@ async function main() {
   await test('T20', 'ما فيه أي خطأ JavaScript أو تعطّل للتطبيق', async c => {
     const nativeErrors = ANDROID ? await ev(`return window.__gymNative.errors`) : [];
     check(c, 'أخطاء طبقة أندرويد = 0', nativeErrors.length === 0, nativeErrors.join(' | '));
-    check(c, 'أخطاء JavaScript = 0', jsErrors.length === 0, jsErrors.join(' | '));
+    // T31's own blocked probe (generate_204) can reach the log after T31 has finished
+    const appErrors = jsErrors.filter(e => !/generate_204/.test(e));
+    check(c, 'أخطاء JavaScript = 0', appErrors.length === 0, appErrors.join(' | '));
     if (ANDROID) {
       const crash = sh('logcat -d -b crash 2>/dev/null | head -50 || true');
       fs.writeFileSync(path.join(OUT, 'logcat-crash.txt'), crash);

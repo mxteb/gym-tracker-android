@@ -28,11 +28,36 @@ import com.getcapacitor.annotation.CapacitorPlugin;
  *  keepAwake    الشاشة ما تنطفي أثناء الجلسة (FLAG_KEEP_SCREEN_ON على نافذة التطبيق فقط).
  *  haptic       اهتزاز خفيف من نظام الجوال نفسه (يحترم إعداد "اللمس والاهتزاز" عند المستخدم).
  *  restCountdown  إشعار صامت فيه عداد تنازلي يظهر في شريط الإشعارات وشاشة القفل، ويختفي لحاله لما يخلص الوقت.
+ *                 v1.39: فيه زر «كرر: 60 كجم × 8» يفتح التطبيق ويحفظ نفس الجولة (الحدث notificationAction).
  */
 @CapacitorPlugin(name = "GymNative")
 public class GymNativePlugin extends Plugin {
     static final String CHANNEL = "rest-countdown";
     static final int COUNTDOWN_ID = 7002;
+    static final String EXTRA_ACTION = "gt_action", EXTRA_EX = "gt_ex";
+
+    @Override
+    public void load() {
+        // the app was closed and the repeat button started it: the web listener picks this up when it registers
+        deliverAction(getActivity().getIntent());
+    }
+
+    @Override
+    protected void handleOnNewIntent(Intent intent) {
+        super.handleOnNewIntent(intent);
+        deliverAction(intent);
+    }
+
+    private void deliverAction(Intent intent) {
+        if (intent == null || !"repeat".equals(intent.getStringExtra(EXTRA_ACTION))) return;
+        JSObject data = new JSObject();
+        data.put("action", "repeat");
+        data.put("exerciseId", intent.getStringExtra(EXTRA_EX));
+        data.put("at", System.currentTimeMillis());
+        intent.removeExtra(EXTRA_ACTION); // never twice for the same tap (rotation, back and forth)
+        NotificationManagerCompat.from(getContext()).cancel(COUNTDOWN_ID);
+        notifyListeners("notificationAction", data, true);
+    }
 
     @PluginMethod
     public void keepAwake(PluginCall call) {
@@ -143,6 +168,15 @@ public class GymNativePlugin extends Plugin {
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setPriority(NotificationCompat.PRIORITY_LOW);
         if (pi != null) b.setContentIntent(pi);
+        String repeat = call.getString("repeat", null);
+        Intent launch = ctx.getPackageManager().getLaunchIntentForPackage(ctx.getPackageName());
+        if (repeat != null && !repeat.isEmpty() && launch != null) {
+            launch.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            launch.putExtra(EXTRA_ACTION, "repeat");
+            launch.putExtra(EXTRA_EX, call.getString("exerciseId", ""));
+            PendingIntent repeatPi = PendingIntent.getActivity(ctx, COUNTDOWN_ID + 1, launch, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+            b.addAction(0, repeat, repeatPi);
+        }
         try {
             NotificationManagerCompat.from(ctx).notify(COUNTDOWN_ID, b.build());
             JSObject ret = new JSObject();

@@ -25,6 +25,7 @@
     'النسخة جاهزة': 'Backup ready',
     'اختر مكان الحفظ (Drive أو الملفات أو واتساب) من القائمة اللي بتطلع لك.': 'Pick where to save it (Drive, Files or WhatsApp) from the list that opens.',
     'اختيار مكان الحفظ': 'Choose where to save',
+    'كرر': 'Repeat',
     'صار خطأ أثناء تجهيز صورة الجلسة. حاول مرة ثانية.': 'Something went wrong while making the session image. Try again.',
     'شارك ملخص الجلسة': 'Share session summary',
     'صار خطأ أثناء تجهيز الملف. حاول مرة ثانية.': 'Something went wrong while preparing the file. Try again.',
