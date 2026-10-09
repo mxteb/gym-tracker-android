@@ -184,10 +184,29 @@
         [{ label: 'اختيار مكان الحفظ', primary: true, action: share, id: 'gt-share-btn' }, { label: 'إلغاء', id: 'gt-done-btn' }]);
     }
   }
+  // v1.38: the session summary image goes straight to the share sheet (WhatsApp, Instagram, gallery…)
+  async function shareImage(blobUrl, filename) {
+    var uri = null;
+    try {
+      var buf = new Uint8Array(await (await fetch(blobUrl)).arrayBuffer());
+      var bin = '';
+      for (var i = 0; i < buf.length; i += 0x8000) bin += String.fromCharCode.apply(null, buf.subarray(i, i + 0x8000));
+      var r = await Filesystem.writeFile({ path: 'share/' + filename, data: btoa(bin), directory: 'CACHE', recursive: true });
+      uri = r.uri;
+      state.exports.push({ name: filename, saved: false, place: 'cache', uri: uri, bytes: buf.length, image: true });
+    } catch (e) {
+      note('share-image', e);
+      showDialog('تعذر تجهيز الصورة', 'صار خطأ أثناء تجهيز صورة الجلسة. حاول مرة ثانية.', [{ label: 'حسنًا', primary: true }]);
+      return;
+    }
+    try { await Share.share({ title: 'Gym Tracker', files: [uri], dialogTitle: T('شارك ملخص الجلسة') }); }
+    catch (e) { if (!/cancel/i.test(String(e && e.message))) note('share', e); }
+  }
   var originalClick = HTMLAnchorElement.prototype.click;
   HTMLAnchorElement.prototype.click = function () {
     var name = this.getAttribute('download');
     var href = this.href || '';
+    if (name && href.indexOf('blob:') === 0 && Filesystem && /\.png$/i.test(name)) { shareImage(href, name); return; }
     if (name && href.indexOf('blob:') === 0 && Filesystem) { saveBackup(href, name); return; }
     return originalClick.apply(this, arguments);
   };

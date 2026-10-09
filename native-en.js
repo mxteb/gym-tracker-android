@@ -25,6 +25,8 @@
     'النسخة جاهزة': 'Backup ready',
     'اختر مكان الحفظ (Drive أو الملفات أو واتساب) من القائمة اللي بتطلع لك.': 'Pick where to save it (Drive, Files or WhatsApp) from the list that opens.',
     'اختيار مكان الحفظ': 'Choose where to save',
+    'صار خطأ أثناء تجهيز صورة الجلسة. حاول مرة ثانية.': 'Something went wrong while making the session image. Try again.',
+    'شارك ملخص الجلسة': 'Share session summary',
     'صار خطأ أثناء تجهيز الملف. حاول مرة ثانية.': 'Something went wrong while preparing the file. Try again.',
     'ما قدرت أحفظ الملف على الجهاز. تأكد إن فيه مساحة كافية وحاول مرة ثانية.': "Couldn't save the file on this phone. Make sure there is enough space and try again.",
     'مشاركة ملف Excel': 'Share Excel file',

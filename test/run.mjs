@@ -938,6 +938,23 @@ async function main() {
     check(c, `الحجم = ${tons} طن`, msg.includes(tons + ' طن'), msg);
     check(c, 'أعلى 1RM = 101.3 كجم (العقلة بوزن الجسم 80×8)', /أعلى 1RM[^|]*101\.3 كجم/.test(msg), msg);
     await shot('12-summary');
+    // v11.4 C5: share the summary as an image
+    check(c, 'زر «شارك كصورة» في الملخص', await visible('#modal-share-btn'));
+    const before = await ev(`return window.__gymNative.exports.length`);
+    await tap('#modal-share-btn');
+    await waitFor(`window.__gymNative.exports.length > ${before}`, 10000, 'session image');
+    const img = await ev(`return window.__gymNative.exports.slice(-1)[0]`);
+    check(c, 'انصنعت صورة PNG للجلسة', img && img.image && /\.png$/.test(img.name) && img.bytes > 15000, JSON.stringify(img));
+    if (ANDROID) {
+      await sleep(2500);
+      const f = focused();
+      check(c, 'قائمة المشاركة انفتحت للصورة', /Chooser|chooser|intentresolver|ResolverActivity/i.test(f), f);
+      screenshotDevice('12-share-image');
+      key(4); await sleep(1500);
+      if (!appInForeground()) { key(4); await sleep(1000); }
+      check(c, 'رجعنا للتطبيق بعد المشاركة', appInForeground(), focused());
+      await attach();
+    }
     await tap('#modal-confirm-btn');
     check(c, 'الجلسة انتهت', /لا توجد جلسة نشطة/.test(await text('#active-session-title')));
     if (ANDROID) check(c, 'بعد إنهاء الجلسة الشاشة ترجع تنطفي عادي', (await ev(`return (await Capacitor.Plugins.GymNative.keepAwakeState()).on`)) === false);
@@ -1520,6 +1537,20 @@ async function main() {
     check(c, 'قائمة الاسترجاع ما فيها ملف CSV', !/\.csv/.test(await text('#gt-native-dialog')), (await text('#gt-native-dialog')).slice(0, 160));
     await ev(`window.__gymNativeUI.close(); return true`);
   }, { androidOnly: true });
+
+  await test('T37', 'v11.4 الدفعة 2: مستوى القوة وتقرير الشهر في التحليل', async c => {
+    await tap('#nav-bento');
+    await waitFor(`document.querySelectorAll('#bento-strength .strength-row, #bento-strength .field-hint').length > 0`, 4000, 'strength card');
+    const rows = await ev(`return [...document.querySelectorAll('#bento-strength .strength-row')].map(r=>r.textContent.replace(/\\s+/g,' ').trim())`);
+    check(c, 'مستوى البنش ظاهر (سجلنا بنش بالبار)', rows.some(r => /بنش بريس/.test(r) && /1RM/.test(r)), rows.join(' | '));
+    const cells = await ev(`return document.querySelectorAll('#bento-month .month-cell').length`);
+    check(c, 'تقرير الشهر فيه 4 أرقام', cells === 4, cells);
+    await ev(`document.getElementById('bento-strength').scrollIntoView({block:'start'}); return true`);
+    await shot('37-strength-month');
+    const overflow = await ev(`return document.documentElement.scrollWidth - window.innerWidth`);
+    check(c, 'بدون تمرير أفقي', overflow <= 1, 'overflow=' + overflow);
+    await tap('#nav-workout');
+  });
 
   await test('T26', 'v10.7: اقتراح الجولة الجاية + خطة الجلسة', async c => {
     await tap('#nav-workout');
