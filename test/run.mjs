@@ -442,7 +442,15 @@ async function setupAndroid() {
   // -g grants runtime permissions at install; revoke notifications so we test the real prompt
   if (info.sdk >= 33) { try { sh(`pm revoke ${PKG} android.permission.POST_NOTIFICATIONS`); } catch { } try { sh(`pm clear-permission-flags ${PKG} android.permission.POST_NOTIFICATIONS user-set user-fixed`); } catch { } }
   // P2: "Alarms & reminders" is off by default on Android 14+. Turn it on for the main run; T32 tests it off.
-  if (info.sdk >= 31) { try { sh(`appops set ${PKG} SCHEDULE_EXACT_ALARM allow`); } catch { } }
+  // on a slow emulator the first appops call is sometimes lost: set it until it reads back as allowed
+  if (info.sdk >= 31) {
+    for (let i = 0; i < 4; i++) {
+      try { sh(`appops set ${PKG} SCHEDULE_EXACT_ALARM allow`); } catch { }
+      let got = ''; try { got = sh(`appops get ${PKG} SCHEDULE_EXACT_ALARM`); } catch { }
+      if (/allow/i.test(got)) break;
+      await sleep(1500);
+    }
+  }
   const pkg = sh(`dumpsys package ${PKG} | grep -E "versionName|versionCode|targetSdk" | head -3`);
   info.package = pkg.replace(/\s+/g, ' ').trim();
   sh('settings put system font_scale 1.0');
