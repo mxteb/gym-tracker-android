@@ -1332,6 +1332,15 @@ async function main() {
     } else {
       check(c, 'نسخة GitHub فيها تنبيه التحديث', await ev(`!!(window.__gymNative.update && window.__gymNative.update.check)`));
     }
+    // M2: text that sneaks into the page (from a backup file, say) must never run as code
+    const xss = await ev(`const s = document.createElement('script'); s.textContent = 'window.__xss = 1'; document.head.appendChild(s);
+      const i = document.createElement('img'); i.setAttribute('onerror', 'window.__xss2 = 1'); i.src = 'x:'; document.body.appendChild(i);
+      await new Promise(r => setTimeout(r, 500)); i.remove(); return (window.__xss === 1 ? 'script ran ' : '') + (window.__xss2 === 1 ? 'handler ran' : '') || 'blocked'`);
+    check(c, 'M2: كود مدسوس داخل الصفحة ما يشتغل', xss === 'blocked', xss);
+    await sleep(300);
+    for (let i = jsErrors.length - 1; i >= 0; i--) if (/Content Security Policy|x:/.test(jsErrors[i])) jsErrors.splice(i, 1);
+    const priv = await ev(`try { const t = await (await fetch('./privacy.html')).text(); return /Privacy Policy/.test(t) && /سياسة الخصوصية/.test(t); } catch (e) { return false; }`);
+    check(c, 'L1: سياسة الخصوصية داخل التطبيق بالعربي والإنجليزي', priv);
     await tap('#nav-workout');
     await ev(`window.scrollTo(0,0); return true`);
     const xml = uiDump();

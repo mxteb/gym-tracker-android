@@ -5,8 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# S3: every job can only read the repository; only "publish" can write (releases, test-results branch)
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: android-build
@@ -16,24 +17,27 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
       - name: Which website branch to build (site-ref.txt)
         id: siteref
         run: echo "ref=$(tr -d '[:space:]' < site-ref.txt)" >> "$GITHUB_OUTPUT"
 
       - name: Get the website files
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
+          persist-credentials: false
           repository: mxteb/gym-tracker
           ref: ${{ steps.siteref.outputs.ref }}
           path: site
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
         with:
           distribution: temurin
           java-version: 21
@@ -44,8 +48,16 @@ jobs:
       - name: Prepare web files (GitHub build first)
         run: ./scripts/prepare-www.sh site github
 
-      - name: Install Capacitor
-        run: npm install --no-audit --no-fund
+      - name: Install Capacitor (exact versions from package-lock.json)
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --no-audit --no-fund
+          else
+            # first run only: make the lock file; it is saved to the test-results branch to be committed
+            npm install --no-audit --no-fund --package-lock-only
+            npm ci --no-audit --no-fund
+          fi
+          mkdir -p build-info && cp package-lock.json build-info/
 
       - name: Create Android project
         run: npx cap add android
@@ -97,10 +109,17 @@ jobs:
           ./gradlew assembleRelease --no-daemon -q
           cp app/build/outputs/apk/release/app-release.apk ../GymTracker.apk
 
+      - name: Throwaway key for the test APKs (S4)
+        run: |
+          # the test APKs have WebView inspection on; signed with this key they can never install over the real app
+          keytool -genkeypair -keystore "$RUNNER_TEMP/test.keystore" -alias gymtracker -storepass testkey123 -keypass testkey123 \
+            -dname "CN=Gym Tracker test" -keyalg RSA -keysize 2048 -validity 30 -noprompt
+
       - name: Build test APK (identical, plus WebView inspection for the automated tests)
         env:
-          GT_KEYSTORE_PASSWORD: ${{ secrets.GT_KEYSTORE_PASSWORD }}
+          GT_KEYSTORE_PASSWORD: testkey123
         run: |
+          export GT_KEYSTORE="$RUNNER_TEMP/test.keystore"
           node -e "const f='capacitor.config.json';const c=require('./'+f);c.android.webContentsDebuggingEnabled=true;require('fs').writeFileSync(f,JSON.stringify(c,null,2))"
           npx cap copy android
           (cd android && ./gradlew assembleRelease --no-daemon -q)
@@ -116,6 +135,7 @@ jobs:
           npx cap copy android
           (cd android && ./gradlew bundleRelease --no-daemon -q)
           cp android/app/build/outputs/bundle/release/app-release.aab GymTracker-play.aab
+          export GT_KEYSTORE="$RUNNER_TEMP/test.keystore" GT_KEYSTORE_PASSWORD=testkey123
           node -e "const f='capacitor.config.json';const c=require('./'+f);c.android.webContentsDebuggingEnabled=true;require('fs').writeFileSync(f,JSON.stringify(c,null,2))"
           npx cap copy android
           (cd android && ./gradlew assembleRelease --no-daemon -q)
@@ -136,7 +156,7 @@ jobs:
           if sed -n '/== GymTracker-play-test.apk/,$p' build-info/permissions.txt | grep -q "android.permission.INTERNET"; then echo "::error::the Play build still asks for internet"; exit 1; fi
           if ! grep -q "targetSdkVersion:'36'" build-info/permissions.txt; then echo "::error::target SDK is not 36"; exit 1; fi
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: apks
           path: |
@@ -145,6 +165,7 @@ jobs:
             GymTracker-play.aab
             GymTracker-play-test.apk
             build-info/
+          retention-days: 3
 
   test:
     needs: build
@@ -163,13 +184,15 @@ jobs:
           # Android 16 ignores the portrait lock on tablets: check the screens in landscape
           - { name: api-36-tablet, api: 36, variant: play, apk: GymTracker-play-test.apk, profile: pixel_tablet, tablet: '1' }
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: apks
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
 
@@ -180,7 +203,7 @@ jobs:
           sudo udevadm trigger --name-match=kvm
 
       - name: Run tests on Android ${{ matrix.api }} emulator (${{ matrix.name }})
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
         env:
           OUT_DIR: results/${{ matrix.name }}
           APK: ${{ matrix.apk }}
@@ -198,22 +221,26 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: node test/run.mjs android
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: results-${{ matrix.name }}
+          retention-days: 3
           path: results/
 
   publish:
     needs: [build, test]
     if: always() && needs.build.result == 'success'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
+          persist-credentials: false
           path: repo
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           path: dl
 
