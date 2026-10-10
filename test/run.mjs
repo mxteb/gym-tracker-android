@@ -1086,6 +1086,8 @@ async function main() {
     await typeInto('#new-ex-name', 'Hip Thrust Barbell');
     check(c, 'منع التكرار: زر الإضافة معطل', await ev(`document.getElementById('add-ex-submit-btn').disabled`));
     await typeInto('#new-ex-name', '');
+    // close the keyboard first (the page now opens with the name field focused), so the layout is still when we tap
+    await ev(`document.activeElement && document.activeElement.blur(); return true`); await sleep(800);
     await tap('[data-action="delete-custom-ex"]');
     await waitFor(`!document.getElementById('custom-modal').classList.contains('hidden')`, 4000, 'confirm');
     await tap('#modal-confirm-btn');
