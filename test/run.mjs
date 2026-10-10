@@ -1077,6 +1077,8 @@ async function main() {
     await typeInto('#new-ex-name', 'Hip Thrust Barbell');
     check(c, 'التصنيف التلقائي اشتغل', await visible('#new-ex-status') && (await val('#new-ex-cat')) === 'legs', await val('#new-ex-cat'));
     await clearToasts();
+    // close the keyboard first: on API 30 the first tap only closed it and the page moved under the finger (CI 43, 44)
+    await ev(`document.activeElement && document.activeElement.blur(); return true`); await sleep(800);
     await tap('#add-ex-submit-btn');
     await waitToast(/انضاف/);
     check(c, 'رجع للتمرين واختار التمرين الجديد', await visible('#screen-workout') && /Hip Thrust Barbell/.test(await ev(`const d=document.getElementById('exercise-dropdown'); return d.options[d.selectedIndex]?.textContent || ''`)));
