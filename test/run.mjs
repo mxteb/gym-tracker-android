@@ -1019,7 +1019,7 @@ async function main() {
     check(c, 'التقويم معلّم اليوم يوم تمرين', await ev(`return !!document.querySelector('.cal-day.on.today')`));
     check(c, 'الأسابيع المتتالية = 1', (await text('#cal-streak')) === '1', await text('#cal-streak'));
     const muscles = await text('#muscle-bars');
-    check(c, 'العضلات هالأسبوع: صدر وظهر وأرجل محسوبة', /صدر\s*[1-9]/.test(muscles) && /أرجل\s*[1-9]/.test(muscles) && /ظهر\s*[1-9]/.test(muscles), muscles);
+    check(c, 'العضلات هالأسبوع: صدر وظهر وأرجل محسوبة', /صدر\s*[+−]?\s*[1-9]/.test(muscles) && /أرجل\s*[+−]?\s*[1-9]/.test(muscles) && /ظهر\s*[+−]?\s*[1-9]/.test(muscles), muscles);
     await shot('27-calendar');
     const items = await ev(`return document.querySelectorAll('#sessions-list .session-item').length`);
     check(c, 'سجل الجلسات فيه الجلسة المنتهية', items >= 1, items);
@@ -1761,6 +1761,28 @@ async function main() {
       await sleep(800);
       if (!(await ev(`return document.getElementById('custom-modal').classList.contains('hidden')`))) await tap('#modal-cancel-btn');
     }
+  });
+
+  await test('T42', 'v12: مجسم العضلات المفصّل، الضغط على العضلة، وأنت تختار عضلات التمرين', async c => {
+    await tap('#nav-bento');
+    const n = await ev(`return new Set([...document.querySelectorAll('#rec-figs .rec-part')].map(p=>p.dataset.muscle)).size`);
+    check(c, 'المجسم فيه 26 عضلة', n === 26, String(n));
+    await ev(`document.querySelector('#rec-figs').scrollIntoView({block:'center'}); return true`); await sleep(400);
+    await tap('#rec-figs .rec-part[data-muscle="lats"]');
+    await waitFor(`!document.getElementById('rec-detail').hidden`, 4000, 'muscle detail');
+    check(c, 'الضغط على المجنص يطلع حالته وتمارينه', /المجنص/.test(await text('#rec-detail')) && (await ev(`return document.querySelectorAll('#rec-detail .rec-ex li').length`)) >= 3, await text('#rec-detail'));
+    await shot('42-muscle-map');
+    await tap('[data-rec-close]');
+    await openTab('exercises');
+    await typeInto('#new-ex-name', 'Incline Smith Press');
+    check(c, 'التخمين من الاسم: صدر علوي أساسية', (await ev(`return [...document.querySelectorAll('#new-ex-chips [data-role="main"]')].map(x=>x.dataset.part).join()`)) === 'chest_up');
+    await ev(`document.querySelector('#new-ex-chips [data-part="delt_s"]').scrollIntoView({block:'center'}); return true`); await sleep(400);
+    await tap('#new-ex-chips [data-part="delt_s"]');
+    await tap('#new-ex-chips [data-part="delt_s"]');
+    check(c, 'ضغطتين = مساعدة، وراحت كلمة «متخمّنة»', (await ev(`return document.querySelector('#new-ex-chips [data-part="delt_s"]').dataset.role`)) === 'help' && (await ev(`return document.getElementById('new-ex-guess').hidden`)));
+    await shot('42-picker');
+    await typeInto('#new-ex-name', '');
+    await tap('#exercises-back');
   });
 
   await test('T26', 'v10.7: اقتراح الجولة الجاية + خطة الجلسة', async c => {
