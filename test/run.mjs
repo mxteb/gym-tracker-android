@@ -265,6 +265,12 @@ async function visible(sel) {
   return ev(`const el=document.querySelector(${q(sel)}); if(!el) return false; const r=el.getBoundingClientRect(); const cs=getComputedStyle(el); return r.width>0&&r.height>0&&cs.visibility!=='hidden'&&cs.display!=='none'`);
 }
 
+// v11.8: the add-exercise page has no dock tab any more; it opens from «+ تمرين جديد» on the workout screen
+async function openTab(tab) {
+  if (tab === 'exercises') { await tap('#nav-workout'); await tap('#btn-new-exercise'); }
+  else await tap('#nav-' + tab);
+}
+
 async function tap(sel, { allowCovered = false } = {}) {
   // wait until the element stops moving (keyboard or animations can shift layout)
   let r = await measure(sel);
@@ -514,7 +520,7 @@ async function main() {
 
   await test('T02', 'كل الشاشات وكل الأزرار قابلة للضغط (مو مغطاة)', async c => {
     for (const tab of ['workout', 'exercises', 'progress', 'bento', 'profile']) {
-      await tap('#nav-' + tab);
+      await openTab(tab);
       await waitFor(`!document.getElementById('screen-${tab}').classList.contains('hidden')`, 4000, 'screen ' + tab);
       const others = await ev(`return [...document.querySelectorAll('.screen-content')].filter(e=>!e.classList.contains('hidden')).map(e=>e.id)`);
       check(c, `تبويب ${tab} يفتح لحاله`, others.length === 1 && others[0] === 'screen-' + tab, others.join(','));
@@ -545,16 +551,20 @@ async function main() {
   await test('T03', 'البروفايل وحسابات التحليل (BMR/TDEE/BMI/WHtR/FFMI)', async c => {
     await tap('#nav-profile');
     await typeInto('#prof-name', 'Test');
-    await typeInto('#prof-weight', 80);
     await typeInto('#prof-height', 178);
-    await typeInto('#prof-waist', 85);
     await typeInto('#prof-age', 30);
     await choose('#prof-activity', '1.55');
+    await clearToasts();
+    await tap('#btn-save-profile');
+    await waitToast(/تم حفظ القياسات/);
+    await tap('#nav-bento');
+    await typeInto('#prof-weight', 80);
+    await typeInto('#prof-waist', 85);
     await typeInto('#prof-fat', 18);
     await typeInto('#prof-muscle', 42);
     await typeInto('#prof-water', 55);
     await clearToasts();
-    await tap('#btn-save-profile');
+    await tap('#btn-save-body');
     await waitToast(/تم حفظ القياسات/);
     check(c, 'رسالة الحفظ ظهرت', true);
     check(c, 'سجل القياسات فيه وزن اليوم 80', /80 كجم/.test(await text('#profile-history-list')), await text('#profile-history-list'));
@@ -1063,12 +1073,14 @@ async function main() {
   });
 
   await test('T14', 'إضافة تمرين مخصص وتصنيفه وحذفه', async c => {
-    await tap('#nav-exercises');
+    await openTab('exercises');
     await typeInto('#new-ex-name', 'Hip Thrust Barbell');
     check(c, 'التصنيف التلقائي اشتغل', await visible('#new-ex-status') && (await val('#new-ex-cat')) === 'legs', await val('#new-ex-cat'));
     await clearToasts();
     await tap('#add-ex-submit-btn');
-    await waitToast(/تمت إضافة التمرين/);
+    await waitToast(/انضاف/);
+    check(c, 'رجع للتمرين واختار التمرين الجديد', await visible('#screen-workout') && /Hip Thrust Barbell/.test(await ev(`const d=document.getElementById('exercise-dropdown'); return d.options[d.selectedIndex]?.textContent || ''`)));
+    await openTab('exercises');
     check(c, 'العداد = 1', /^1 /.test(await text('#custom-ex-count')), await text('#custom-ex-count'));
     check(c, 'التمرين ظاهر بالقائمة', /Hip Thrust Barbell/.test(await text('#manage-exercises-list')));
     await typeInto('#new-ex-name', 'Hip Thrust Barbell');
@@ -1433,7 +1445,7 @@ async function main() {
       info['tablet_' + label] = JSON.stringify(dims);
       if (label === 'land') soft(c, 'التطبيق صار بالعرض فعلاً', dims.w > dims.h, JSON.stringify(dims));
       for (const tab of ['workout', 'exercises', 'progress', 'bento', 'profile']) {
-        await tap('#nav-' + tab);
+        await openTab(tab);
         await ev(`window.scrollTo(0,0); return true`);
         await shot(`33-${label}-${tab}`);
         const overflow = await ev(`return document.documentElement.scrollWidth - window.innerWidth`);
@@ -1457,7 +1469,7 @@ async function main() {
     check(c, 'الشريط السفلي بالإنجليزي', /Workout/.test(await text('#nav-workout')), await text('#nav-workout'));
     const scan = `const AR=/[\\u0600-\\u06FF]/; const out=[]; const tw=document.createTreeWalker(document.getElementById('screen-'+TAB),4); let n; while((n=tw.nextNode())){ if(!AR.test(n.nodeValue)) continue; let e=n.parentNode, skip=false; for(;e&&e.nodeType===1;e=e.parentNode){ if(e.getAttribute('translate')==='no'){skip=true;break;} } if(!skip) out.push(n.nodeValue.trim()); } return out;`;
     for (const tab of ['workout', 'exercises', 'progress', 'bento', 'profile']) {
-      await tap('#nav-' + tab);
+      await openTab(tab);
       await ev(`window.scrollTo(0,0); return true`);
       await shot(`34-en-${tab}`);
       const left = await ev(scan.replace(/TAB/g, `'${tab}'`));
@@ -1619,10 +1631,19 @@ async function main() {
       if (btn) { sh(`input tap ${Math.round(btn.x)} ${Math.round(btn.y)}`); tapped = true; }
       else { sh('cmd statusbar collapse'); await sleep(500); sh(`am start -n ${PKG}/.MainActivity --es gt_action repeat --es gt_ex ex_1 -f 0x20000000`); }
       soft(c, 'الزر انضغط من شاشة الإشعارات نفسها', tapped, tapped ? '' : 'used the intent');
-      await sleep(3000);
+      await sleep(1500);
+      // CI 42: the action fired but the shade stayed open over the app; close it so the app comes back
+      sh('cmd statusbar collapse'); await sleep(1500);
       if (!appInForeground()) { startApp(); await sleep(1500); }
       await attach();
       screenshotDevice('38-after-repeat');
+      const cnt = `return Number((document.getElementById('today-sets-count')?.textContent||'').replace(/\\D/g,''))`;
+      let got = false;
+      for (let i = 0; i < 10 && !got; i++) { got = (await ev(cnt)) === before + 1; if (!got) await sleep(500); }
+      if (!got && tapped) {
+        soft(c, 'زر الإشعار وصل للتطبيق من الشاشة نفسها', false, 'emulator shade tap did not reach the app; sending the same intent the button sends');
+        sh(`am start -n ${PKG}/.MainActivity --es gt_action repeat --es gt_ex ex_1 -f 0x20000000`); await sleep(2500); await attach();
+      }
     } else {
       await ev(`window.__gymNativeRepeat({ exerciseId: 'ex_1' }); return true`);
     }
@@ -1710,6 +1731,31 @@ async function main() {
     await tap('#unit-btn-kg');
   });
 
+  await test('T41', 'v11.8 المرحلة 2: أربع تبويبات، «وش يعني»، ومؤقت الجلسة على التبويب', async c => {
+    const tabs = await ev(`return [...document.querySelectorAll('#floating-dock .dock-item')].filter(b=>b.getClientRects().length).length`);
+    check(c, 'الشريط السفلي فيه 4 تبويبات', tabs === 4, String(tabs));
+    await tap('#nav-workout');
+    await tap('[data-help="rir"]');
+    await waitFor(`!document.getElementById('screen-help').classList.contains('hidden')`, 4000, 'help');
+    check(c, 'زر «؟» يفتح شرح RIR مفتوح', await ev(`return document.getElementById('help-rir').open`));
+    await shot('41-help');
+    await tap('#help-back');
+    check(c, 'رجوع يرجعك للتمرين', await visible('#screen-workout'));
+    const wasActive = await ev(`return document.getElementById('btn-start-session').disabled`);
+    if (!wasActive) await tap('#btn-start-session');
+    await sleep(1500);
+    await tap('#nav-progress');
+    check(c, 'مؤقت الجلسة ظاهر على تبويب التمرين', await ev(`const t=document.getElementById('nav-workout-timer'); return !t.hidden && /[0-9]{2}:[0-9]{2}/.test(t.textContent)`));
+    await shot('41-dock-timer');
+    await tap('#nav-workout');
+    if (!wasActive) {
+      await tap('#btn-finish-session');
+      await tap('#btn-confirm-finish');
+      await sleep(800);
+      if (!(await ev(`return document.getElementById('custom-modal').classList.contains('hidden')`))) await tap('#modal-cancel-btn');
+    }
+  });
+
   await test('T26', 'v10.7: اقتراح الجولة الجاية + خطة الجلسة', async c => {
     await tap('#nav-workout');
     await choose('#exercise-dropdown', 'ex_1');
@@ -1750,7 +1796,7 @@ async function main() {
     try { sh('cmd uimode night yes'); } catch { }
     await restartApp(c);
     for (const tab of ['workout', 'exercises', 'progress', 'bento', 'profile']) {
-      await tap('#nav-' + tab);
+      await openTab(tab);
       await ev(`window.scrollTo(0,0); return true`);
       await shot(`19-bigfont-${tab}`);
       const overflow = await ev(`return document.documentElement.scrollWidth - window.innerWidth`);
