@@ -1817,7 +1817,9 @@ async function main() {
     const nativeErrors = ANDROID ? await ev(`return window.__gymNative.errors`) : [];
     check(c, 'أخطاء طبقة أندرويد = 0', nativeErrors.length === 0, nativeErrors.join(' | '));
     // T31's own blocked probe (generate_204) can reach the log after T31 has finished
-    const appErrors = jsErrors.filter(e => !/generate_204/.test(e));
+    // and GitHub can rate-limit the update check (403/429 from the shared CI address, CI 45); the app catches it,
+    // only the browser logs the failed request. Any other failure still counts.
+    const appErrors = jsErrors.filter(e => !/generate_204/.test(e) && !/status of (403|429) .*api\.github\.com\/repos\/mxteb\/gym-tracker-android\/releases\/latest/.test(e));
     check(c, 'أخطاء JavaScript = 0', appErrors.length === 0, appErrors.join(' | '));
     if (ANDROID) {
       const crash = sh('logcat -d -b crash 2>/dev/null | head -50 || true');
