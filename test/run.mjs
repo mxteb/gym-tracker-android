@@ -1682,6 +1682,34 @@ async function main() {
     await tap('#nav-workout');
   });
 
+  await test('T40', 'v11.7 المرحلة 1: بحث بدون همزات، حجم الخط، والوحدة لكل تمرين', async c => {
+    await tap('#nav-workout');
+    await typeInto('#exercise-search-input', 'اكتاف');
+    check(c, 'البحث «اكتاف» يلقى ضغط الأكتاف', await ev(`return [...document.getElementById('exercise-dropdown').options].some(o=>o.value==='ex_11')`));
+    await typeInto('#exercise-search-input', '');
+    await tap('#nav-profile');
+    await tap('[data-font-pick="xlarge"]');
+    await sleep(500);
+    check(c, 'الخط الأكبر انطبق', await ev(`return getComputedStyle(document.documentElement).fontSize`) === '20px');
+    await shot('40-font-xlarge');
+    const overflow = await ev(`return document.documentElement.scrollWidth - window.innerWidth`);
+    check(c, 'بالخط الأكبر بدون تمرير أفقي', overflow <= 1, 'overflow=' + overflow);
+    await tap('[data-font-pick="normal"]');
+    await tap('#nav-workout');
+    await choose('#exercise-dropdown', 'ex_14');
+    await tap('#unit-btn-lbs');
+    await typeInto('#input-weight', 90); await typeInto('#input-reps', 10);
+    await choose('#rest-timer-duration', '0');
+    await clearToasts();
+    await tap('#btn-save-weights');
+    await waitToast(/تم حفظ/);
+    await choose('#exercise-dropdown', 'ex_1');
+    check(c, 'البنش يرجع بالكيلو', await ev(`return document.getElementById('unit-btn-kg').className.includes('bg-cyan-500')`));
+    await choose('#exercise-dropdown', 'ex_14');
+    check(c, 'جهاز الأكتاف يفتح بالباوند', await ev(`return document.getElementById('unit-btn-lbs').className.includes('bg-cyan-500')`));
+    await tap('#unit-btn-kg');
+  });
+
   await test('T26', 'v10.7: اقتراح الجولة الجاية + خطة الجلسة', async c => {
     await tap('#nav-workout');
     await choose('#exercise-dropdown', 'ex_1');
