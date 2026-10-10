@@ -356,10 +356,13 @@ async function choose(sel, value) {
   await sleep(250);
 }
 async function lastToast() { return ev(`const t=[...document.querySelectorAll('#toast-container > div')]; return t.length?t[t.length-1].textContent:''`); }
+// v11.8+: one toast at a time (a new one replaces the old), so a quick second toast can hide the one we wait for.
+// clearToasts() starts a log of every toast shown, and waitToast() looks in that log too (CI 47, T38 on API 30).
+const TOAST_LOG = `(()=>{ if(!window.__gtToastObs){ const c=document.getElementById('toast-container'); if(!c) return; window.__gtToasts=[]; window.__gtToastObs=new MutationObserver(()=>{ for(const t of c.children) if(!window.__gtToasts.includes(t.textContent)) window.__gtToasts.push(t.textContent); }); window.__gtToastObs.observe(c,{childList:true,subtree:true,characterData:true}); } })()`;
 async function waitToast(re, timeout = 6000) {
-  await waitFor(`[...document.querySelectorAll('#toast-container > div')].some(t=>${re}.test(t.textContent))`, timeout, 'toast ' + re);
+  await waitFor(`[...document.querySelectorAll('#toast-container > div')].some(t=>${re}.test(t.textContent)) || (window.__gtToasts||[]).some(t=>${re}.test(t))`, timeout, 'toast ' + re);
 }
-async function clearToasts() { await ev(`document.querySelectorAll('#toast-container > div').forEach(t=>t.remove()); return true`); }
+async function clearToasts() { await ev(`${TOAST_LOG}; window.__gtToasts=[]; document.querySelectorAll('#toast-container > div').forEach(t=>t.remove()); return true`); }
 async function shot(name) {
   if (ANDROID) { await sleep(400); screenshotDevice(name); return; }
   const r = await cdp.send('Page.captureScreenshot', { format: 'png' });
