@@ -1,0 +1,632 @@
+{
+  "info": {
+    "variant": "play (tablet)",
+    "device": "sdk_gphone64_x86_64 / Android 16 (API 36)",
+    "sdk": 36,
+    "package": "versionCode=49 minSdk=23 targetSdk=36 versionName=1.49",
+    "userAgent": "Mozilla/5.0 (Linux; Android 16; sdk_gphone64_x86_64 Build/BE2A.250530.026.F3; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/133.0.6943.137 Safari/537.36",
+    "webview": "133.0.6943.137",
+    "audit_workout": {
+      "controls": 62,
+      "covered": [],
+      "small": []
+    },
+    "audit_exercises": {
+      "controls": 32,
+      "covered": [],
+      "small": []
+    },
+    "audit_progress": {
+      "controls": 19,
+      "covered": [],
+      "small": []
+    },
+    "audit_bento": {
+      "controls": 11,
+      "covered": [],
+      "small": []
+    },
+    "audit_profile": {
+      "controls": 28,
+      "covered": [],
+      "small": [
+        {
+          "id": "gt-weekly-on",
+          "ok": true,
+          "hit": null,
+          "w": 20,
+          "h": 44
+        }
+      ]
+    },
+    "webviewBounds": "{\"wv\":{\"top\":48,\"bottom\":1536},\"screen\":[2560,1600],\"rot\":0}",
+    "tablet_land": "{\"w\":1280,\"h\":744}",
+    "tablet_port": "{\"w\":800,\"h\":1224}"
+  },
+  "passed": 5,
+  "failed": 0,
+  "skipped": 37,
+  "issues": [],
+  "jsErrors": [],
+  "results": [
+    {
+      "id": "T01",
+      "title": "التشغيل الأول: التخزين، المكتبة، Service Worker",
+      "status": "pass",
+      "ms": 2824,
+      "checks": [
+        {
+          "label": "شارة الحفظ تقول محفوظ على الجهاز (IndexedDB شغال)",
+          "ok": true,
+          "detail": "محفوظ على هذا الجهاز ✓"
+        },
+        {
+          "label": "مكتبة التمارين كاملة 69 تمرين",
+          "ok": true,
+          "detail": "كل التمارين · 69 نتيجة"
+        },
+        {
+          "label": "ما فيه جلسة نشطة",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "يشتغل كتطبيق أندرويد أصلي (Capacitor)",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "طبقة أندرويد محملة",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "Service Worker معطل داخل التطبيق",
+          "ok": true,
+          "detail": "registrations=0"
+        },
+        {
+          "label": "التطبيق في الواجهة",
+          "ok": true,
+          "detail": "mCurrentFocus=Window{912a1c8 u0 com.mxteb.gymtracker/com.mxteb.gymtracker.MainActivity}\n  mFocusedApp=ActivityRecord{43623117 u0 com.mxteb.gymtracker/.MainActivity t8}"
+        },
+        {
+          "label": "بدون جلسة: التطبيق ما يمسك الشاشة شغالة",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "ما فيه تمرير أفقي (الصفحة مضبوطة على عرض الجوال)",
+          "ok": true,
+          "detail": "overflow=0"
+        }
+      ]
+    },
+    {
+      "id": "T02",
+      "title": "كل الشاشات وكل الأزرار قابلة للضغط (مو مغطاة)",
+      "status": "pass",
+      "ms": 25146,
+      "checks": [
+        {
+          "label": "تبويب workout يفتح لحاله",
+          "ok": true,
+          "detail": "screen-workout"
+        },
+        {
+          "label": "أيقونة workout مفعلة",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "workout: 62 عنصر قابل للضغط، كلها مكشوفة",
+          "ok": true,
+          "detail": "[]"
+        },
+        {
+          "label": "workout: بدون تمرير أفقي",
+          "ok": true,
+          "detail": "overflow=0"
+        },
+        {
+          "label": "تبويب exercises يفتح لحاله",
+          "ok": true,
+          "detail": "screen-exercises"
+        },
+        {
+          "label": "أيقونة exercises مفعلة",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "exercises: 32 عنصر قابل للضغط، كلها مكشوفة",
+          "ok": true,
+          "detail": "[]"
+        },
+        {
+          "label": "exercises: بدون تمرير أفقي",
+          "ok": true,
+          "detail": "overflow=0"
+        },
+        {
+          "label": "تبويب progress يفتح لحاله",
+          "ok": true,
+          "detail": "screen-progress"
+        },
+        {
+          "label": "أيقونة progress مفعلة",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "progress: 19 عنصر قابل للضغط، كلها مكشوفة",
+          "ok": true,
+          "detail": "[]"
+        },
+        {
+          "label": "progress: بدون تمرير أفقي",
+          "ok": true,
+          "detail": "overflow=0"
+        },
+        {
+          "label": "تبويب bento يفتح لحاله",
+          "ok": true,
+          "detail": "screen-bento"
+        },
+        {
+          "label": "أيقونة bento مفعلة",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "bento: 11 عنصر قابل للضغط، كلها مكشوفة",
+          "ok": true,
+          "detail": "[]"
+        },
+        {
+          "label": "bento: بدون تمرير أفقي",
+          "ok": true,
+          "detail": "overflow=0"
+        },
+        {
+          "label": "تبويب profile يفتح لحاله",
+          "ok": true,
+          "detail": "screen-profile"
+        },
+        {
+          "label": "أيقونة profile مفعلة",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "profile: 28 عنصر قابل للضغط، كلها مكشوفة",
+          "ok": true,
+          "detail": "[]"
+        },
+        {
+          "label": "profile: بدون تمرير أفقي",
+          "ok": true,
+          "detail": "overflow=0"
+        }
+      ]
+    },
+    {
+      "id": "T03",
+      "title": "البروفايل وحسابات التحليل (BMR/TDEE/BMI/WHtR/FFMI)",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T04",
+      "title": "بدء جلسة وعداد الجلسة",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T05",
+      "title": "تسجيل جولة بار: الأزرار + - والعدات وRIR و1RM والسجل",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T06",
+      "title": "دمبل لكل يد، وزن الجسم، تمرين بالوقت، باوند، تسخين",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T07",
+      "title": "الكارديو: جهاز المشي والدراجة وحساب السعرات",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T24",
+      "title": "v10.6: الرسمة حسب نوع التمرين + وزن الجهاز",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T25",
+      "title": "v10.7: كرر الجولة، الراحة ±15، الشاشة شغالة، الاهتزاز، العداد في شاشة القفل",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T08",
+      "title": "تعديل جولة + زر الرجوع يقفل نافذة التعديل",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T09",
+      "title": "حذف جولة (إلغاء ثم تأكيد)",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T28",
+      "title": "v10.9: سحب الجولة يسار = حذف مع تراجع، يمين = تعديل، وسحبة صغيرة ما تسوي شي",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T10",
+      "title": "قفل التطبيق بالكامل وفتحه: كل شي محفوظ والجلسة مستمرة",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T11",
+      "title": "مؤقت الراحة: يخلص والتطبيق مفتوح، ويجي إشعار لو التطبيق بالخلفية",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T12",
+      "title": "إنهاء الجلسة والملخص (الجولات والحجم بالطن)",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T13",
+      "title": "شاشة التطور: الإحصائيات والرسم البياني",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T27",
+      "title": "v10.8: الأرقام القياسية، التقويم، العضلات، سجل الجلسات، رسم الوزن",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T29",
+      "title": "v11: الثيمات — الدفتر صفوف وجداول، الساعة مؤقتات LED وأزرار ضخمة، والرجوع للأقراص",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T14",
+      "title": "إضافة تمرين مخصص وتصنيفه وحذفه",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T15",
+      "title": "تصدير نسخة احتياطية: ينحفظ ملف في التنزيلات + المشاركة",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T16",
+      "title": "مسح شامل ثم استيراد النسخة: كل البيانات ترجع مثل ما كانت",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T17",
+      "title": "زر الرجوع: يرجع للتمرين، وبعدها يصغّر التطبيق بدون ما يقفله",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T18",
+      "title": "تثبيت تحديث فوق التطبيق: البيانات ما تنمسح",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T30",
+      "title": "طبقة أندرويد على محاكاة Capacitor (فحص سريع قبل المحاكي)",
+      "status": "skip",
+      "detail": "local only"
+    },
+    {
+      "id": "T21",
+      "title": "D2: استرجاع نسخة من القائمة داخل التطبيق",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T22",
+      "title": "D3: تذكير أسبوعي بالنسخة (تشغيل وإيقاف)",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T23",
+      "title": "نسخة المتجر: بدون تنبيه تحديث، و«وش الجديد» يشتغل",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T31",
+      "title": "سياسة المتجر: أندرويد 16، بدون منبّه دقيق، وبدون إنترنت، والصفحة ما تدخل تحت الأشرطة",
+      "status": "pass",
+      "ms": 7114,
+      "checks": [
+        {
+          "label": "التطبيق مبني على أندرويد 16 (targetSdk 36)",
+          "ok": true,
+          "detail": "targetSdk=36"
+        },
+        {
+          "label": "ما يطلب USE_EXACT_ALARM",
+          "ok": true,
+          "detail": " android.permission.POST_NOTIFICATIONS android.permission.RECEIVE_BOOT_COMPLETED android.permission.SCHEDULE_EXACT_ALARM com.mxteb.gymtracker.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION android.permission.VIBRATE android.permission.WAKE_LOCK "
+        },
+        {
+          "label": "يطلب إذن «المنبّهات والتذكيرات» العادي",
+          "ok": true,
+          "detail": " android.permission.POST_NOTIFICATIONS android.permission.RECEIVE_BOOT_COMPLETED android.permission.SCHEDULE_EXACT_ALARM com.mxteb.gymtracker.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION android.permission.VIBRATE android.permission.WAKE_LOCK "
+        },
+        {
+          "label": "نسخة المتجر ما تطلب الإنترنت",
+          "ok": true,
+          "detail": " android.permission.POST_NOTIFICATIONS android.permission.RECEIVE_BOOT_COMPLETED android.permission.SCHEDULE_EXACT_ALARM com.mxteb.gymtracker.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION android.permission.VIBRATE android.permission.WAKE_LOCK "
+        },
+        {
+          "label": "نسخة المتجر ما فيها كود التحديث من GitHub",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "لو حاول أي كود يتصل بالنت ينمنع",
+          "ok": true,
+          "detail": "blocked: Failed to fetch"
+        },
+        {
+          "label": "M2: كود مدسوس داخل الصفحة ما يشتغل",
+          "ok": true,
+          "detail": "blocked"
+        },
+        {
+          "label": "L1: سياسة الخصوصية داخل التطبيق بالعربي والإنجليزي",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "الصفحة تبدأ تحت شريط الساعة (مو تحته)",
+          "ok": true,
+          "detail": "{\"wv\":{\"top\":48,\"bottom\":1536},\"screen\":[2560,1600],\"rot\":0}"
+        },
+        {
+          "label": "والصفحة تخلص فوق شريط التنقل",
+          "ok": true,
+          "soft": true,
+          "detail": "{\"wv\":{\"top\":48,\"bottom\":1536},\"screen\":[2560,1600],\"rot\":0}"
+        }
+      ]
+    },
+    {
+      "id": "T32",
+      "title": "P2: تنبيه الراحة على الثانية: الشرح مرة وحدة، وزر الإذن في البروفايل",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T33",
+      "title": "P3: تابلت بالعرض والطول (أندرويد 16 يتجاهل قفل الوضع العمودي)",
+      "status": "pass",
+      "ms": 33249,
+      "checks": [
+        {
+          "label": "التطبيق صار بالعرض فعلاً",
+          "ok": true,
+          "soft": true,
+          "detail": "{\"w\":1280,\"h\":744}"
+        },
+        {
+          "label": "land workout: بدون تمرير أفقي",
+          "ok": true,
+          "detail": "overflow=0"
+        },
+        {
+          "label": "land workout: الشريط السفلي كامل داخل الشاشة",
+          "ok": true,
+          "detail": "{\"bottom\":744,\"vh\":744,\"left\":0,\"right\":1280,\"vw\":1280}"
+        },
+        {
+          "label": "land exercises: بدون تمرير أفقي",
+          "ok": true,
+          "detail": "overflow=0"
+        },
+        {
+          "label": "land exercises: الشريط السفلي كامل داخل الشاشة",
+          "ok": true,
+          "detail": "{\"bottom\":744,\"vh\":744,\"left\":0,\"right\":1280,\"vw\":1280}"
+        },
+        {
+          "label": "land progress: بدون تمرير أفقي",
+          "ok": true,
+          "detail": "overflow=0"
+        },
+        {
+          "label": "land progress: الشريط السفلي كامل داخل الشاشة",
+          "ok": true,
+          "detail": "{\"bottom\":744,\"vh\":744,\"left\":0,\"right\":1280,\"vw\":1280}"
+        },
+        {
+          "label": "land bento: بدون تمرير أفقي",
+          "ok": true,
+          "detail": "overflow=0"
+        },
+        {
+          "label": "land bento: الشريط السفلي كامل داخل الشاشة",
+          "ok": true,
+          "detail": "{\"bottom\":744,\"vh\":744,\"left\":0,\"right\":1280,\"vw\":1280}"
+        },
+        {
+          "label": "land profile: بدون تمرير أفقي",
+          "ok": true,
+          "detail": "overflow=0"
+        },
+        {
+          "label": "land profile: الشريط السفلي كامل داخل الشاشة",
+          "ok": true,
+          "detail": "{\"bottom\":744,\"vh\":744,\"left\":0,\"right\":1280,\"vw\":1280}"
+        },
+        {
+          "label": "port workout: بدون تمرير أفقي",
+          "ok": true,
+          "detail": "overflow=0"
+        },
+        {
+          "label": "port workout: الشريط السفلي كامل داخل الشاشة",
+          "ok": true,
+          "detail": "{\"bottom\":1224,\"vh\":1224,\"left\":0,\"right\":800,\"vw\":800}"
+        },
+        {
+          "label": "port exercises: بدون تمرير أفقي",
+          "ok": true,
+          "detail": "overflow=0"
+        },
+        {
+          "label": "port exercises: الشريط السفلي كامل داخل الشاشة",
+          "ok": true,
+          "detail": "{\"bottom\":1224,\"vh\":1224,\"left\":0,\"right\":800,\"vw\":800}"
+        },
+        {
+          "label": "port progress: بدون تمرير أفقي",
+          "ok": true,
+          "detail": "overflow=0"
+        },
+        {
+          "label": "port progress: الشريط السفلي كامل داخل الشاشة",
+          "ok": true,
+          "detail": "{\"bottom\":1224,\"vh\":1224,\"left\":0,\"right\":800,\"vw\":800}"
+        },
+        {
+          "label": "port bento: بدون تمرير أفقي",
+          "ok": true,
+          "detail": "overflow=0"
+        },
+        {
+          "label": "port bento: الشريط السفلي كامل داخل الشاشة",
+          "ok": true,
+          "detail": "{\"bottom\":1224,\"vh\":1224,\"left\":0,\"right\":800,\"vw\":800}"
+        },
+        {
+          "label": "port profile: بدون تمرير أفقي",
+          "ok": true,
+          "detail": "overflow=0"
+        },
+        {
+          "label": "port profile: الشريط السفلي كامل داخل الشاشة",
+          "ok": true,
+          "detail": "{\"bottom\":1224,\"vh\":1224,\"left\":0,\"right\":800,\"vw\":800}"
+        }
+      ]
+    },
+    {
+      "id": "T34",
+      "title": "v11.1: الإنجليزي — التطبيق كله يتحول ومن اليسار لليمين، والرجوع للعربي",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T35",
+      "title": "v11.3 الدفعة 1: ملاحظة التمرين، الراحة لكل تمرين، سهل/مناسب/صعب، الجهاز مشغول",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T36",
+      "title": "v11.3: تصدير Excel (CSV) ينحفظ .csv في التنزيلات ويفتحه Excel بالعربي",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T37",
+      "title": "v11.4 الدفعة 2: مستوى القوة وتقرير الشهر في التحليل",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T38",
+      "title": "v11.5 الدفعة 3: يمين ويسار، «عندي وقت» في الخطة، و«كرر الجولة» من الإشعار",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T39",
+      "title": "v11.6 الدفعة 4: البرامج الجاهزة، طريقة الأداء، ووضع رمضان",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T40",
+      "title": "v11.7 المرحلة 1: بحث بدون همزات، حجم الخط، والوحدة لكل تمرين",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T41",
+      "title": "v11.8 المرحلة 2: أربع تبويبات، «وش يعني»، ومؤقت الجلسة على التبويب",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T42",
+      "title": "v12: مجسم العضلات المفصّل، الضغط على العضلة، وأنت تختار عضلات التمرين",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T26",
+      "title": "v10.7: اقتراح الجولة الجاية + خطة الجلسة",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T19",
+      "title": "خط الجوال كبير (130%) والوضع الليلي: الشكل ما يخرب",
+      "status": "skip",
+      "detail": "phone only"
+    },
+    {
+      "id": "T20",
+      "title": "ما فيه أي خطأ JavaScript أو تعطّل للتطبيق",
+      "status": "pass",
+      "ms": 25,
+      "checks": [
+        {
+          "label": "أخطاء طبقة أندرويد = 0",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "أخطاء JavaScript = 0",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "ما فيه أي كراش",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    }
+  ]
+}

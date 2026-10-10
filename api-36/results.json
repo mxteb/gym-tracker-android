@@ -1,0 +1,2048 @@
+{
+  "info": {
+    "variant": "play",
+    "device": "sdk_gphone64_x86_64 / Android 16 (API 36)",
+    "sdk": 36,
+    "package": "versionCode=49 minSdk=23 targetSdk=36 versionName=1.49",
+    "userAgent": "Mozilla/5.0 (Linux; Android 16; sdk_gphone64_x86_64 Build/BE2A.250530.026.F3; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/133.0.6943.137 Mobile Safari/537.36",
+    "webview": "133.0.6943.137",
+    "audit_workout": {
+      "controls": 62,
+      "covered": [],
+      "small": []
+    },
+    "audit_exercises": {
+      "controls": 32,
+      "covered": [],
+      "small": []
+    },
+    "audit_progress": {
+      "controls": 19,
+      "covered": [],
+      "small": []
+    },
+    "audit_bento": {
+      "controls": 11,
+      "covered": [],
+      "small": []
+    },
+    "audit_profile": {
+      "controls": 28,
+      "covered": [],
+      "small": [
+        {
+          "id": "gt-weekly-on",
+          "ok": true,
+          "hit": null,
+          "w": 20,
+          "h": 44
+        }
+      ]
+    },
+    "pickerSteps": "menu:true downloads:true folder:true",
+    "importViaNativePicker": true,
+    "webviewBounds": "{\"wv\":{\"top\":128,\"bottom\":2337},\"screen\":[1080,2400],\"rot\":0}"
+  },
+  "passed": 41,
+  "failed": 0,
+  "skipped": 1,
+  "issues": [],
+  "jsErrors": [],
+  "results": [
+    {
+      "id": "T01",
+      "title": "التشغيل الأول: التخزين، المكتبة، Service Worker",
+      "status": "pass",
+      "ms": 2544,
+      "checks": [
+        {
+          "label": "شارة الحفظ تقول محفوظ على الجهاز (IndexedDB شغال)",
+          "ok": true,
+          "detail": "محفوظ على هذا الجهاز ✓"
+        },
+        {
+          "label": "مكتبة التمارين كاملة 69 تمرين",
+          "ok": true,
+          "detail": "كل التمارين · 69 نتيجة"
+        },
+        {
+          "label": "ما فيه جلسة نشطة",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "يشتغل كتطبيق أندرويد أصلي (Capacitor)",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "طبقة أندرويد محملة",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "Service Worker معطل داخل التطبيق",
+          "ok": true,
+          "detail": "registrations=0"
+        },
+        {
+          "label": "التطبيق في الواجهة",
+          "ok": true,
+          "detail": "mCurrentFocus=Window{76666cc u0 com.mxteb.gymtracker/com.mxteb.gymtracker.MainActivity}\n  mFocusedApp=ActivityRecord{60550363 u0 com.mxteb.gymtracker/.MainActivity t8}"
+        },
+        {
+          "label": "بدون جلسة: التطبيق ما يمسك الشاشة شغالة",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "ما فيه تمرير أفقي (الصفحة مضبوطة على عرض الجوال)",
+          "ok": true,
+          "detail": "overflow=0"
+        }
+      ]
+    },
+    {
+      "id": "T02",
+      "title": "كل الشاشات وكل الأزرار قابلة للضغط (مو مغطاة)",
+      "status": "pass",
+      "ms": 24946,
+      "checks": [
+        {
+          "label": "تبويب workout يفتح لحاله",
+          "ok": true,
+          "detail": "screen-workout"
+        },
+        {
+          "label": "أيقونة workout مفعلة",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "workout: 62 عنصر قابل للضغط، كلها مكشوفة",
+          "ok": true,
+          "detail": "[]"
+        },
+        {
+          "label": "workout: بدون تمرير أفقي",
+          "ok": true,
+          "detail": "overflow=0"
+        },
+        {
+          "label": "تبويب exercises يفتح لحاله",
+          "ok": true,
+          "detail": "screen-exercises"
+        },
+        {
+          "label": "أيقونة exercises مفعلة",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "exercises: 32 عنصر قابل للضغط، كلها مكشوفة",
+          "ok": true,
+          "detail": "[]"
+        },
+        {
+          "label": "exercises: بدون تمرير أفقي",
+          "ok": true,
+          "detail": "overflow=0"
+        },
+        {
+          "label": "تبويب progress يفتح لحاله",
+          "ok": true,
+          "detail": "screen-progress"
+        },
+        {
+          "label": "أيقونة progress مفعلة",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "progress: 19 عنصر قابل للضغط، كلها مكشوفة",
+          "ok": true,
+          "detail": "[]"
+        },
+        {
+          "label": "progress: بدون تمرير أفقي",
+          "ok": true,
+          "detail": "overflow=0"
+        },
+        {
+          "label": "تبويب bento يفتح لحاله",
+          "ok": true,
+          "detail": "screen-bento"
+        },
+        {
+          "label": "أيقونة bento مفعلة",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "bento: 11 عنصر قابل للضغط، كلها مكشوفة",
+          "ok": true,
+          "detail": "[]"
+        },
+        {
+          "label": "bento: بدون تمرير أفقي",
+          "ok": true,
+          "detail": "overflow=0"
+        },
+        {
+          "label": "تبويب profile يفتح لحاله",
+          "ok": true,
+          "detail": "screen-profile"
+        },
+        {
+          "label": "أيقونة profile مفعلة",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "profile: 28 عنصر قابل للضغط، كلها مكشوفة",
+          "ok": true,
+          "detail": "[]"
+        },
+        {
+          "label": "profile: بدون تمرير أفقي",
+          "ok": true,
+          "detail": "overflow=0"
+        }
+      ]
+    },
+    {
+      "id": "T03",
+      "title": "البروفايل وحسابات التحليل (BMR/TDEE/BMI/WHtR/FFMI)",
+      "status": "pass",
+      "ms": 19476,
+      "checks": [
+        {
+          "label": "رسالة الحفظ ظهرت",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "سجل القياسات فيه وزن اليوم 80",
+          "ok": true,
+          "detail": "اليوم 80 كجم خصر: 85 سم"
+        },
+        {
+          "label": "احتياج التثبيت = 2740",
+          "ok": true,
+          "detail": "جسمك قياساتك وصورك وسعراتك. الأرقام تقديرية، وليست تشخيصًا طبيًا سجّل قياس اليوم الوزن (كجم): محيط الخصر (سم): نسب الجسم المتقدمة (اختياري): الدهون %: العضلات %: السوائل %: احفظ القياس وزنك وخصرك مع ا"
+        },
+        {
+          "label": "نطاق التنشيف 2192–2466",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "نطاق الزيادة 2877–3014",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "BMI = 25.2",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "WHtR = 0.48",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "FFMI = 20.8",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "وضع الأنثى يغير الحساب (2482)",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "رجع وضع الرجل",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "T04",
+      "title": "بدء جلسة وعداد الجلسة",
+      "status": "pass",
+      "ms": 4600,
+      "checks": [
+        {
+          "label": "الجلسة بدأت باسم جلسة حرة",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "زر البدء صار معطل",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "زر الإنهاء صار مفعل",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "العداد يمشي (00:00 ← 00:03)",
+          "ok": true,
+          "detail": "00:00 -> 00:03"
+        }
+      ]
+    },
+    {
+      "id": "T05",
+      "title": "تسجيل جولة بار: الأزرار + - والعدات وRIR و1RM والسجل",
+      "status": "pass",
+      "ms": 21846,
+      "checks": [
+        {
+          "label": "طريقة الحمل تلقائياً: وزن خارجي",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "زر +5 مرتين: 50 ← 60",
+          "ok": true,
+          "detail": "60"
+        },
+        {
+          "label": "زر -2.5: 60 ← 57.5",
+          "ok": true,
+          "detail": "57.5"
+        },
+        {
+          "label": "زر +2.5: 57.5 ← 60",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "التحويل للباوند يظهر 132.3",
+          "ok": true,
+          "detail": "132.3 باوند (lbs)"
+        },
+        {
+          "label": "زر العدات +1: 10 ← 11",
+          "ok": true,
+          "detail": "11"
+        },
+        {
+          "label": "أزرار +5 و -5 للعدات",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "RIR 2 مختار",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "1RM المباشر = 82 كجم",
+          "ok": true,
+          "detail": "82 كجم (دقة منخفضة)"
+        },
+        {
+          "label": "جولة بنش 60×11 انحفظت",
+          "ok": true,
+          "detail": "{\"weight\":60,\"reps\":11,\"unit\":\"kg\",\"mode\":\"external\",\"setType\":\"normal\",\"ex\":\"ex_1\",\"secs\":60,\"machine\":0}"
+        },
+        {
+          "label": "طلب إذن الإشعارات ظهر ووافقنا عليه (أندرويد 13+)",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "إذن الإشعارات ممنوح",
+          "ok": true,
+          "detail": "      android.permission.POST_NOTIFICATIONS\n        android.permission.POST_NOTIFICATIONS: granted=true, flags=[ USER_SET|USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]\n"
+        },
+        {
+          "label": "السجل يعرض الاسم والوزن والعدات",
+          "ok": true,
+          "detail": "بنش بريس مستوي بالبار (Barbell Bench Press) 60 كجم × 11 عدات [1RM: 82 كجم (دقة منخفضة)] عادية · RIR 2 سعرات ضمن الجلسة"
+        },
+        {
+          "label": "السجل يعرض 1RM: 82",
+          "ok": true,
+          "detail": "بنش بريس مستوي بالبار (Barbell Bench Press) 60 كجم × 11 عدات [1RM: 82 كجم (دقة منخفضة)] عادية · RIR 2 سعرات ضمن الجلسة"
+        },
+        {
+          "label": "السجل يعرض نوع الجولة وRIR",
+          "ok": true,
+          "detail": "بنش بريس مستوي بالبار (Barbell Bench Press) 60 كجم × 11 عدات [1RM: 82 كجم (دقة منخفضة)] عادية · RIR 2 سعرات ضمن الجلسة"
+        },
+        {
+          "label": "عداد الجولات = جولة واحدة",
+          "ok": true,
+          "detail": "جولة واحدة"
+        },
+        {
+          "label": "مؤقت الراحة ظهر",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "مؤقت الراحة يعد من 60",
+          "ok": true,
+          "detail": "56"
+        },
+        {
+          "label": "زر إيقاف المؤقت يخفيه",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "T06",
+      "title": "دمبل لكل يد، وزن الجسم، تمرين بالوقت، باوند، تسخين",
+      "status": "pass",
+      "ms": 18092,
+      "checks": [
+        {
+          "label": "الدمبل يختار \"لكل يد\" تلقائياً",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "دمبل 20×8 لكل يد انحفظت",
+          "ok": true,
+          "detail": "{\"weight\":20,\"reps\":8,\"unit\":\"kg\",\"mode\":\"per_hand\",\"setType\":\"normal\",\"ex\":\"ex_3\",\"secs\":60,\"machine\":0}"
+        },
+        {
+          "label": "السجل يقول لكل يد",
+          "ok": true,
+          "detail": "ضغط صدر بالدمبل مستوي (Flat Dumbbell Bench Press) 20 كجم لكل يد × 8 عدات [1RM: 25.3 كجم] عادية · RIR غير محدد سعرات ضمن الجلسة"
+        },
+        {
+          "label": "العقلة تختار وزن الجسم تلقائياً",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "خانة الوزن مقفلة لوزن الجسم",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "عقلة وزن الجسم ×8 انحفظت",
+          "ok": true,
+          "detail": "{\"weight\":0,\"reps\":8,\"unit\":\"kg\",\"mode\":\"bodyweight\",\"setType\":\"normal\",\"ex\":\"ex_31\",\"secs\":60,\"machine\":0}"
+        },
+        {
+          "label": "السجل يستخدم وزن البروفايل 80",
+          "ok": true,
+          "detail": "عقلة (Pull-ups / Chin-ups) وزن الجسم (80 كجم) × 8 عدات [1RM: 101.3 كجم] عادية · RIR غير محدد سعرات ضمن الجلسة"
+        },
+        {
+          "label": "1RM العقلة = 101.3",
+          "ok": true,
+          "detail": "عقلة (Pull-ups / Chin-ups) وزن الجسم (80 كجم) × 8 عدات [1RM: 101.3 كجم] عادية · RIR غير محدد سعرات ضمن الجلسة"
+        },
+        {
+          "label": "البلانك يختار تمرين بالوقت",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "خانة الثواني ظاهرة وخانة العدات مخفية",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "بلانك 45 ثانية انحفظت",
+          "ok": true,
+          "detail": "{\"weight\":0,\"reps\":8,\"unit\":\"kg\",\"mode\":\"timed\",\"setType\":\"normal\",\"ex\":\"ex_62\",\"secs\":45,\"machine\":0}"
+        },
+        {
+          "label": "السجل يعرض 45 ثانية",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "التحويل لباوند: 60 كجم ← 132.277",
+          "ok": true,
+          "detail": "132.277"
+        },
+        {
+          "label": "المعادل بالكيلو 61.2",
+          "ok": true,
+          "detail": "61.2 كجم (kg)"
+        },
+        {
+          "label": "بنش 135 باوند ×5 انحفظت",
+          "ok": true,
+          "detail": "{\"weight\":135,\"reps\":5,\"unit\":\"lbs\",\"mode\":\"external\",\"setType\":\"normal\",\"ex\":\"ex_1\",\"secs\":45,\"machine\":0}"
+        },
+        {
+          "label": "السجل بالباوند وال1RM محسوب بالكيلو (71.4)",
+          "ok": true,
+          "detail": "بنش بريس مستوي بالبار (Barbell Bench Press) 135 باوند × 5 عدات [1RM: 71.4 كجم] عادية · RIR غير محدد سعرات ضمن الجلسة"
+        },
+        {
+          "label": "رجع كيلو: 135 باوند ← 61.235",
+          "ok": true,
+          "detail": "61.235"
+        },
+        {
+          "label": "شرح نوع الجولة تغير للتسخين",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "تسخين 40×10 انحفظت",
+          "ok": true,
+          "detail": "{\"weight\":40,\"reps\":10,\"unit\":\"kg\",\"mode\":\"external\",\"setType\":\"warmup\",\"ex\":\"ex_1\",\"secs\":45,\"machine\":0}"
+        },
+        {
+          "label": "السجل يقول تسخين",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "عداد الجولات = 6",
+          "ok": true,
+          "detail": "6 جولات"
+        }
+      ]
+    },
+    {
+      "id": "T07",
+      "title": "الكارديو: جهاز المشي والدراجة وحساب السعرات",
+      "status": "pass",
+      "ms": 3934,
+      "checks": [
+        {
+          "label": "نموذج جهاز المشي ظاهر",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "سعرات المشي = 86.5",
+          "ok": true,
+          "detail": "86.5"
+        },
+        {
+          "label": "نموذج الدراجة ظاهر",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "سعرات الدراجة 116 والمجموع 202.5",
+          "ok": true,
+          "detail": "202.5"
+        },
+        {
+          "label": "انضاف سجلين",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "T24",
+      "title": "v10.6: الرسمة حسب نوع التمرين + وزن الجهاز",
+      "status": "pass",
+      "ms": 7708,
+      "checks": [
+        {
+          "label": "البار: 70 = البار 20 + قرص 25 كل جهة",
+          "ok": true,
+          "detail": "كل جهة: 25 · البار 20"
+        },
+        {
+          "label": "البار: خانة وزن البار ظاهرة",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "مكبس الأرجل: جهاز بأقراص (25 + 25 كل جهة)",
+          "ok": true,
+          "detail": "كل جهة: 25 + 25 · وزن الجهاز ما انحسب"
+        },
+        {
+          "label": "دمبل: رسمة دمبلين",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "بلانك: ساعة",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "جهاز المشي: شاشة السرعة والميل والوقت",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "جهاز تمديد: بدبوس وخانة وزن الجهاز ظاهرة",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "1RM المباشر يحسب الجهاز (35×12 = 49)",
+          "ok": true,
+          "detail": "49 كجم (دقة منخفضة)"
+        },
+        {
+          "label": "تمديد 30 + جهاز 5 ×12 انحفظت",
+          "ok": true,
+          "detail": "{\"weight\":30,\"reps\":12,\"unit\":\"kg\",\"mode\":\"external\",\"setType\":\"normal\",\"ex\":\"ex_49\",\"secs\":45,\"machine\":5}"
+        },
+        {
+          "label": "السجل يعرض الأقراص 30 و1RM 49",
+          "ok": true,
+          "detail": "جهاز تمديد الأرجل أمامي (Leg Extension Machine) 30 كجم × 12 عدات [1RM: 49 كجم (دقة منخفضة)] عادية · RIR غير محدد سعرات ضمن الجلسة"
+        }
+      ]
+    },
+    {
+      "id": "T25",
+      "title": "v10.7: كرر الجولة، الراحة ±15، الشاشة شغالة، الاهتزاز، العداد في شاشة القفل",
+      "status": "pass",
+      "ms": 26595,
+      "checks": [
+        {
+          "label": "زر «كرر الجولة» ظاهر بآخر جولة للتمرين (30 × 12)",
+          "ok": true,
+          "detail": "كرر الجولة السابقة · 30 كجم × 12"
+        },
+        {
+          "label": "انحفظت جولة جديدة",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "الجولة المكررة نفس الوزن والعدات (30 × 12) مو الرقم اللي في الخانة",
+          "ok": true,
+          "detail": "جهاز تمديد الأرجل أمامي (Leg Extension Machine) 30 كجم × 12 عدات [1RM: 49 كجم (دقة منخفضة)] عادية · RIR غير محدد سعرات ضمن الجلسة"
+        },
+        {
+          "label": "المؤقت يعرض دقائق:ثواني ويبدأ من 60",
+          "ok": true,
+          "detail": "1:00"
+        },
+        {
+          "label": "+15 يزيد الراحة",
+          "ok": true,
+          "detail": "60 → 74"
+        },
+        {
+          "label": "−15 مرتين ينقص الراحة",
+          "ok": true,
+          "detail": "74 → 41"
+        },
+        {
+          "label": "الاهتزاز وصل للجوال (حفظ + أزرار الراحة)",
+          "ok": true,
+          "detail": "23 → 27"
+        },
+        {
+          "label": "الشاشة شغالة أثناء الجلسة (KEEP_SCREEN_ON)",
+          "ok": true,
+          "detail": "{\"js\":true,\"errors\":[]}"
+        },
+        {
+          "label": "إطفاء الخيار يخلي الشاشة تنطفي عادي",
+          "ok": true,
+          "detail": "{\"js\":false,\"errors\":[]}"
+        },
+        {
+          "label": "تشغيله يرجّعها",
+          "ok": true,
+          "detail": "{\"js\":true,\"errors\":[]}"
+        },
+        {
+          "label": "بالخلفية: إشعار العداد التنازلي ظهر",
+          "ok": true,
+          "detail": "Current Notification Manager state:\n  Notification List:\n    NotificationRecord(0x0a6e5583: pkg=com.mxteb.gymtracker user=UserHandle{0} id=7002 tag=null importance=2 key=0|com.mxteb.gymtracker|7002|null|10216: Notification(channel=rest-countdown shortcut=null contentView=null vibrate=null sound=null"
+        },
+        {
+          "label": "العداد ينزل ثانية بثانية (chronometer countdown)",
+          "ok": true,
+          "detail": "                android.chronometerCountDown=Boolean (true) |                 android.showChronometer=Boolean (true)"
+        },
+        {
+          "label": "يظهر في شاشة القفل (visibility public)",
+          "ok": true,
+          "detail": "Current Notification Manager state:\n  Notification List:\n    NotificationRecord(0x0a6e5583: pkg=com.mxteb.gymtracker user=UserHandle{0} id=7002 tag=null importance=2 key=0|com.mxteb.gymtracker|7002|null|10216: Notification(channel=rest-countdown shortcut=null contentView=null vibrate=null sound=null defaults=0 flags=ONGOING_EVENT|ONLY_ALERT_ONCE|SILENT color=0xffc8322a category=stopwatch actions=1"
+        },
+        {
+          "label": "لما رجعت للتطبيق العداد انشال",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "T08",
+      "title": "تعديل جولة + زر الرجوع يقفل نافذة التعديل",
+      "status": "pass",
+      "ms": 6108,
+      "checks": [
+        {
+          "label": "نافذة التعديل انفتحت ببيانات الجولة",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "زر الرجوع قفل النافذة",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "التطبيق ما طلع",
+          "ok": true,
+          "detail": "mCurrentFocus=Window{76666cc u0 com.mxteb.gymtracker/com.mxteb.gymtracker.MainActivity}\n  mFocusedApp=ActivityRecord{60550363 u0 com.mxteb.gymtracker/.MainActivity t8}"
+        },
+        {
+          "label": "التعديل انحفظ: 12 عدة و1RM 84",
+          "ok": true,
+          "detail": "بنش بريس مستوي بالبار (Barbell Bench Press) 60 كجم × 12 عدات [1RM: 84 كجم (دقة منخفضة)] عادية · RIR 2 سعرات ضمن الجلسة"
+        }
+      ]
+    },
+    {
+      "id": "T09",
+      "title": "حذف جولة (إلغاء ثم تأكيد)",
+      "status": "pass",
+      "ms": 5740,
+      "checks": [
+        {
+          "label": "إلغاء ما يحذف",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "التأكيد يحذف الجولة",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "T28",
+      "title": "v10.9: سحب الجولة يسار = حذف مع تراجع، يمين = تعديل، وسحبة صغيرة ما تسوي شي",
+      "status": "pass",
+      "ms": 19182,
+      "checks": [
+        {
+          "label": "جولة للحذف بالسحب 25×9 انحفظت",
+          "ok": true,
+          "detail": "{\"weight\":25,\"reps\":9,\"unit\":\"kg\",\"mode\":\"external\",\"setType\":\"normal\",\"ex\":\"ex_49\",\"secs\":45,\"machine\":5}"
+        },
+        {
+          "label": "سحبة قصيرة ما تحذف",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "السحب يسار يخفي الجولة ويطلع «تراجع»",
+          "ok": true,
+          "detail": "انحذفت: جهاز تمديد الأرجل أمامي · 25 كجم × 9"
+        },
+        {
+          "label": "ما انحذفت من التخزين قبل 6 ثواني",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "«تراجع» يرجّعها",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "بعد 6 ثواني تنحذف فعلاً",
+          "ok": true,
+          "detail": "9 vs 10"
+        },
+        {
+          "label": "السحب يمين يفتح التعديل لنفس الجولة",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "T10",
+      "title": "قفل التطبيق بالكامل وفتحه: كل شي محفوظ والجلسة مستمرة",
+      "status": "pass",
+      "ms": 7247,
+      "checks": [
+        {
+          "label": "التطبيق انقفل فعلاً وفتح من جديد (رقم عملية جديد)",
+          "ok": true,
+          "detail": "3569 -> 5285"
+        },
+        {
+          "label": "عدد الجولات نفسه (9)",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "السعرات نفسها",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "الجلسة ما زالت نشطة",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "عداد الجلسة كمل من وين وقف",
+          "ok": true,
+          "detail": "01:52 -> 01:56"
+        },
+        {
+          "label": "البروفايل محفوظ (80 كجم)",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "T11",
+      "title": "مؤقت الراحة: يخلص والتطبيق مفتوح، ويجي إشعار لو التطبيق بالخلفية",
+      "status": "pass",
+      "ms": 132518,
+      "checks": [
+        {
+          "label": "جولة لتشغيل المؤقت انحفظت",
+          "ok": true,
+          "detail": "{\"weight\":60,\"reps\":10,\"unit\":\"kg\",\"mode\":\"external\",\"setType\":\"normal\",\"ex\":\"ex_1\",\"secs\":60,\"machine\":0}"
+        },
+        {
+          "label": "بعد 60 ثانية: رسالة انتهاء الراحة",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "المؤقت اختفى",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "الجوال اهتز (سجل الاهتزاز في أندرويد)",
+          "ok": true,
+          "soft": true,
+          "detail": "      10-10 09:08:40.673 |   effect |             finished | duration:   104ms | start: 09:08:40.674 | end: 09:08:40.778 | scale:     NONE (adaptive=1.00) | flags:    0 | usage: TOUCH | com.mxteb.gymtracker (uid=10216, deviceId=0) | reason: performHapticFeedback(constant=16): ViewRootImpl#performHap"
+        },
+        {
+          "label": "ما جاء إشعار والتطبيق مفتوح (بدون تكرار)",
+          "ok": true,
+          "detail": "count=0"
+        },
+        {
+          "label": "جولة ثانية للمؤقت بالخلفية انحفظت",
+          "ok": true,
+          "detail": "{\"weight\":60,\"reps\":10,\"unit\":\"kg\",\"mode\":\"external\",\"setType\":\"normal\",\"ex\":\"ex_1\",\"secs\":60,\"machine\":0}"
+        },
+        {
+          "label": "التطبيق راح للخلفية",
+          "ok": true,
+          "detail": "mCurrentFocus=Window{4f31057 u0 com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity}\n  mFocusedApp=ActivityRecord{163274728 u0 com.google.android.apps.nexuslauncher/.NexusLauncherActivity t6}"
+        },
+        {
+          "label": "الإشعار وصل لما خلص الوقت والتطبيق بالخلفية",
+          "ok": true,
+          "detail": "Current Notification Manager state:\n  Notification List:\n    NotificationRecord(0x084e7169: pkg=com.mxteb.gymtracker user=UserHandle{0} id=7001 tag=null importance=5 key=0|com.mxteb.gymtracker|7001|null|10216: Notification(channel=rest-timer shortcut=null contentView=null vibrate=null sound=null defaults=0 flags=ONLY_ALERT_ONCE|AUTO_CANCEL color=0xffc8322a actions=1 vis=PRIVATE))\n      uid=10216 u"
+        },
+        {
+          "label": "الإشعار على قناة مؤقت الراحة وعنوانه صحيح",
+          "ok": true,
+          "soft": true,
+          "detail": "Current Notification Manager state:\n  Notification List:\n    NotificationRecord(0x084e7169: pkg=com.mxteb.gymtracker user=UserHandle{0} id=7001 tag=null importance=5 key=0|com.mxteb.gymtracker|7001|null|10216: Notification(channel=rest-timer shortcut=null contentView=null vibrate=null sound=null def"
+        },
+        {
+          "label": "لما رجعت للتطبيق الإشعار انشال",
+          "ok": true,
+          "detail": "count=0"
+        }
+      ]
+    },
+    {
+      "id": "T12",
+      "title": "إنهاء الجلسة والملخص (الجولات والحجم بالطن)",
+      "status": "pass",
+      "ms": 17735,
+      "checks": [
+        {
+          "label": "نافذة الإنهاء فيها المدة",
+          "ok": true,
+          "detail": "4"
+        },
+        {
+          "label": "التطبيق يرفض مدة أقصر من الكارديو المسجل",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "الجولات الفعلية = 9",
+          "ok": true,
+          "detail": "المدة: 60 دقيقة | الجولات الفعلية: 9 | الحجم الفعلي: 4.03 طن | متوسط RIR: 2.0 | أعلى 1RM مسجل بين التمارين: 101.3 كجم — عقلة (Pull-ups / Chin-ups) | السعرات التقديرية للحديد والكارديو: 335.8"
+        },
+        {
+          "label": "الحجم = 4.03 طن",
+          "ok": true,
+          "detail": "المدة: 60 دقيقة | الجولات الفعلية: 9 | الحجم الفعلي: 4.03 طن | متوسط RIR: 2.0 | أعلى 1RM مسجل بين التمارين: 101.3 كجم — عقلة (Pull-ups / Chin-ups) | السعرات التقديرية للحديد والكارديو: 335.8"
+        },
+        {
+          "label": "أعلى 1RM = 101.3 كجم (العقلة بوزن الجسم 80×8)",
+          "ok": true,
+          "detail": "المدة: 60 دقيقة | الجولات الفعلية: 9 | الحجم الفعلي: 4.03 طن | متوسط RIR: 2.0 | أعلى 1RM مسجل بين التمارين: 101.3 كجم — عقلة (Pull-ups / Chin-ups) | السعرات التقديرية للحديد والكارديو: 335.8"
+        },
+        {
+          "label": "زر «شارك كصورة» في الملخص",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "انصنعت صورة PNG للجلسة",
+          "ok": true,
+          "detail": "{\"name\":\"gym_tracker_session_2026-10-10.png\",\"saved\":false,\"place\":\"cache\",\"uri\":\"file:///data/user/0/com.mxteb.gymtracker/cache/share/gym_tracker_session_2026-10-10.png\",\"bytes\":128986,\"image\":true}"
+        },
+        {
+          "label": "قائمة المشاركة انفتحت للصورة",
+          "ok": true,
+          "detail": "mCurrentFocus=Window{67a8ae4 u0 com.android.intentresolver/com.android.intentresolver.ChooserActivityLauncher}\n  mFocusedApp=ActivityRecord{56470682 u0 com.android.intentresolver/.ChooserActivityLauncher t9}"
+        },
+        {
+          "label": "رجعنا للتطبيق بعد المشاركة",
+          "ok": true,
+          "detail": "mCurrentFocus=Window{7b9d7b7 u0 com.mxteb.gymtracker/com.mxteb.gymtracker.MainActivity}\n  mFocusedApp=ActivityRecord{179358915 u0 com.mxteb.gymtracker/.MainActivity t9}"
+        },
+        {
+          "label": "الجلسة انتهت",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "بعد إنهاء الجلسة الشاشة ترجع تنطفي عادي",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "سعرات الحديد انضافت للعداد",
+          "ok": true,
+          "detail": "335.8"
+        },
+        {
+          "label": "D1: رسالة «نسخة احتياطية تلقائية» طلعت",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "D1: انحفظت نسخة تلقائية بعد إنهاء الجلسة",
+          "ok": true,
+          "detail": "gym_tracker_auto_2026-10-10_091225.json\n"
+        },
+        {
+          "label": "D1: النسخة التلقائية فيها الجلسة منتهية وكل الجولات",
+          "ok": true,
+          "detail": "11 logs"
+        }
+      ]
+    },
+    {
+      "id": "T13",
+      "title": "شاشة التطور: الإحصائيات والرسم البياني",
+      "status": "pass",
+      "ms": 6523,
+      "checks": [
+        {
+          "label": "أيام التمرين = 1",
+          "ok": true,
+          "detail": "1 يوم"
+        },
+        {
+          "label": "تمارين نشطة = 5",
+          "ok": true,
+          "detail": "5 تمرين"
+        },
+        {
+          "label": "الرسم البياني مرسوم",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "سجل التطور يعرض أعلى حمل 61.2 × 5",
+          "ok": true,
+          "detail": "اليوم61.2 كجم × 5 عداتالبدايةأعلى 1RM تقديري: 84 | RIR: غير محدد"
+        },
+        {
+          "label": "وضع 1RM يرسم",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "تفصيل الحجم يعرض البنش",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "T27",
+      "title": "v10.8: الأرقام القياسية، التقويم، العضلات، سجل الجلسات، رسم الوزن",
+      "status": "pass",
+      "ms": 11101,
+      "checks": [
+        {
+          "label": "الأرقام القياسية لكل تمرين (5)",
+          "ok": true,
+          "detail": "بنش بريس مستوي بالبار61.2×5اليوم84اليوم | ضغط صدر بالدمبل مستوي · لكل يد20×8اليوم25.3اليوم | عقلة · وزن الجسم80×8اليوم101.3اليوم"
+        },
+        {
+          "label": "البنش: أعلى حمل 61.2 × 5",
+          "ok": true,
+          "detail": "بنش بريس مستوي بالبار61.2×5اليوم84اليوم | ضغط صدر بالدمبل مستوي · لكل يد20×8اليوم25.3اليوم | عقلة · وزن الجسم80×8اليوم101.3اليوم | تمرين البلانك · بالوقت45ثاليوم—ما ينطبق | جهاز تمديد الأرجل أمامي35×12اليوم49اليوم"
+        },
+        {
+          "label": "التقويم معلّم اليوم يوم تمرين",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "الأسابيع المتتالية = 1",
+          "ok": true,
+          "detail": "1"
+        },
+        {
+          "label": "العضلات هالأسبوع: صدر وظهر وأرجل محسوبة",
+          "ok": true,
+          "detail": "صدر+5ظهر+1أكتاف+3.5باي+0.5تراي+2.5أرجل+2بطن+1"
+        },
+        {
+          "label": "سجل الجلسات فيه الجلسة المنتهية",
+          "ok": true,
+          "detail": "1"
+        },
+        {
+          "label": "فتح الجلسة يعرض تمارينها وجولاتها",
+          "ok": true,
+          "detail": "بنش بريس مستوي بالبار60 × 12 · 135lb × 5 · 60 × 10 · 60 × 10ضغط صدر بالدمبل مستوي20 × 8عقلةBW × 8تمرين البلانك45ثجهاز المشي20 ددراجة تمارين ثابتة15 دجهاز تمديد الأرجل أمامي30 × 12 · 30 × 12"
+        },
+        {
+          "label": "الضغط على يوم في التقويم يفتح جولاته",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "رسم الوزن في البروفايل",
+          "ok": true,
+          "detail": "الوزن80 كجمقياس واحد7979.780.3812026-10-10: 80 كجم2026-10-10محيط الخصر85 سمقياس واحد8484.785.3862026-10-10: 85 سم2026-10-10"
+        }
+      ]
+    },
+    {
+      "id": "T29",
+      "title": "v11: الثيمات — الدفتر صفوف وجداول، الساعة مؤقتات LED وأزرار ضخمة، والرجوع للأقراص",
+      "status": "pass",
+      "ms": 24635,
+      "checks": [
+        {
+          "label": "الدفتر: الثيم تغيّر",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "الدفتر: الجولات صفوف تحت بعض مجمّعة بالتمرين",
+          "ok": true,
+          "detail": "11"
+        },
+        {
+          "label": "الدفتر: الخلفية فاتحة",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "الدفتر: شريط الساعة فوق صار فاتح",
+          "ok": true,
+          "detail": "{\"color\":\"#F2F3EF\",\"light\":true}"
+        },
+        {
+          "label": "الدفتر: التعديل يشتغل من الصف",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "الساعة: شريط المؤقتات فوق ظاهر",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "الساعة: زر +2.5 ضخم (أكبر من 80×80)",
+          "ok": true,
+          "detail": "{\"w\":89.5952377319336,\"h\":89.5952377319336}"
+        },
+        {
+          "label": "الساعة: الزر الضخم يزيد الوزن",
+          "ok": true,
+          "detail": "32.5"
+        },
+        {
+          "label": "الساعة: التطور أعمدة LED",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "الرجوع للأقراص",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "الأقراص: شريط الساعة غامق",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "T14",
+      "title": "إضافة تمرين مخصص وتصنيفه وحذفه",
+      "status": "pass",
+      "ms": 15154,
+      "checks": [
+        {
+          "label": "التصنيف التلقائي اشتغل",
+          "ok": true,
+          "detail": "legs"
+        },
+        {
+          "label": "رجع للتمرين واختار التمرين الجديد",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "العداد = 1",
+          "ok": true,
+          "detail": "1 تمارِينَ"
+        },
+        {
+          "label": "التمرين ظاهر بالقائمة",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "منع التكرار: زر الإضافة معطل",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "انحذف",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "T15",
+      "title": "تصدير نسخة احتياطية: ينحفظ ملف في التنزيلات + المشاركة",
+      "status": "pass",
+      "ms": 9446,
+      "checks": [
+        {
+          "label": "النسخة انحفظت في التنزيلات/GymTracker",
+          "ok": true,
+          "detail": "{\"name\":\"gym_tracker_backup_2026-10-10_091334.json\",\"saved\":true,\"place\":\"التنزيلات (Download) ← GymTracker\",\"uri\":\"file:///storage/emulated/0/Download/GymTracker/gym_tracker_backup_2026-10-10_091334.json\",\"bytes\":21390} []"
+        },
+        {
+          "label": "الملف موجود فعلاً في ذاكرة الجوال",
+          "ok": true,
+          "detail": "auto\ngym_tracker_backup_2026-10-10_091334.json\n"
+        },
+        {
+          "label": "الملف JSON سليم وإصدار 10",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "الملف فيه كل الجولات",
+          "ok": true,
+          "detail": "11 vs 11"
+        },
+        {
+          "label": "الملف فيه الجلسة والبروفايل",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "قائمة المشاركة (Drive/واتساب...) انفتحت",
+          "ok": true,
+          "detail": "mCurrentFocus=Window{e5d68bd u0 com.android.intentresolver/com.android.intentresolver.ChooserActivityLauncher}\n  mFocusedApp=ActivityRecord{2608612 u0 com.android.intentresolver/.ChooserActivityLauncher t9}"
+        },
+        {
+          "label": "رجعنا للتطبيق بعد المشاركة",
+          "ok": true,
+          "detail": "mCurrentFocus=Window{7b9d7b7 u0 com.mxteb.gymtracker/com.mxteb.gymtracker.MainActivity}\n  mFocusedApp=ActivityRecord{179358915 u0 com.mxteb.gymtracker/.MainActivity t9}"
+        }
+      ]
+    },
+    {
+      "id": "T16",
+      "title": "مسح شامل ثم استيراد النسخة: كل البيانات ترجع مثل ما كانت",
+      "status": "pass",
+      "ms": 35162,
+      "checks": [
+        {
+          "label": "البروفايل انمسح",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "السجل فاضي",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "زر الاستيراد يفتح منتقي الملفات حق أندرويد",
+          "ok": true,
+          "detail": "mCurrentFocus=Window{7ac786a u0 com.google.android.documentsui/com.android.documentsui.picker.PickActivity}\n  mFocusedApp=ActivityRecord{73941411 u0 com.google.android.documentsui/com.android.documentsui.picker.PickActivity t9}"
+        },
+        {
+          "label": "اختيار الملف من منتقي أندرويد نفسه (☰ ← التنزيلات ← GymTracker)",
+          "ok": true,
+          "soft": true,
+          "detail": "menu:true downloads:true folder:true"
+        },
+        {
+          "label": "الاستيراد نجح (من منتقي الملفات نفسه)",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "كل الجولات رجعت",
+          "ok": true,
+          "detail": "11 vs 11"
+        },
+        {
+          "label": "البروفايل رجع (80 كجم، 178 سم)",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "كل جولة رجعت بنفس القيم بالضبط",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "الجلسة رجعت بنفس الملخص",
+          "ok": true,
+          "detail": "[\"session_c9d93efd-3510-4638-9c69-87796c1dced8\",\"completed\",1791619945117,1791623545117,9,4026.1752138690567,335.8] vs [\"session_c9d93efd-3510-4638-9c69-87796c1dced8\",\"completed\",1791619945117,1791623545117,9,4026.1752138690567,335.8]"
+        },
+        {
+          "label": "البروفايل رجع بنفس القيم",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "T17",
+      "title": "زر الرجوع: يرجع للتمرين، وبعدها يصغّر التطبيق بدون ما يقفله",
+      "status": "pass",
+      "ms": 6179,
+      "checks": [
+        {
+          "label": "من تبويب ثاني: الرجوع يفتح تبويب التمرين",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "التطبيق ما زال مفتوح",
+          "ok": true,
+          "detail": "mCurrentFocus=Window{7b9d7b7 u0 com.mxteb.gymtracker/com.mxteb.gymtracker.MainActivity}\n  mFocusedApp=ActivityRecord{179358915 u0 com.mxteb.gymtracker/.MainActivity t9}"
+        },
+        {
+          "label": "من تبويب التمرين: التطبيق يتصغر",
+          "ok": true,
+          "detail": "mCurrentFocus=Window{4f31057 u0 com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity}\n  mFocusedApp=ActivityRecord{163274728 u0 com.google.android.apps.nexuslauncher/.NexusLauncherActivity t6}"
+        },
+        {
+          "label": "التطبيق ما انقفل (نفس العملية شغالة)",
+          "ok": true,
+          "detail": "5285 vs 5285"
+        },
+        {
+          "label": "رجع بنفس الحالة",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "T18",
+      "title": "تثبيت تحديث فوق التطبيق: البيانات ما تنمسح",
+      "status": "pass",
+      "ms": 4801,
+      "checks": [
+        {
+          "label": "التحديث انثبت",
+          "ok": true,
+          "detail": "Performing Streamed Install\nSuccess\n"
+        },
+        {
+          "label": "كل البيانات موجودة بعد التحديث (11 جولة)",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "T30",
+      "title": "طبقة أندرويد على محاكاة Capacitor (فحص سريع قبل المحاكي)",
+      "status": "skip",
+      "detail": "local only"
+    },
+    {
+      "id": "T21",
+      "title": "D2: استرجاع نسخة من القائمة داخل التطبيق",
+      "status": "pass",
+      "ms": 14400,
+      "checks": [
+        {
+          "label": "بطاقة النسخ الاحتياطية ظاهرة وفيها آخر نسخة",
+          "ok": true,
+          "detail": "آخر نسخة: قبل 2 دقيقة (11 جولة)"
+        },
+        {
+          "label": "انمسح كل شي",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "القائمة فيها النسخ المحفوظة (4)",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "كل الجولات رجعت (11)",
+          "ok": true,
+          "detail": "11"
+        },
+        {
+          "label": "النافذة انقفلت بعد الاسترجاع",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "T22",
+      "title": "D3: تذكير أسبوعي بالنسخة (تشغيل وإيقاف)",
+      "status": "pass",
+      "ms": 7236,
+      "checks": [
+        {
+          "label": "قبل التشغيل ما فيه تذكير",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "رسالة التأكيد: كل الجمعة",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "التذكير انجدول في أندرويد: الجمعة الساعة 8 المساء",
+          "ok": true,
+          "detail": "[{\"count\":1,\"on\":{\"weekday\":6,\"hour\":20,\"minute\":0},\"repeats\":false}]"
+        },
+        {
+          "label": "وموجود في منبّه النظام",
+          "ok": true,
+          "soft": true,
+          "detail": ""
+        },
+        {
+          "label": "لما أطفيه ينلغي",
+          "ok": true,
+          "detail": "[]"
+        },
+        {
+          "label": "اختيار الأيام والساعة انخفى",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "T23",
+      "title": "نسخة المتجر: بدون تنبيه تحديث، و«وش الجديد» يشتغل",
+      "status": "pass",
+      "ms": 19310,
+      "checks": [
+        {
+          "label": "ما فيه كود التحديث من GitHub",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "«وش الجديد» يطلع مرة بعد التحديث ويعرض ملاحظات النسخة",
+          "ok": true,
+          "detail": "مجسم العضلات :: وش الجديد في 1.49• مجسم العضلات صار بشكل الجسم و26 عضلة: الظهر أربعة أجزاء، والكتف ثلاثة، والتراي والباي والسمانة والبطن مقسّمة. • اضغط أي عضلة في «جسمك»: تشوف كم باقي لها راحة، والتمارين اللي تشغّلها، وتضيفها للخطة بضغطة. • كل تمرين صار له عضلات أساسية ومساعدة. البنش يتعب التراي والكتف الأمامي بعد، فينحسبون نص جولة. • «الجولات هالأسبوع لكل عضلة»: اضغط المجموعة تفتح عضلاتها. • وأنت تضيف تمرين: تختار عضلاته بنفسك. التطبيق يخمّنها من الاسم، والمجسم يتلون معك عشان تتأكد.تمام"
+        },
+        {
+          "label": "وما يتكرر بعدها",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "T31",
+      "title": "سياسة المتجر: أندرويد 16، بدون منبّه دقيق، وبدون إنترنت، والصفحة ما تدخل تحت الأشرطة",
+      "status": "pass",
+      "ms": 5591,
+      "checks": [
+        {
+          "label": "التطبيق مبني على أندرويد 16 (targetSdk 36)",
+          "ok": true,
+          "detail": "targetSdk=36"
+        },
+        {
+          "label": "ما يطلب USE_EXACT_ALARM",
+          "ok": true,
+          "detail": " android.permission.POST_NOTIFICATIONS android.permission.RECEIVE_BOOT_COMPLETED android.permission.SCHEDULE_EXACT_ALARM com.mxteb.gymtracker.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION android.permission.VIBRATE android.permission.WAKE_LOCK "
+        },
+        {
+          "label": "يطلب إذن «المنبّهات والتذكيرات» العادي",
+          "ok": true,
+          "detail": " android.permission.POST_NOTIFICATIONS android.permission.RECEIVE_BOOT_COMPLETED android.permission.SCHEDULE_EXACT_ALARM com.mxteb.gymtracker.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION android.permission.VIBRATE android.permission.WAKE_LOCK "
+        },
+        {
+          "label": "نسخة المتجر ما تطلب الإنترنت",
+          "ok": true,
+          "detail": " android.permission.POST_NOTIFICATIONS android.permission.RECEIVE_BOOT_COMPLETED android.permission.SCHEDULE_EXACT_ALARM com.mxteb.gymtracker.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION android.permission.VIBRATE android.permission.WAKE_LOCK "
+        },
+        {
+          "label": "نسخة المتجر ما فيها كود التحديث من GitHub",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "لو حاول أي كود يتصل بالنت ينمنع",
+          "ok": true,
+          "detail": "blocked: Failed to fetch"
+        },
+        {
+          "label": "M2: كود مدسوس داخل الصفحة ما يشتغل",
+          "ok": true,
+          "detail": "blocked"
+        },
+        {
+          "label": "L1: سياسة الخصوصية داخل التطبيق بالعربي والإنجليزي",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "الصفحة تبدأ تحت شريط الساعة (مو تحته)",
+          "ok": true,
+          "detail": "{\"wv\":{\"top\":128,\"bottom\":2337},\"screen\":[1080,2400],\"rot\":0}"
+        },
+        {
+          "label": "والصفحة تخلص فوق شريط التنقل",
+          "ok": true,
+          "soft": true,
+          "detail": "{\"wv\":{\"top\":128,\"bottom\":2337},\"screen\":[1080,2400],\"rot\":0}"
+        }
+      ]
+    },
+    {
+      "id": "T32",
+      "title": "P2: تنبيه الراحة على الثانية: الشرح مرة وحدة، وزر الإذن في البروفايل",
+      "status": "pass",
+      "ms": 21377,
+      "checks": [
+        {
+          "label": "الإذن مطفي",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "أول مؤقت راحة: يطلع شرح الإذن",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "وما يتكرر بعدها",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "البروفايل: بطاقة «تنبيه نهاية الراحة» تطلع والإذن مطفي",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "الزر يفتح صفحة الإذن في إعدادات الجوال",
+          "ok": true,
+          "detail": "mCurrentFocus=Window{65977ba u0 com.android.settings/com.android.settings.spa.SpaActivity}\n  mFocusedApp=ActivityRecord{258046253 u0 com.android.settings/.spa.SpaActivity t13}"
+        },
+        {
+          "label": "بعد التفعيل البطاقة تختفي",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "T33",
+      "title": "P3: تابلت بالعرض والطول (أندرويد 16 يتجاهل قفل الوضع العمودي)",
+      "status": "pass",
+      "ms": 1,
+      "checks": [
+        {
+          "label": "على الجوال: يبقى بالطول (يختبر على التابلت)",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "T34",
+      "title": "v11.1: الإنجليزي — التطبيق كله يتحول ومن اليسار لليمين، والرجوع للعربي",
+      "status": "pass",
+      "ms": 29378,
+      "checks": [
+        {
+          "label": "الصفحة صارت English ومن اليسار لليمين",
+          "ok": true,
+          "detail": "{\"lang\":\"en\",\"dir\":\"ltr\"}"
+        },
+        {
+          "label": "الشريط السفلي بالإنجليزي",
+          "ok": true,
+          "detail": "Workout"
+        },
+        {
+          "label": "workout: ما فيه نص عربي باقي",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "workout: بدون تمرير أفقي",
+          "ok": true,
+          "detail": "overflow=0"
+        },
+        {
+          "label": "exercises: ما فيه نص عربي باقي",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "exercises: بدون تمرير أفقي",
+          "ok": true,
+          "detail": "overflow=0"
+        },
+        {
+          "label": "progress: ما فيه نص عربي باقي",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "progress: بدون تمرير أفقي",
+          "ok": true,
+          "detail": "overflow=0"
+        },
+        {
+          "label": "bento: ما فيه نص عربي باقي",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "bento: بدون تمرير أفقي",
+          "ok": true,
+          "detail": "overflow=0"
+        },
+        {
+          "label": "profile: ما فيه نص عربي باقي",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "profile: بدون تمرير أفقي",
+          "ok": true,
+          "detail": "overflow=0"
+        },
+        {
+          "label": "بطاقة النسخ الاحتياطية بالإنجليزي",
+          "ok": true,
+          "detail": "Backups on your phoneLast backup: 3 min ago (11 sets)Backups are saved in Downlo"
+        },
+        {
+          "label": "نافذة الاسترجاع بالإنجليزي ومن اليسار",
+          "ok": true,
+          "detail": "ltr"
+        },
+        {
+          "label": "كل النصوص لها ترجمة",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "رجع عربي ومن اليمين لليسار",
+          "ok": true,
+          "detail": "{\"lang\":\"ar\",\"dir\":\"rtl\"}"
+        }
+      ]
+    },
+    {
+      "id": "T35",
+      "title": "v11.3 الدفعة 1: ملاحظة التمرين، الراحة لكل تمرين، سهل/مناسب/صعب، الجهاز مشغول",
+      "status": "pass",
+      "ms": 22906,
+      "checks": [
+        {
+          "label": "سطر الملاحظة ظاهر",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "الملاحظة انحفظت وتطلع",
+          "ok": true,
+          "detail": "ملاحظتك:الكرسي على 4، قبضة واسعة"
+        },
+        {
+          "label": "الراحة رجعت 3 دقايق للبنش",
+          "ok": true,
+          "detail": "180"
+        },
+        {
+          "label": "أزرار سهل/مناسب/صعب بدل RIR",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "سهل = RIR 3",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "رجعت أرقام RIR",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "زر «الجهاز مشغول؟» ظاهر",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "فيه بدائل",
+          "ok": true,
+          "detail": "3"
+        },
+        {
+          "label": "إلغاء يقفلها",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "التمرين ما تغير",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "T36",
+      "title": "v11.3: تصدير Excel (CSV) ينحفظ .csv في التنزيلات ويفتحه Excel بالعربي",
+      "status": "pass",
+      "ms": 6514,
+      "checks": [
+        {
+          "label": "انحفظ باسم .csv",
+          "ok": true,
+          "detail": "{\"name\":\"gym_tracker_sets_2026-10-10_091631.csv\",\"saved\":true,\"place\":\"التنزيلات (Download) ← GymTracker\",\"uri\":\"file:///storage/emulated/0/Download/GymTracker/gym_tracker_sets_2026-10-10_091631.csv\",\"bytes\":1056}"
+        },
+        {
+          "label": "النافذة تتكلم عن ملف Excel مو نسخة احتياطية",
+          "ok": true,
+          "detail": "تم حفظ ملف Excelانحفظ في جوالك داخل: التنزيلات (Download) ← GymTracker gym_tracker_sets_2026-10-10_091631.csv تقدر تفتحه"
+        },
+        {
+          "label": "الملف يبدأ بـ BOM (Excel يقرا العربي صح)",
+          "ok": true,
+          "detail": "ef bb bf"
+        },
+        {
+          "label": "أول سطر عناوين الأعمدة",
+          "ok": true,
+          "detail": "﻿التاريخ,الجلسة,التمرين,نوع الجولة,الوزن,الوحدة,العدات,الثواني,RIR,1RM التقديري (كجم),الحجم (كجم),الدقائق,السعرات\r\n2026-10-10,جلسة حرة,بنش بريس مستوي بالبار (Ba"
+        },
+        {
+          "label": "قائمة الاسترجاع ما فيها ملف CSV",
+          "ok": true,
+          "detail": "النسخ المحفوظة في جوالكاختر النسخة اللي تبي تسترجعها (الأحدث فوق).2026/10/10 — 09:14تصدير يدوي · 22 KB2026/10/10 — 09:14تصدير يدوي · 22 KB2026/10/10 — 09:13تصدي"
+        }
+      ]
+    },
+    {
+      "id": "T37",
+      "title": "v11.4 الدفعة 2: مستوى القوة وتقرير الشهر في التحليل",
+      "status": "pass",
+      "ms": 3472,
+      "checks": [
+        {
+          "label": "مستوى البنش ظاهر (سجلنا بنش بالبار)",
+          "ok": true,
+          "detail": "بنش بريسمتوسط1RM 84 كجم = 1.05× وزنك · باقي 36 كجم لـمتقدم"
+        },
+        {
+          "label": "تقرير الشهر فيه 4 أرقام",
+          "ok": true,
+          "detail": "4"
+        },
+        {
+          "label": "بدون تمرير أفقي",
+          "ok": true,
+          "detail": "overflow=0"
+        }
+      ]
+    },
+    {
+      "id": "T38",
+      "title": "v11.5 الدفعة 3: يمين ويسار، «عندي وقت» في الخطة، و«كرر الجولة» من الإشعار",
+      "status": "pass",
+      "ms": 42513,
+      "checks": [
+        {
+          "label": "زر «يمين ويسار مختلفة؟» يطلع للسكوات البلغاري",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "خانة اليسار ظهرت",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "السجل يبين يمين 10 · يسار 8",
+          "ok": true,
+          "detail": " سكوات بلغاري بالدمبل (Bulgarian Split Squat) 12 كجم لكل يد × يمين 10 · يسار 8 [1RM: 15.2 كجم] عادية · RIR غير محدد سعرات ضمن الجلسة "
+        },
+        {
+          "label": "رجوعها لعدات وحدة",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "البنش ما فيه زر يمين/يسار",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "تقدير وقت الخطة ظاهر",
+          "ok": true,
+          "detail": "تقريبًا 59 دقيقة"
+        },
+        {
+          "label": "30 دقيقة تشيل تمارين وتقول وش شالت",
+          "ok": true,
+          "detail": "6 → 2: شلت تمديد ترايسيبس بالكيبل، رفرفة أكتاف جانبي بالدمبل، ضغط أكتاف بالدمبل جالس، ضغط صدر بالدمبل مائل عشان تخلص في 30 دقيقة تقريبًا."
+        },
+        {
+          "label": "المؤقت يعرف التمرين ونص «كرر»",
+          "ok": true,
+          "detail": "{\"endsAt\":1791623904521,\"name\":\"بنش بريس مستوي بالبار (Barbell Bench Press)\",\"exerciseId\":\"ex_1\",\"repeat\":\"62.5 كجم × 6\"}"
+        },
+        {
+          "label": "عداد الراحة في الإشعارات فيه زر «كرر»",
+          "ok": true,
+          "detail": "Current Notification Manager state:\n  Notification List:\n    NotificationRecord(0x0dbb1db7: pkg=com.mxteb.gymtracker user=UserHandle{0} id=7002 tag=null importance=2 key=0|com.mxteb.gymtracker|7002|null|10216: Notification(channel=rest-countdown shortcut=null contentView=null vibrate=null sound=null defaults=0 flags=ONGOING_EVENT|ONLY_ALERT_ONCE|SILENT color=0xffc8322a category=stopwatch actions=1 vis=PUBLIC))\n      uid=10216 userId=0\n      opPkg=com.mxteb.gymtracker\n      icon=Icon(typ=RESOURCE"
+        },
+        {
+          "label": "الزر انضغط من شاشة الإشعارات نفسها",
+          "ok": false,
+          "soft": true,
+          "detail": "used the intent"
+        },
+        {
+          "label": "انحفظت نفس الجولة (62.5 × 6)",
+          "ok": true,
+          "detail": " بنش بريس مستوي بالبار (Barbell Bench Press) 62.5 كجم × 6 عدات [1RM: 75 كجم] عادية · RIR غير محدد سعرات ضمن الجلسة "
+        },
+        {
+          "label": "ضغطتين ورا بعض ما تحفظ مرتين",
+          "ok": true,
+          "detail": "13 → 15"
+        }
+      ]
+    },
+    {
+      "id": "T39",
+      "title": "v11.6 الدفعة 4: البرامج الجاهزة، طريقة الأداء، ووضع رمضان",
+      "status": "pass",
+      "ms": 25793,
+      "checks": [
+        {
+          "label": "طريقة الأداء موجودة للسكوات",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "فيها 3 خطوات وغلطتين",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "يوم 2 = ضغط أكتاف + ديدليفت + سحب دمبل",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "هدف البرنامج للديدليفت 3×10",
+          "ok": true,
+          "detail": "هدف البرنامج: 3 جولات × 10 عدات · سويت 0 من 3"
+        },
+        {
+          "label": "تذكير الماء انجدول (18:25)",
+          "ok": true,
+          "detail": "[7300]"
+        },
+        {
+          "label": "لما ينطفي ينلغى التذكير",
+          "ok": true,
+          "detail": "[]"
+        }
+      ]
+    },
+    {
+      "id": "T40",
+      "title": "v11.7 المرحلة 1: بحث بدون همزات، حجم الخط، والوحدة لكل تمرين",
+      "status": "pass",
+      "ms": 14669,
+      "checks": [
+        {
+          "label": "البحث «اكتاف» يلقى ضغط الأكتاف",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "الخط الأكبر انطبق",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "بالخط الأكبر بدون تمرير أفقي",
+          "ok": true,
+          "detail": "overflow=0"
+        },
+        {
+          "label": "البنش يرجع بالكيلو",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "جهاز الأكتاف يفتح بالباوند",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "T41",
+      "title": "v11.8 المرحلة 2: أربع تبويبات، «وش يعني»، ومؤقت الجلسة على التبويب",
+      "status": "pass",
+      "ms": 10559,
+      "checks": [
+        {
+          "label": "الشريط السفلي فيه 4 تبويبات",
+          "ok": true,
+          "detail": "4"
+        },
+        {
+          "label": "زر «؟» يفتح شرح RIR مفتوح",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "رجوع يرجعك للتمرين",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "مؤقت الجلسة ظاهر على تبويب التمرين",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "T42",
+      "title": "v12: مجسم العضلات المفصّل، الضغط على العضلة، وأنت تختار عضلات التمرين",
+      "status": "pass",
+      "ms": 14062,
+      "checks": [
+        {
+          "label": "المجسم فيه 26 عضلة",
+          "ok": true,
+          "detail": "26"
+        },
+        {
+          "label": "الضغط على المجنص يطلع حالته وتمارينه",
+          "ok": true,
+          "detail": "المجنص (اللات)ترتاح كمان 36 ساعة تقريبًامن مجموعة ظهر×سحب ظهر عريض عالي (Lat Pulldown Machine)أساسية+ للخطةسحب ظهر قبضة ضيقة (Close-Grip Lat Pulldown)أساسية+ للخطةسحب ظهر أرضي كيبل (Seated Cable Row)أساسية+ للخطةسحب ظهر فردي بالدمبل (Single-Arm Dumbbell Row)أساسيةفي الخطةسحب ظهر بالبار (Barbell Bent-Over Row)أساسية+ للخطةجهاز T-Bar Rowأساسية+ للخطةو5 تمارين ثانية."
+        },
+        {
+          "label": "التخمين من الاسم: صدر علوي أساسية",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "ضغطتين = مساعدة، وراحت كلمة «متخمّنة»",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "T26",
+      "title": "v10.7: اقتراح الجولة الجاية + خطة الجلسة",
+      "status": "pass",
+      "ms": 11983,
+      "checks": [
+        {
+          "label": "الاقتراح ظاهر للبنش",
+          "ok": true,
+          "detail": "اقتراح اليوم61.2 كجم × 6 آخر جلسة (اليوم): 61.2 كجم × 5 بدون RIR. ما سجلت RIR، فالاقتراح على العدات: ثبّت الوزن وزد عدة. عبّي الاقتراح تسخين:"
+        },
+        {
+          "label": "الاقتراح يشرح السبب من آخر جلسة",
+          "ok": true,
+          "detail": "آخر جلسة (اليوم): 61.2 كجم × 5 بدون RIR. ما سجلت RIR، فالاقتراح على العدات: ثبّت الوزن وزد عدة."
+        },
+        {
+          "label": "«عبّي الاقتراح» يعبّي نفس الأرقام",
+          "ok": true,
+          "detail": "61.2 كجم × 6 :: 61.2×6"
+        },
+        {
+          "label": "اختيار قائمة جاهزة يعبي الخطة",
+          "ok": true,
+          "detail": "5 تمارين"
+        },
+        {
+          "label": "الجلسة شغالة بعد الخطة",
+          "ok": true,
+          "detail": "was active: true"
+        },
+        {
+          "label": "شريط الخطة يعرض التقدم",
+          "ok": true,
+          "detail": "الخطة: 0 من 5سكوات بالبار—مكبس أرجل—جهاز تمديد الأرجل أمامي—جهاز ثني الأرجل خلفي جالس—جهاز سمانة واقف—سكوات بلغاري بالدمبل×1بنش بريس مستوي بالبار×3ضغط أكتاف ماكينة×1"
+        },
+        {
+          "label": "أول تمرين بالخطة انختار",
+          "ok": true,
+          "detail": "ex_44,ex_47,ex_49,ex_50,ex_58,ex_55,ex_1,ex_14"
+        },
+        {
+          "label": "الضغط على تمرين بالخطة يختاره",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "تقدر تختار تمرين برا الخطة عادي",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "الشاشة شغالة مع الجلسة الجديدة",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "T19",
+      "title": "خط الجوال كبير (130%) والوضع الليلي: الشكل ما يخرب",
+      "status": "pass",
+      "ms": 20742,
+      "checks": [
+        {
+          "label": "workout: بدون تمرير أفقي مع الخط الكبير",
+          "ok": true,
+          "detail": "overflow=0"
+        },
+        {
+          "label": "workout: الشريط السفلي كامل داخل الشاشة",
+          "ok": true,
+          "detail": "{\"bottom\":842.2857131958008,\"vh\":842,\"h\":64.76190948486328}"
+        },
+        {
+          "label": "exercises: بدون تمرير أفقي مع الخط الكبير",
+          "ok": true,
+          "detail": "overflow=0"
+        },
+        {
+          "label": "exercises: الشريط السفلي كامل داخل الشاشة",
+          "ok": true,
+          "detail": "{\"bottom\":842.2857131958008,\"vh\":842,\"h\":64.76190948486328}"
+        },
+        {
+          "label": "progress: بدون تمرير أفقي مع الخط الكبير",
+          "ok": true,
+          "detail": "overflow=0"
+        },
+        {
+          "label": "progress: الشريط السفلي كامل داخل الشاشة",
+          "ok": true,
+          "detail": "{\"bottom\":842.2857131958008,\"vh\":842,\"h\":64.76190948486328}"
+        },
+        {
+          "label": "bento: بدون تمرير أفقي مع الخط الكبير",
+          "ok": true,
+          "detail": "overflow=0"
+        },
+        {
+          "label": "bento: الشريط السفلي كامل داخل الشاشة",
+          "ok": true,
+          "detail": "{\"bottom\":842.2857131958008,\"vh\":842,\"h\":64.76190948486328}"
+        },
+        {
+          "label": "profile: بدون تمرير أفقي مع الخط الكبير",
+          "ok": true,
+          "detail": "overflow=0"
+        },
+        {
+          "label": "profile: الشريط السفلي كامل داخل الشاشة",
+          "ok": true,
+          "detail": "{\"bottom\":842.2857131958008,\"vh\":842,\"h\":64.76190948486328}"
+        }
+      ]
+    },
+    {
+      "id": "T20",
+      "title": "ما فيه أي خطأ JavaScript أو تعطّل للتطبيق",
+      "status": "pass",
+      "ms": 22,
+      "checks": [
+        {
+          "label": "أخطاء طبقة أندرويد = 0",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "أخطاء JavaScript = 0",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "label": "ما فيه أي كراش",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    }
+  ]
+}

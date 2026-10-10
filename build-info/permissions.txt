@@ -1,0 +1,28 @@
+== GymTracker.apk
+package: com.mxteb.gymtracker
+uses-permission: name='android.permission.VIBRATE'
+uses-permission: name='android.permission.POST_NOTIFICATIONS'
+uses-permission: name='android.permission.SCHEDULE_EXACT_ALARM'
+uses-permission: name='android.permission.WRITE_EXTERNAL_STORAGE' maxSdkVersion='29'
+uses-permission: name='android.permission.READ_EXTERNAL_STORAGE' maxSdkVersion='29'
+uses-permission: name='android.permission.INTERNET'
+uses-permission: name='android.permission.RECEIVE_BOOT_COMPLETED'
+uses-permission: name='android.permission.WAKE_LOCK'
+permission: com.mxteb.gymtracker.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+uses-permission: name='com.mxteb.gymtracker.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'
+package: name='com.mxteb.gymtracker' versionCode='49' versionName='1.49' platformBuildVersionName='16' platformBuildVersionCode='36' compileSdkVersion='36' compileSdkVersionCodename='16'
+targetSdkVersion:'36'
+== GymTracker-play-test.apk
+package: com.mxteb.gymtracker
+uses-permission: name='android.permission.VIBRATE'
+uses-permission: name='android.permission.POST_NOTIFICATIONS'
+uses-permission: name='android.permission.SCHEDULE_EXACT_ALARM'
+uses-permission: name='android.permission.WRITE_EXTERNAL_STORAGE' maxSdkVersion='29'
+uses-permission: name='android.permission.READ_EXTERNAL_STORAGE' maxSdkVersion='29'
+uses-permission: name='android.permission.RECEIVE_BOOT_COMPLETED'
+uses-permission: name='android.permission.WAKE_LOCK'
+permission: com.mxteb.gymtracker.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+uses-permission: name='com.mxteb.gymtracker.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'
+package: name='com.mxteb.gymtracker' versionCode='49' versionName='1.49' platformBuildVersionName='16' platformBuildVersionCode='36' compileSdkVersion='36' compileSdkVersionCodename='16'
+targetSdkVersion:'36'
+real: V2 Signer: certificate SHA-256 digest: 82d26511e8e4b1e3d55cf80b795c42ecbc75e3dd61b2324dd547de0ca4e9b857
