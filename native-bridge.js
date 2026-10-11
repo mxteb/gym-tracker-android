@@ -72,13 +72,13 @@
   /* ---------- واجهة صغيرة (نافذة) بنفس ألوان التطبيق ---------- */
   var css = document.createElement('style');
   css.textContent =
-    '#gt-native-dialog{position:fixed;top:0;right:0;bottom:0;left:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.82)}' +
-    '#gt-native-dialog .box{width:100%;max-width:380px;max-height:90vh;overflow-y:auto;box-sizing:border-box;background:#1B1B1A;border:1px solid #333331;border-radius:4px;padding:18px;color:#EDEBE6;font-family:Alexandria,Tahoma,Arial,sans-serif;direction:rtl;text-align:right;box-shadow:0 12px 40px rgba(0,0,0,.6)}' +
-    '#gt-native-dialog h3{margin:0 0 8px;font-size:16px;font-weight:800;color:#EDEBE6}' +
-    '#gt-native-dialog p{margin:0 0 14px;font-size:13px;line-height:1.7;white-space:pre-line;color:#C9C6BE;word-break:break-word}' +
+    '#gt-native-dialog{position:fixed;top:0;right:0;bottom:0;left:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.7)}' +
+    '#gt-native-dialog .box{width:100%;max-width:380px;max-height:90vh;overflow-y:auto;box-sizing:border-box;background:var(--panel,#1B1B1A);border:1px solid var(--line,#333331);border-radius:var(--r-sm,4px);padding:18px;color:var(--ink,#EDEBE6);font-family:var(--font,Alexandria,Tahoma,Arial,sans-serif);direction:rtl;text-align:right;box-shadow:0 12px 40px rgba(0,0,0,.6)}' +
+    '#gt-native-dialog h3{margin:0 0 8px;font-size:16px;font-weight:800;color:var(--ink,#EDEBE6)}' +
+    '#gt-native-dialog p{margin:0 0 14px;font-size:13px;line-height:1.7;white-space:pre-line;color:var(--ink-2,#C9C6BE);word-break:break-word}' +
     '#gt-native-dialog .row{display:flex;gap:8px;flex-wrap:wrap}' +
-    '#gt-native-dialog button{flex:1;min-height:44px;border-radius:8px;border:1px solid #333331;background:#222221;color:#EDEBE6;font:inherit;font-size:13px;font-weight:700;padding:8px 10px}' +
-    '#gt-native-dialog button.primary{background:#C8322A;border-color:transparent;color:#fff}' +
+    '#gt-native-dialog button{flex:1;min-height:44px;border-radius:8px;border:1px solid var(--line,#333331);background:var(--panel-2,#222221);color:var(--ink,#EDEBE6);font:inherit;font-size:13px;font-weight:700;padding:8px 10px}' +
+    '#gt-native-dialog button.primary{background:var(--primary,#C8322A);border-color:transparent;color:var(--on-primary,#fff)}' +
     '#gt-exact-card[hidden]{display:none!important}' +
     ':root[dir="ltr"] #gt-native-dialog .box{direction:ltr;text-align:left}';
   (document.head || document.documentElement).appendChild(css);
