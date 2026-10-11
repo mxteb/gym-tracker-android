@@ -453,6 +453,8 @@ async function setupAndroid() {
   info.device = sh('getprop ro.product.model').trim() + ' / Android ' + sh('getprop ro.build.version.release').trim() + ' (API ' + sh('getprop ro.build.version.sdk').trim() + ')';
   info.sdk = Number(sh('getprop ro.build.version.sdk').trim());
   try { sh(`pm uninstall ${PKG}`); } catch { }
+  // start from a clean phone even if the emulator image kept files from an earlier run
+  try { sh('rm -rf /sdcard/Download/GymTracker'); } catch { }
   adb('install', '-r', '-g', APK.includes('/') ? APK : APK);
   // -g grants runtime permissions at install; revoke notifications so we test the real prompt
   if (info.sdk >= 33) { try { sh(`pm revoke ${PKG} android.permission.POST_NOTIFICATIONS`); } catch { } try { sh(`pm clear-permission-flags ${PKG} android.permission.POST_NOTIFICATIONS user-set user-fixed`); } catch { } }
