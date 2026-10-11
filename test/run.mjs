@@ -286,6 +286,9 @@ async function tap(sel, { allowCovered = false } = {}) {
     // the app focuses some fields itself (e.g. finish-session duration); drop focus so the keyboard closes
     await ev(`document.activeElement && document.activeElement.blur && document.activeElement.blur(); return true`);
     await sleep(800); await dismissSystemDialogs(); r = await measure(sel);
+    // the keyboard can take a few seconds to slide away on a slow emulator (API 30 from a snapshot);
+    // a real overlap stays put, so keep checking for up to 3 s before calling it covered
+    for (let i = 0; i < 6 && !r.missing && !r.ok; i++) { await sleep(500); r = await measure(sel); }
   }
   return tapAt(sel, r, allowCovered);
 }
