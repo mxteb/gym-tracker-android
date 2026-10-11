@@ -430,7 +430,8 @@ async function saveWeights(checks, label) {
   await tap('#btn-save-weights');
   await waitToast(/تم حفظ/);
   await waitFor(`document.querySelectorAll('#today-logs-container [data-action="delete-log"]').length===${before + 1} || document.getElementById('today-sets-count').textContent.includes('${before + 1}')`, 6000, 'log appended');
-  const id = await ev(`const list=[...document.querySelectorAll('#today-logs-container [data-action="delete-log"]')]; return list[0]?.dataset.id`);
+  // v12.2: the log is grouped by exercise, so the newest set is marked instead of being first
+  const id = await ev(`return document.querySelector('#today-logs-container [data-newest] [data-action="delete-log"]')?.dataset.id || document.querySelector('#today-logs-container [data-action="delete-log"]')?.dataset.id`);
   const s = { ...snap, id };
   sets.push(s);
   check(checks, label + ' انحفظت', true, JSON.stringify(snap));
@@ -439,7 +440,8 @@ async function saveWeights(checks, label) {
 function restSecs(t) { const m = String(t || '').match(/(\d+):(\d\d)/); return m ? Number(m[1]) * 60 + Number(m[2]) : parseInt(t); }
 function notifDump() { try { return sh(`dumpsys notification --noredact | grep -B5 -A40 "pkg=${PKG}" | head -120 || true`); } catch { return ''; } }
 async function logText(id) {
-  return ev(`const b=document.querySelector('[data-action="delete-log"][data-id=${q(id)}]'); return b? b.closest('.glass-card').textContent.replace(/\\s+/g,' ').trim():null`);
+  // v12.2: a set row sits in its exercise's group; the name is in the group head
+  return ev(`const b=document.querySelector('[data-action="delete-log"][data-id=${q(id)}]'); if(!b) return null; const row=b.closest('.log-row,.glass-card'); const head=row.closest('.log-group')?.querySelector('.log-group-title'); return ((head&&head!==row?head.textContent+' ':'')+row.textContent).replace(/\\s+/g,' ').trim()`);
 }
 
 /* ---------------- setup ---------------- */
@@ -644,7 +646,8 @@ async function main() {
     const lt = await logText(s.id);
     check(c, 'السجل يعرض الاسم والوزن والعدات', /بنش بريس/.test(lt) && /60 كجم/.test(lt) && /11 عدات/.test(lt), lt);
     check(c, 'السجل يعرض 1RM: 82', /1RM: 82 كجم/.test(lt), lt);
-    check(c, 'السجل يعرض نوع الجولة وRIR', /عادية/.test(lt) && /RIR 2/.test(lt), lt);
+    // v12.2: a normal set shows only its RIR (the type shows when it is warm-up, drop or super)
+    check(c, 'السجل يعرض RIR', /RIR 2/.test(lt) && !/تسخين|دروب|سوبر/.test(lt), lt);
     check(c, 'عداد الجولات = جولة واحدة', /جولة واحدة/.test(await text('#today-sets-count')), await text('#today-sets-count'));
     check(c, 'مؤقت الراحة ظهر', await visible('#rest-timer-widget'));
     const rem = restSecs(await text('#timer-display'));
@@ -760,7 +763,7 @@ async function main() {
     await tap('#btn-repeat-set');
     await waitToast(/تم حفظ/);
     check(c, 'انحفظت جولة جديدة', (await logsCount()) === before + 1);
-    const id = await ev(`return document.querySelector('#today-logs-container [data-action="delete-log"]').dataset.id`);
+    const id = await ev(`return (document.querySelector('#today-logs-container [data-newest] [data-action="delete-log"]') || document.querySelector('#today-logs-container [data-action="delete-log"]')).dataset.id`);
     const lt = await logText(id);
     check(c, 'الجولة المكررة نفس الوزن والعدات (30 × 12) مو الرقم اللي في الخانة', /30 كجم/.test(lt) && /12 عدات/.test(lt), lt);
     sets.push({ weight: 30, reps: 12, unit: 'kg', mode: 'external', setType: 'normal', ex: 'ex_49', machine: 5, id });
@@ -1595,7 +1598,7 @@ async function main() {
     await clearToasts();
     await tap('#btn-save-weights');
     await waitToast(/تم حفظ/);
-    const row = await ev(`return document.querySelector('#today-logs-container .glass-card')?.textContent.replace(/\\s+/g,' ')`);
+    const row = await ev(`return document.querySelector('#today-logs-container .log-row[data-newest]')?.textContent.replace(/\\s+/g,' ')`);
     check(c, 'السجل يبين يمين 10 · يسار 8', /يمين 10 · يسار 8/.test(row), row);
     await shot('38-sides');
     await tap('#btn-sides');
@@ -1656,7 +1659,7 @@ async function main() {
       await ev(`window.__gymNativeRepeat({ exerciseId: 'ex_1' }); return true`);
     }
     await waitFor(`Number((document.getElementById('today-sets-count')?.textContent||'').replace(/\\D/g,'')) === ${before + 1}`, 8000, 'repeated set');
-    const top = await ev(`return document.querySelector('#today-logs-container .glass-card')?.textContent.replace(/\\s+/g,' ')`);
+    const top = await ev(`return document.querySelector('#today-logs-container .log-row[data-newest]')?.textContent.replace(/\\s+/g,' ')`);
     check(c, 'انحفظت نفس الجولة (62.5 × 6)', /62\.5/.test(top) && /6 عدات/.test(top), top);
     // a double tap (or the countdown and the end alert both tapped) saves once
     await sleep(3200);
