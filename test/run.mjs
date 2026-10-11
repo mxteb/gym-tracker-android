@@ -267,7 +267,8 @@ async function visible(sel) {
 
 // v11.8: the add-exercise page has no dock tab any more; it opens from «+ تمرين جديد» on the workout screen
 async function openTab(tab) {
-  if (tab === 'exercises') { await tap('#nav-workout'); await tap('#btn-new-exercise'); }
+  // v12.1: from the exercise picker («غيّر التمرين» → «+ تمرين جديد»)
+  if (tab === 'exercises') { await tap('#nav-workout'); await tap('#btn-change-ex'); await tap('#picker-new'); }
   else await tap('#nav-' + tab);
 }
 
@@ -1783,6 +1784,34 @@ async function main() {
     await shot('42-picker');
     await typeInto('#new-ex-name', '');
     await tap('#exercises-back');
+  });
+
+  await test('T43', 'v12.1: شاشة «ابدأ»، اختيار التمرين من تحت، وزر الحفظ الثابت', async c => {
+    await tap('#nav-workout');
+    if (await ev(`return document.getElementById('btn-start-session').disabled`)) {
+      await tap('#btn-finish-session'); await tap('#btn-confirm-finish'); await sleep(800);
+      if (!(await ev(`return document.getElementById('custom-modal').classList.contains('hidden')`))) await tap('#modal-cancel-btn');
+    }
+    await ev(`window.scrollTo(0,0); return true`);
+    check(c, 'بدون جلسة تطلع «وش تمرين اليوم؟» وجاهزية العضلات', await visible('#start-head') && (await ev(`return document.querySelectorAll('#start-ready .start-ready-chip').length`)) === 7);
+    await shot('43-start');
+    await tap('#btn-start-free');
+    await waitFor(`document.getElementById('workout-session-card').classList.contains('session-active')`, 5000, 'session bar');
+    await tap('#btn-change-ex');
+    await waitFor(`!document.getElementById('ex-picker').classList.contains('hidden')`, 4000, 'picker');
+    await typeInto('#picker-search', 'bench');
+    await tap('#picker-list [data-pick="ex_1"]');
+    check(c, 'الاختيار من القائمة يختار البنش ويسكّرها', (await val('#exercise-dropdown')) === 'ex_1' && !(await visible('#ex-picker')));
+    await typeInto('#input-weight', 40); await typeInto('#input-reps', 8);
+    await choose('#rest-timer-duration', '0');
+    check(c, 'زر الحفظ ثابت فوق الشريط ويقول 40 × 8', /40 × 8/.test(await text('#btn-save-weights')) && (await ev(`return getComputedStyle(document.getElementById('save-bar')).position`)) === 'fixed');
+    await clearToasts();
+    await tap('#btn-save-weights');
+    await waitToast(/تم حفظ/);
+    check(c, 'عداد الجولة تحرك', /الجولة 2|خلصت/.test(await text('#set-counter-title')), await text('#set-counter-title'));
+    await shot('43-saved');
+    await tap('#btn-finish-session'); await tap('#btn-confirm-finish'); await sleep(800);
+    if (!(await ev(`return document.getElementById('custom-modal').classList.contains('hidden')`))) await tap('#modal-cancel-btn');
   });
 
   await test('T26', 'v10.7: اقتراح الجولة الجاية + خطة الجلسة', async c => {
