@@ -42,6 +42,16 @@ jobs:
           distribution: temurin
           java-version: 21
 
+      # speed: keep Gradle and npm downloads between runs (only downloads; the app is still built from scratch)
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            ~/.npm
+          key: build-deps-${{ hashFiles('package-lock.json', 'package.json') }}-v1
+          restore-keys: build-deps-
+
       - name: Website calculation tests (stop here if any number changed)
         run: node --test site/tests/*.test.mjs
 
@@ -210,6 +220,32 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      # speed: a booted emulator saved as a snapshot, so later runs start from it instead of booting cold
+      - name: Emulator snapshot cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-${{ matrix.api }}-${{ matrix.profile }}-v1
+
+      - name: Make the emulator snapshot (only when there is none yet)
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
+        with:
+          api-level: ${{ matrix.api }}
+          target: google_apis
+          arch: x86_64
+          profile: ${{ matrix.profile }}
+          ram-size: 4096M
+          cores: 4
+          disk-size: 4096M
+          force-avd-creation: false
+          disable-animations: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: echo "snapshot saved"
+
       - name: Run tests on Android ${{ matrix.api }} emulator (${{ matrix.name }})
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
         env:
@@ -225,8 +261,10 @@ jobs:
           ram-size: 4096M
           cores: 4
           disk-size: 4096M
+          force-avd-creation: false
           disable-animations: true
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          # start from the saved snapshot and never save the test's changes back into it
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: node test/run.mjs android
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

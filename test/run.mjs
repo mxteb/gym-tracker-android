@@ -895,11 +895,13 @@ async function main() {
     await choose('#exercise-dropdown', 'ex_1');
     await choose('#load-mode-select', 'external');
     await typeInto('#input-weight', 60); await typeInto('#input-reps', 10);
-    await choose('#rest-timer-duration', '60');
+    // speed: a test-only 15 s choice (same timer code as 60 s; the app accepts any rest from 0 to 600 s). Saves 90 s per device.
+    await ev(`const s=document.getElementById('rest-timer-duration'); if(![...s.options].some(o=>o.value==='15')) s.add(new Option('15 ثانية (اختبار)','15')); return true`);
+    await choose('#rest-timer-duration', '15');
     await saveWeights(c, 'جولة لتشغيل المؤقت');
     await clearToasts();
-    await waitFor(`/انتهى وقت الراحة/.test(document.getElementById('toast-container').textContent)`, 75000, 'rest finished toast');
-    check(c, 'بعد 60 ثانية: رسالة انتهاء الراحة', true);
+    await waitFor(`/انتهى وقت الراحة/.test(document.getElementById('toast-container').textContent)`, 40000, 'rest finished toast');
+    check(c, 'بعد 15 ثانية: رسالة انتهاء الراحة', true);
     check(c, 'المؤقت اختفى', !(await visible('#rest-timer-widget')));
     if (ANDROID) {
       if (info.sdk >= 31) {
@@ -909,7 +911,7 @@ async function main() {
       const notif = activeNotifs();
       check(c, 'ما جاء إشعار والتطبيق مفتوح (بدون تكرار)', notif === 0, 'count=' + notif);
 
-      await choose('#rest-timer-duration', '60');
+      await choose('#rest-timer-duration', '15');
       await saveWeights(c, 'جولة ثانية للمؤقت بالخلفية');
       await sleep(1500);
       key(3); // HOME
