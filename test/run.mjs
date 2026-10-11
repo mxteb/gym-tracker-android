@@ -729,7 +729,9 @@ async function main() {
     const kind = () => ev(`return document.getElementById('equip-visual')?.dataset.kind || ''`);
     await choose('#exercise-dropdown', 'ex_1'); await choose('#load-mode-select', 'external'); await typeInto('#input-weight', 70);
     check(c, 'البار: 70 = البار 20 + قرص 25 كل جهة', (await kind()) === 'bar' && /كل جهة: 25 ·/.test(await text('.equip-caption')), await text('.equip-caption'));
-    check(c, 'البار: خانة وزن البار ظاهرة', await visible('#input-bar-kg'));
+    // v12.2: وزن البار صار داخل «إعدادات التمرين» المطوية؛ Chrome 83 (API 30) ما يرسم اللي داخل details مسكّرة، فنفتحها مثل المستخدم
+    if (!(await ev(`return document.getElementById('ex-settings').open`))) await tap('#ex-settings > summary');
+    check(c, 'البار: خانة وزن البار ظاهرة (داخل إعدادات التمرين)', await visible('#input-bar-kg'));
     await choose('#exercise-dropdown', 'ex_47'); await typeInto('#input-weight', 100);
     check(c, 'مكبس الأرجل: جهاز بأقراص (25 + 25 كل جهة)', (await kind()) === 'plates' && /25 \+ 25/.test(await text('.equip-caption')), await text('.equip-caption'));
     await choose('#exercise-dropdown', 'ex_3');
@@ -1002,7 +1004,10 @@ async function main() {
     check(c, 'أيام التمرين = 1', /1 يوم/.test(await text('#stat-total-days')), await text('#stat-total-days'));
     const exCount = new Set(sets.map(s => s.ex)).size;
     check(c, `تمارين نشطة = ${exCount}`, (await text('#stat-active-exercises-count')).includes(String(exCount)), await text('#stat-active-exercises-count'));
-    await choose('#chart-exercise-select', 'ex_1');
+    // v12.3: التطور يفتح على قائمة التمارين، والضغط على تمرين يفتح تفاصيله
+    check(c, `القائمة فيها ${exCount} تمارين`, (await ev(`return document.querySelectorAll('#prog-items [data-prog-ex]').length`)) === exCount && (await text('#pt-ex')) === String(exCount), await text('#pt-ex'));
+    await tap('#prog-items [data-prog-ex="ex_1"]');
+    check(c, 'الضغط على البنش فتح تفاصيله', await ev(`return document.getElementById('screen-progress').classList.contains('detail') && document.getElementById('chart-exercise-select').value === 'ex_1'`));
     check(c, 'الرسم البياني مرسوم', await ev(`!!document.querySelector('#progressChart svg polyline')`));
     check(c, 'سجل التطور يعرض أعلى حمل 61.2 × 5', /61\.2 كجم × 5/.test(await text('#exercise-progression-history-list')), await text('#exercise-progression-history-list'));
     await tap('#chart-mode-1rm');
@@ -1010,6 +1015,8 @@ async function main() {
     await tap('#chart-mode-actual');
     check(c, 'تفصيل الحجم يعرض البنش', /بنش بريس/.test(await text('#exercise-volume-breakdown-list')));
     await shot('13-progress');
+    await tap('#prog-back');
+    check(c, 'زر الرجوع رجّع للقائمة', await ev(`return !document.getElementById('screen-progress').classList.contains('detail')`));
     await tap('#nav-workout');
   });
 
@@ -1082,7 +1089,7 @@ async function main() {
   await test('T14', 'إضافة تمرين مخصص وتصنيفه وحذفه', async c => {
     await openTab('exercises');
     await typeInto('#new-ex-name', 'Hip Thrust Barbell');
-    check(c, 'التصنيف التلقائي اشتغل', await visible('#new-ex-status') && (await val('#new-ex-cat')) === 'legs', await val('#new-ex-cat'));
+    check(c, 'التصنيف التلقائي اشتغل', (await visible('#new-ex-hint') || await visible('#new-ex-status')) && (await val('#new-ex-cat')) === 'legs', await val('#new-ex-cat'));
     await clearToasts();
     // close the keyboard first: on API 30 the first tap only closed it and the page moved under the finger (CI 43, 44)
     await ev(`document.activeElement && document.activeElement.blur(); return true`); await sleep(800);
@@ -1090,11 +1097,15 @@ async function main() {
     await waitToast(/انضاف/);
     check(c, 'رجع للتمرين واختار التمرين الجديد', await visible('#screen-workout') && /Hip Thrust Barbell/.test(await ev(`const d=document.getElementById('exercise-dropdown'); return d.options[d.selectedIndex]?.textContent || ''`)));
     await openTab('exercises');
+    await tap('#ex-tab-library');
     check(c, 'العداد = 1', /^1 /.test(await text('#custom-ex-count')), await text('#custom-ex-count'));
     check(c, 'التمرين ظاهر بالقائمة', /Hip Thrust Barbell/.test(await text('#manage-exercises-list')));
+    await tap('#ex-tab-add');
     await typeInto('#new-ex-name', 'Hip Thrust Barbell');
     check(c, 'منع التكرار: زر الإضافة معطل', await ev(`document.getElementById('add-ex-submit-btn').disabled`));
     await typeInto('#new-ex-name', '');
+    await ev(`document.activeElement && document.activeElement.blur(); return true`); await sleep(800);
+    await tap('#ex-tab-library');
     // close the keyboard first (the page now opens with the name field focused), so the layout is still when we tap
     await ev(`document.activeElement && document.activeElement.blur(); return true`); await sleep(800);
     await tap('[data-action="delete-custom-ex"]');
@@ -1815,6 +1826,34 @@ async function main() {
     await shot('43-saved');
     await tap('#btn-finish-session'); await tap('#btn-confirm-finish'); await sleep(800);
     if (!(await ev(`return document.getElementById('custom-modal').classList.contains('hidden')`))) await tap('#modal-cancel-btn');
+  });
+
+  await test('T44', 'v12.3: قائمة التطور وتفاصيلها، ومكتبة تماريني، وتنبيه التمرين القريب', async c => {
+    await tap('#nav-progress');
+    await ev(`window.scrollTo(0,0); return true`);
+    check(c, 'التطور يفتح على القائمة', (await ev(`return document.querySelectorAll('#prog-items [data-prog-ex]').length`)) >= 3 && !(await ev(`return document.getElementById('screen-progress').classList.contains('detail')`)));
+    await shot('44-progress-list');
+    await tap('#prog-items [data-prog-ex="ex_1"]');
+    check(c, 'التفاصيل فيها رسم وملخص', await ev(`return !!document.querySelector('#progressChart polyline') && document.getElementById('prog-summary').textContent.length > 10`), await text('#prog-summary'));
+    await tap('#prog-range [data-range="28"]');
+    check(c, 'زر «4 أسابيع» انختار', (await ev(`return document.querySelector('#prog-range [data-range="28"]').getAttribute('aria-checked')`)) === 'true');
+    await tap('#prog-range [data-range="0"]');
+    await shot('44-progress-detail');
+    await tap('#prog-back');
+    await openTab('exercises');
+    await tap('#ex-tab-add');
+    await typeInto('#new-ex-name', 'بنش بريس بالبار');
+    await ev(`document.activeElement && document.activeElement.blur(); return true`); await sleep(800);
+    check(c, 'اسم قريب من البنش يطلع تنبيه «عندك تمرين قريب»', await visible('#new-ex-dup [data-use-ex]'));
+    await shot('44-add-dup');
+    const dupId = await ev(`return document.querySelector('#new-ex-dup [data-use-ex]').dataset.useEx`);
+    await tap('#new-ex-dup [data-use-ex]');
+    check(c, '«استخدمه» يرجع للتمرين ويختاره بدل ما يضيف نسخة', await visible('#screen-workout') && (await val('#exercise-dropdown')) === dupId, dupId);
+    await openTab('exercises');
+    await tap('#ex-tab-library');
+    check(c, 'المكتبة تعرض التمارين مقسّمة بالعضلة', (await ev(`return document.querySelectorAll('#lib-groups .lib-row').length`)) > 40);
+    await shot('44-library');
+    await tap('#exercises-back');
   });
 
   await test('T26', 'v10.7: اقتراح الجولة الجاية + خطة الجلسة', async c => {
