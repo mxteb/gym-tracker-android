@@ -220,43 +220,8 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
-      # speed: a booted emulator saved as a snapshot, so later runs start from it instead of booting cold
-      # restore only: the cache is saved right after the snapshot is made (below), never after the tests,
-      # so every run starts from a clean phone (v1.54: saving at job end kept the last run's backups and dialogs)
-      - name: Emulator snapshot cache
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-        id: avd-cache
-        with:
-          path: |
-            ~/.android/avd/*
-            ~/.android/adb*
-          key: avd-${{ matrix.api }}-${{ matrix.profile }}-v2
-
-      - name: Make the emulator snapshot (only when there is none yet)
-        if: steps.avd-cache.outputs.cache-hit != 'true'
-        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
-        with:
-          api-level: ${{ matrix.api }}
-          target: google_apis
-          arch: x86_64
-          profile: ${{ matrix.profile }}
-          ram-size: 4096M
-          cores: 4
-          disk-size: 4096M
-          force-avd-creation: false
-          disable-animations: false
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          script: echo "snapshot saved"
-
-      - name: Save the clean emulator snapshot
-        if: steps.avd-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-        with:
-          path: |
-            ~/.android/avd/*
-            ~/.android/adb*
-          key: avd-${{ matrix.api }}-${{ matrix.profile }}-v2
-
+      # v1.57: no emulator snapshot cache. Restoring a saved emulator made tests flaky (and broke the tablet);
+      # every run boots a fresh emulator. Gradle/npm caches above stay (build ~2.5 min instead of ~4).
       - name: Run tests on Android ${{ matrix.api }} emulator (${{ matrix.name }})
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
         env:
@@ -272,10 +237,8 @@ jobs:
           ram-size: 4096M
           cores: 4
           disk-size: 4096M
-          force-avd-creation: false
           disable-animations: true
-          # start from the saved snapshot and never save the test's changes back into it
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: node test/run.mjs android
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
