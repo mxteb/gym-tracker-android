@@ -268,7 +268,15 @@ async function visible(sel) {
 // v11.8: the add-exercise page has no dock tab any more; it opens from «+ تمرين جديد» on the workout screen
 async function openTab(tab) {
   // v12.1: from the exercise picker («غيّر التمرين» → «+ تمرين جديد»)
-  if (tab === 'exercises') { await tap('#nav-workout'); await tap('#btn-change-ex'); await tap('#picker-new'); }
+  if (tab === 'exercises') {
+    await tap('#nav-workout'); await tap('#btn-change-ex');
+    // the picker focuses its search box, so the keyboard slides up; let it settle before the next tap (slow on API 30)
+    await sleep(1200);
+    await tap('#picker-new');
+    const onAdd = () => ev(`return !document.getElementById('screen-exercises').classList.contains('hidden')`);
+    for (let i = 0; i < 12 && !(await onAdd()); i++) await sleep(250);
+    if (!(await onAdd()) && !(await ev(`return document.getElementById('ex-picker').classList.contains('hidden')`))) { await sleep(800); await tap('#picker-new'); }
+  }
   else await tap('#nav-' + tab);
 }
 
