@@ -3,10 +3,14 @@
   "appName": "Gym Tracker",
   "webDir": "www",
   "backgroundColor": "#121212",
+  "server": {
+    "errorPath": "webview-update.html"
+  },
   "android": {
     "allowMixedContent": false,
     "adjustMarginsForEdgeToEdge": "auto",
-    "webContentsDebuggingEnabled": false
+    "webContentsDebuggingEnabled": false,
+    "minWebViewVersion": 80
   },
   "plugins": {
     "LocalNotifications": {

@@ -13,6 +13,8 @@ rm -rf www && mkdir -p www
   while IFS= read -r -d '' f; do mkdir -p "www/$(dirname "$f")"; cp "$SITE/$f" "www/$f"; done
 for f in index.html app.js data.js storage.js styles.css manifest.json; do test -f "www/$f" || { echo "missing $f"; exit 1; }; done
 cp native-en.js native-bridge.js native-backup.js native-whatsnew.js www/
+# shown instead of a blank screen when the WebView is older than android.minWebViewVersion (capacitor.config.json)
+cp webview-update.html www/
 if [ "$DIST" = github ]; then cp native-updates.js www/; fi
 cp release-notes.md www/whats-new.txt
 cp release-notes.en.md www/whats-new.en.txt
