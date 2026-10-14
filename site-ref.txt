@@ -1,1 +1,1 @@
-main
+v12.8.1-no-empty-sessions
