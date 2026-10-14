@@ -520,7 +520,7 @@ async function main() {
 
   await test('T01', 'التشغيل الأول: التخزين، المكتبة، Service Worker', async c => {
     check(c, 'شارة الحفظ تقول محفوظ على الجهاز (IndexedDB شغال)', /محفوظ على هذا الجهاز/.test(await text('#db-status-badge')), await text('#db-status-badge'));
-    check(c, 'مكتبة التمارين كاملة 69 تمرين', /69 نتيجة/.test(await text('#filter-summary')), await text('#filter-summary'));
+    check(c, 'مكتبة التمارين كاملة 126 تمرين', /126 نتيجة/.test(await text('#filter-summary')), await text('#filter-summary'));
     check(c, 'ما فيه جلسة نشطة', /لا توجد جلسة نشطة/.test(await text('#active-session-title')));
     if (ANDROID) {
       check(c, 'يشتغل كتطبيق أندرويد أصلي (Capacitor)', await ev(`return !!(window.Capacitor&&Capacitor.isNativePlatform())`));
@@ -954,7 +954,7 @@ async function main() {
     await choose('#rest-timer-duration', '0');
   });
 
-  await test('T12', 'إنهاء الجلسة والملخص (الجولات والحجم بالطن)', async c => {
+  await test('T12', 'إنهاء الجلسة والملخص (كروت: الجولات والحجم و1RM)', async c => {
     await ev(`window.scrollTo(0,0); return true`);
     await tap('#btn-finish-session');
     await waitFor(`!document.getElementById('finish-session-modal').classList.contains('hidden')`, 4000, 'finish modal');
@@ -973,12 +973,16 @@ async function main() {
     try { await waitFor(summaryShown, 4000, 'summary'); }
     catch { if (await visible('#btn-confirm-finish')) { await tap('#btn-confirm-finish'); } await waitFor(summaryShown, 6000, 'summary (retry)'); }
     await sleep(1200);
-    const msg = await text('#modal-message');
+    // v12.7: the summary is cards: a stat grid (value + label) and one card per exercise
+    const stat = label => ev(`const t=[...document.querySelectorAll('#modal-body .sum-stat')].find(e=>e.querySelector('span').textContent.trim()===${JSON.stringify(label)}); return t ? t.querySelector('b').textContent.trim() : ''`);
     const working = sets.filter(s => s.setType !== 'warmup');
-    const tons = (working.reduce((a, s) => a + volumeOf(s), 0) / 1000).toFixed(2);
-    check(c, `الجولات الفعلية = ${working.length}`, msg.includes('الجولات الفعلية: ' + working.length), msg);
-    check(c, `الحجم = ${tons} طن`, msg.includes(tons + ' طن'), msg);
-    check(c, 'أعلى 1RM = 101.3 كجم (العقلة بوزن الجسم 80×8)', /أعلى 1RM[^|]*101\.3 كجم/.test(msg), msg);
+    const kg = Math.round(working.reduce((a, s) => a + volumeOf(s), 0)).toLocaleString('en-US');
+    const setsTile = await stat('الجولات'), volTile = await stat('الحجم'), rmTile = await stat('أعلى 1RM');
+    check(c, `الجولات الفعلية = ${working.length}`, new RegExp('^' + working.length + ' جول').test(setsTile), setsTile);
+    check(c, `الحجم = ${kg} كجم`, volTile === kg + ' كجم', volTile);
+    check(c, 'أعلى 1RM = 101.3 كجم (العقلة بوزن الجسم 80×8)', rmTile === '101.3 كجم', rmTile);
+    const cards = await ev(`return document.querySelectorAll('#modal-body .sum-ex').length`);
+    check(c, 'كرت لكل تمرين في الجلسة', cards >= 2, String(cards));
     await shot('12-summary');
     // the auto-backup toast shows right after finishing; catch it before the share sheet hides it
     const autoToast = ANDROID ? await waitToast(/نسخة احتياطية تلقائية/, 8000).then(() => true, () => false) : true;
