@@ -1210,6 +1210,10 @@ async function main() {
       const b64 = Buffer.from(JSON.stringify(exported)).toString('base64');
       await ev(`const bytes=Uint8Array.from(atob(${q(b64)}),ch=>ch.charCodeAt(0)); const f=new File([bytes],${q(exName)},{type:'application/json'}); const dt=new DataTransfer(); dt.items.add(f); const inp=document.getElementById('import-file-input'); inp.files=dt.files; inp.dispatchEvent(new Event('change',{bubbles:true})); return true`);
     }
+    // v12.8: the app says what's in the file and asks before merging
+    await waitFor(`!document.getElementById('custom-modal').classList.contains('hidden') && /استيراد/.test(document.getElementById('modal-title').textContent)`, 8000, 'import confirm');
+    check(c, 'الاستيراد يسأل قبل الدمج', /جولة/.test(await text('#modal-message') || ''), await text('#modal-message'));
+    await tap('#modal-confirm-btn');
     await waitToast(/تم دمج النسخة/, 10000);
     check(c, 'الاستيراد نجح' + (pickedNative ? ' (من منتقي الملفات نفسه)' : ''), true);
     check(c, 'كل الجولات رجعت', (await logsCount()) === exported.logs.length, (await logsCount()) + ' vs ' + exported.logs.length);

@@ -1,6 +1,8 @@
-• If you pick English it stays English; it no longer turns Arabic the second time you open the app.
-• The session summary is now cards: each exercise with its sets, volume and how it compares to last time.
-• The library has 126 exercises: deadlift, Smith machine, plate-loaded machines, pendulum and belt squat, more cables and abs.
-• A new exercise starts at a light weight that suits it instead of the last exercise's weight.
-• Tap any set to edit or delete it, not only by swiping. The monthly report updates right away.
-• "Waist / belly" instead of "waist", and a better layout with large fonts on small phones.
+• Started a session by mistake? An "Undo" shows for 6 seconds and it's gone as if it never started.
+• The finish dialog has "Cancel session without saving", and finishing with no sets asks before saving.
+• Empty sessions are removed, and deleting every set of a session removes it too, so "Last session" only shows real workouts.
+• A session left open since yesterday: an empty one is cancelled; one with sets asks you to finish it with a sensible duration (last set + 10 min).
+• "Undo" after deleting several sets brings them all back.
+• Import shows what's in the file and asks before merging.
+• Data safety: if storage fails to open when the app starts, it asks you to reopen instead of starting empty.
+• Nonsense values are refused clearly: assistance heavier than you, and negative calories from wrong body data.
