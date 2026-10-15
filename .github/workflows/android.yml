@@ -159,12 +159,13 @@ jobs:
           for f in GymTracker.apk GymTracker-play-test.apk; do
             echo "== $f" | tee -a build-info/permissions.txt
             "$AAPT2" dump permissions "$f" | tee -a build-info/permissions.txt
-            "$AAPT2" dump badging "$f" | grep -E "^package|targetSdkVersion" | tee -a build-info/permissions.txt
+            "$AAPT2" dump badging "$f" | grep -E "^package|^sdkVersion|targetSdkVersion" | tee -a build-info/permissions.txt
           done
           # fail early on anything Google Play would reject
           if grep -q "USE_EXACT_ALARM" build-info/permissions.txt; then echo "::error::USE_EXACT_ALARM is still requested"; exit 1; fi
           if sed -n '/== GymTracker-play-test.apk/,$p' build-info/permissions.txt | grep -q "android.permission.INTERNET"; then echo "::error::the Play build still asks for internet"; exit 1; fi
           if ! grep -q "targetSdkVersion:'36'" build-info/permissions.txt; then echo "::error::target SDK is not 36"; exit 1; fi
+          if grep -E "^sdkVersion:'(1?[0-9]|2[0-3])'" build-info/permissions.txt; then echo "::error::min SDK is below 24, Google Play rejects it"; exit 1; fi
           # S4: the test APKs must not carry the real signature
           APKSIGNER=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)apksigner
           REAL=$("$APKSIGNER" verify --print-certs GymTracker.apk | grep -m1 "SHA-256 digest")
