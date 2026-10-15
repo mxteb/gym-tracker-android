@@ -1,1 +1,1 @@
-• Editing an exercise's muscles (from "Added by me" or the exercise card) now shows the front and back body figure, colored as you tap: red is main, yellow is helper. It's the same figure as in "Body", so you can check the muscles are right.
+• The app now needs Android 7 or newer (a Google Play requirement). Android 6 is no longer supported.
