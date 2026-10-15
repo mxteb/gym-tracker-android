@@ -1,0 +1,9 @@
+{
+  "@capacitor/android": "7.6.9",
+  "@capacitor/core": "7.6.9",
+  "@capacitor/app": "7.1.2",
+  "@capacitor/filesystem": "7.1.9",
+  "@capacitor/share": "7.0.4",
+  "@capacitor/local-notifications": "7.0.7",
+  "edgeToEdgeOption": true
+}

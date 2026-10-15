@@ -1,0 +1,1 @@
+ android.permission.POST_NOTIFICATIONS android.permission.RECEIVE_BOOT_COMPLETED android.permission.INTERNET android.permission.SCHEDULE_EXACT_ALARM com.mxteb.gymtracker.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION android.permission.VIBRATE android.permission.WAKE_LOCK 

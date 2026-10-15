@@ -1,0 +1,7 @@
+        versionCode 68
+        versionName "1.68"
+    signingConfigs {
+            signingConfig signingConfigs.gymtracker
+    minSdkVersion = 24
+    compileSdkVersion = 36
+    targetSdkVersion = 36

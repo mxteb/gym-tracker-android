@@ -1,0 +1,36 @@
+--------- beginning of crash
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: FATAL EXCEPTION: UiAutomation
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: PID: 6680
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: java.lang.RuntimeException: Bad file descriptor
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: 	at android.os.BinderProxy.transactNative(Native Method)
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: 	at android.os.BinderProxy.transact(BinderProxy.java:586)
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: 	at android.accessibilityservice.IAccessibilityServiceConnection$Stub$Proxy.findAccessibilityNodeInfoByAccessibilityId(IAccessibilityServiceConnection.java:1229)
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: 	at android.view.accessibility.AccessibilityInteractionClient.findAccessibilityNodeInfoByAccessibilityId(AccessibilityInteractionClient.java:671)
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: 	at android.view.accessibility.AccessibilityNodeInfo.refresh(AccessibilityNodeInfo.java:1202)
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: 	at android.view.accessibility.AccessibilityCache$AccessibilityNodeRefresher.refreshNode(AccessibilityCache.java:914)
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: 	at android.view.accessibility.AccessibilityCache.onAccessibilityEvent(AccessibilityCache.java:296)
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: 	at android.view.accessibility.AccessibilityInteractionClient.onAccessibilityEvent(AccessibilityInteractionClient.java:1173)
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: 	at android.accessibilityservice.AccessibilityService$IAccessibilityServiceClientWrapper.lambda$onAccessibilityEvent$2(AccessibilityService.java:2980)
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: 	at android.accessibilityservice.AccessibilityService$IAccessibilityServiceClientWrapper.$r8$lambda$BK9U4O9uTvtOrxe1k6nU74w4nWg(Unknown Source:0)
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: 	at android.accessibilityservice.AccessibilityService$IAccessibilityServiceClientWrapper$$ExternalSyntheticLambda8.run(D8$$SyntheticClass:0)
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: 	at android.os.Handler.handleCallback(Handler.java:959)
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:100)
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:232)
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:317)
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: 	at android.os.HandlerThread.run(HandlerThread.java:85)
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: Error reporting crash
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: java.lang.RuntimeException: Bad file descriptor
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: 	at android.os.BinderProxy.transactNative(Native Method)
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: 	at android.os.BinderProxy.transact(BinderProxy.java:586)
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: 	at android.os.IServiceManager$Stub$Proxy.checkService(IServiceManager.java:441)
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: 	at android.os.ServiceManagerProxy.getService(ServiceManagerNative.java:63)
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: 	at android.os.ServiceManager.rawGetService(ServiceManager.java:428)
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: 	at android.os.ServiceManager.getService(ServiceManager.java:175)
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: 	at android.app.ActivityManager$3.create(ActivityManager.java:5692)
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: 	at android.app.ActivityManager$3.create(ActivityManager.java:5689)
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: 	at android.util.Singleton.get(Singleton.java:44)
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: 	at android.app.ActivityManager.getService(ActivityManager.java:5680)
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$KillApplicationHandler.uncaughtException(RuntimeInit.java:170)
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: 	at java.lang.ThreadGroup.uncaughtException(ThreadGroup.java:1071)
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: 	at java.lang.ThreadGroup.uncaughtException(ThreadGroup.java:1066)
+10-15 10:42:46.226  6680  6691 E AndroidRuntime: 	at java.lang.Thread.dispatchUncaughtException(Thread.java:2306)

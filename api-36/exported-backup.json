@@ -1,0 +1,1239 @@
+{
+  "profile": {
+    "id": "user_profile",
+    "name": "Test",
+    "weight": 80,
+    "height": 178,
+    "waist": 85,
+    "age": 30,
+    "fat": 18,
+    "muscle": 42,
+    "water": 55,
+    "isMan": true,
+    "activityFactor": 1.55,
+    "history": [
+      {
+        "date": "2026-10-15",
+        "weight": 80,
+        "waist": 85
+      }
+    ],
+    "updatedAt": 1792060455210,
+    "keepAwake": true,
+    "theme": "plates"
+  },
+  "exercises": [
+    {
+      "id": "ex_1",
+      "name": "بنش بريس مستوي بالبار (Barbell Bench Press)",
+      "category": "push",
+      "type": "weights",
+      "equip": "barbell",
+      "restSec": 0,
+      "editedAt": 1792060628513,
+      "unit": "kg"
+    },
+    {
+      "id": "ex_10",
+      "name": "سحب كيبل متقاطع للصدر (Cable Crossover)",
+      "category": "push",
+      "type": "weights",
+      "equip": "cable_body"
+    },
+    {
+      "id": "ex_100",
+      "name": "سحب ذراع مستقيم بالكيبل (Straight-Arm Cable Pulldown)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "cable_body"
+    },
+    {
+      "id": "ex_101",
+      "name": "سحب ظهر بالدمبل صدر على بنش مائل (Chest-Supported Dumbbell Row)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "dumbbell"
+    },
+    {
+      "id": "ex_102",
+      "name": "جهاز تمديد الظهر (Back Extension / Hyperextension)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_103",
+      "name": "جهاز البلوفر (Pullover Machine)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_104",
+      "name": "جهاز سحب ظهر بالأقراص (Plate-Loaded Lat Pulldown)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_105",
+      "name": "سكوات أمامي بالبار (Barbell Front Squat)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "barbell"
+    },
+    {
+      "id": "ex_106",
+      "name": "هيب ثرست بالبار (Barbell Hip Thrust)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "barbell"
+    },
+    {
+      "id": "ex_107",
+      "name": "جهاز سكوات البندول (Pendulum Squat Machine)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_108",
+      "name": "جهاز سكوات الحزام (Belt Squat Machine)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_109",
+      "name": "مكبس أرجل أفقي (Horizontal Leg Press)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_11",
+      "name": "ضغط أكتاف بالبار واقف (Overhead Barbell Press)",
+      "category": "push",
+      "type": "weights",
+      "equip": "barbell"
+    },
+    {
+      "id": "ex_110",
+      "name": "جهاز رفس المقعدة (Glute Kickback Machine)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_111",
+      "name": "رفس المقعدة بالكيبل برجل وحدة (Single-Leg Cable Kickback)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "cable_body"
+    },
+    {
+      "id": "ex_112",
+      "name": "جهاز ثني الأرجل واقف برجل وحدة (Single-Leg Standing Leg Curl)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_113",
+      "name": "طلوع على بوكس بالدمبل (Dumbbell Step-Up)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "dumbbell"
+    },
+    {
+      "id": "ex_114",
+      "name": "سمانة على مكبس الأرجل (Leg Press Calf Raise)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_115",
+      "name": "جهاز الفخذ الخلفي والمقعدة (Glute-Ham Raise)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "cable_body"
+    },
+    {
+      "id": "ex_116",
+      "name": "سكوات سومو بالدمبل (Dumbbell Sumo Squat)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "dumbbell"
+    },
+    {
+      "id": "ex_117",
+      "name": "جهاز ضم الفخذ (Hip Adductor Machine)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_118",
+      "name": "جهاز إبعاد الفخذ (Hip Abductor Machine)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_119",
+      "name": "جهاز البطن (Ab Crunch Machine)",
+      "category": "abs",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_12",
+      "name": "ضغط أكتاف بالدمبل جالس (Seated Dumbbell Shoulder Press)",
+      "category": "push",
+      "type": "weights",
+      "equip": "dumbbell"
+    },
+    {
+      "id": "ex_120",
+      "name": "دوران الجذع بالكيبل (Cable Woodchopper)",
+      "category": "abs",
+      "type": "weights",
+      "equip": "cable_body"
+    },
+    {
+      "id": "ex_121",
+      "name": "عجلة البطن (Ab Wheel Rollout)",
+      "category": "abs",
+      "type": "weights",
+      "equip": "cable_body"
+    },
+    {
+      "id": "ex_122",
+      "name": "بلانك جانبي (Side Plank)",
+      "category": "abs",
+      "type": "weights",
+      "equip": "cable_body"
+    },
+    {
+      "id": "ex_123",
+      "name": "رفع الأرجل على الكرسي الروماني (Captain's Chair Leg Raise)",
+      "category": "abs",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_124",
+      "name": "جهاز التزلج (SkiErg)",
+      "category": "cardio",
+      "type": "bike_elliptical",
+      "equip": "cardio",
+      "machine": "rowing"
+    },
+    {
+      "id": "ex_125",
+      "name": "دراجة سبين (Spin Bike)",
+      "category": "cardio",
+      "type": "bike_elliptical",
+      "equip": "cardio",
+      "machine": "bike"
+    },
+    {
+      "id": "ex_126",
+      "name": "دراجة بظهر مسنود (Recumbent Bike)",
+      "category": "cardio",
+      "type": "bike_elliptical",
+      "equip": "cardio",
+      "machine": "bike"
+    },
+    {
+      "id": "ex_13",
+      "name": "ضغط أكتاف أرنولد (Arnold Press)",
+      "category": "push",
+      "type": "weights",
+      "equip": "dumbbell"
+    },
+    {
+      "id": "ex_14",
+      "name": "ضغط أكتاف ماكينة (Shoulder Press Machine)",
+      "category": "push",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_15",
+      "name": "رفرفة أكتاف جانبي بالدمبل (Dumbbell Lateral Raise)",
+      "category": "push",
+      "type": "weights",
+      "equip": "dumbbell"
+    },
+    {
+      "id": "ex_16",
+      "name": "رفرفة أكتاف جانبي كيبل (Cable Lateral Raise)",
+      "category": "push",
+      "type": "weights",
+      "equip": "cable_body"
+    },
+    {
+      "id": "ex_17",
+      "name": "رفرفة أكتاف جانبي جهاز (Lateral Raise Machine)",
+      "category": "push",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_18",
+      "name": "رفرفة أمامي بالدمبل (Dumbbell Front Raise)",
+      "category": "push",
+      "type": "weights",
+      "equip": "dumbbell"
+    },
+    {
+      "id": "ex_19",
+      "name": "متوازي (Dips)",
+      "category": "push",
+      "type": "weights",
+      "equip": "cable_body"
+    },
+    {
+      "id": "ex_2",
+      "name": "بنش بريس مائل بالبار (Incline Barbell Bench Press)",
+      "category": "push",
+      "type": "weights",
+      "equip": "barbell"
+    },
+    {
+      "id": "ex_20",
+      "name": "تمديد ترايسيبس بالكيبل (Cable Triceps Pushdown)",
+      "category": "push",
+      "type": "weights",
+      "equip": "cable_body"
+    },
+    {
+      "id": "ex_21",
+      "name": "ترايسيبس كيبل بالحبل (Rope Triceps Pushdown)",
+      "category": "push",
+      "type": "weights",
+      "equip": "cable_body"
+    },
+    {
+      "id": "ex_22",
+      "name": "ترايسيبس بالدمبل خلف الرأس (Dumbbell Overhead Extension)",
+      "category": "push",
+      "type": "weights",
+      "equip": "dumbbell"
+    },
+    {
+      "id": "ex_23",
+      "name": "ترايسيبس كيك باك بالدمبل (Dumbbell Kickbacks)",
+      "category": "push",
+      "type": "weights",
+      "equip": "dumbbell"
+    },
+    {
+      "id": "ex_24",
+      "name": "سحب ظهر عريض عالي (Lat Pulldown Machine)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_25",
+      "name": "سحب ظهر قبضة ضيقة (Close-Grip Lat Pulldown)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_26",
+      "name": "سحب ظهر أرضي كيبل (Seated Cable Row)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "cable_body"
+    },
+    {
+      "id": "ex_27",
+      "name": "سحب ظهر فردي بالدمبل (Single-Arm Dumbbell Row)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "dumbbell"
+    },
+    {
+      "id": "ex_28",
+      "name": "سحب ظهر بالبار (Barbell Bent-Over Row)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "barbell"
+    },
+    {
+      "id": "ex_29",
+      "name": "جهاز T-Bar Row",
+      "category": "pull",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_3",
+      "name": "ضغط صدر بالدمبل مستوي (Flat Dumbbell Bench Press)",
+      "category": "push",
+      "type": "weights",
+      "equip": "dumbbell",
+      "unit": "kg",
+      "editedAt": 1792060495537
+    },
+    {
+      "id": "ex_30",
+      "name": "جهاز سحب ظهر علوي (High Row Machine)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_31",
+      "name": "عقلة (Pull-ups / Chin-ups)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "cable_body",
+      "unit": "kg",
+      "editedAt": 1792060497403
+    },
+    {
+      "id": "ex_32",
+      "name": "جهاز العقلة المساعد (Assisted Pull-Up Machine)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_33",
+      "name": "بلوفر بالدمبل (Dumbbell Pullover)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "dumbbell"
+    },
+    {
+      "id": "ex_34",
+      "name": "رفرفة أكتاف خلفي جهاز (Reverse Pec Deck)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_35",
+      "name": "رفرفة خلفي بالدمبل (Rear Delt Dumbbell Fly)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "dumbbell"
+    },
+    {
+      "id": "ex_36",
+      "name": "سحب كيبل للوجه - أكتاف خلفية (Cable Face Pull)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "cable_body"
+    },
+    {
+      "id": "ex_37",
+      "name": "هز أكتاف / ترابيس بالدمبل (Dumbbell Shrugs)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "dumbbell"
+    },
+    {
+      "id": "ex_38",
+      "name": "مرجحة بايسبس بالبار (Barbell Biceps Curl)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "barbell"
+    },
+    {
+      "id": "ex_39",
+      "name": "مرجحة بايسبس بالدمبل (Dumbbell Biceps Curl)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "dumbbell"
+    },
+    {
+      "id": "ex_4",
+      "name": "ضغط صدر بالدمبل مائل (Incline Dumbbell Bench Press)",
+      "category": "push",
+      "type": "weights",
+      "equip": "dumbbell"
+    },
+    {
+      "id": "ex_40",
+      "name": "مرجحة بايسبس هامر / مطرقة (Dumbbell Hammer Curl)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "dumbbell"
+    },
+    {
+      "id": "ex_41",
+      "name": "مرجحة بايسبس على بنش مائل (Incline Dumbbell Curl)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "dumbbell"
+    },
+    {
+      "id": "ex_42",
+      "name": "مرجحة بايسبس بالكيبل (Cable Biceps Curl)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "cable_body"
+    },
+    {
+      "id": "ex_43",
+      "name": "مرجحة بايسبس تركيز (Concentration Curl)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "dumbbell"
+    },
+    {
+      "id": "ex_44",
+      "name": "سكوات بالبار (Barbell Squat)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "barbell"
+    },
+    {
+      "id": "ex_45",
+      "name": "سكوات على جهاز السميث (Smith Machine Squat)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_46",
+      "name": "هاك سكوات ماكينة (Hack Squat Machine)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_47",
+      "name": "مكبس أرجل (Leg Press Machine)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_48",
+      "name": "سكوات كوب بالدمبل (Dumbbell Goblet Squat)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "dumbbell"
+    },
+    {
+      "id": "ex_49",
+      "name": "جهاز تمديد الأرجل أمامي (Leg Extension Machine)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "machine",
+      "machineKg": 5,
+      "editedAt": 1792060548154,
+      "unit": "kg",
+      "restSec": 0
+    },
+    {
+      "id": "ex_5",
+      "name": "ضغط صدر بالدمبل سفلي (Decline Dumbbell Press)",
+      "category": "push",
+      "type": "weights",
+      "equip": "dumbbell"
+    },
+    {
+      "id": "ex_50",
+      "name": "جهاز ثني الأرجل خلفي جالس (Seated Leg Curl)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_51",
+      "name": "جهاز ثني الأرجل خلفي مستلقي (Lying Leg Curl)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_52",
+      "name": "ديدليفت روماني بالبار (Barbell RDL)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "barbell"
+    },
+    {
+      "id": "ex_53",
+      "name": "ديدليفت روماني بالدمبل (Dumbbell RDL)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "dumbbell"
+    },
+    {
+      "id": "ex_54",
+      "name": "طعن / لانجز بالدمبل (Dumbbell Lunges)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "dumbbell"
+    },
+    {
+      "id": "ex_55",
+      "name": "سكوات بلغاري بالدمبل (Bulgarian Split Squat)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "dumbbell"
+    },
+    {
+      "id": "ex_56",
+      "name": "جهاز ضم وإبعاد الفخذ (Abductor / Adductor Machine)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_57",
+      "name": "جهاز هيب ثرست للمقعدة (Hip Thrust Machine)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_58",
+      "name": "جهاز سمانة واقف (Standing Calf Raise Machine)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_59",
+      "name": "جهاز سمانة جالس (Seated Calf Raise Machine)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_6",
+      "name": "تفتيح صدر بالدمبل (Dumbbell Flyes)",
+      "category": "push",
+      "type": "weights",
+      "equip": "dumbbell"
+    },
+    {
+      "id": "ex_60",
+      "name": "طحن معدة (Crunches)",
+      "category": "abs",
+      "type": "weights",
+      "equip": "cable_body"
+    },
+    {
+      "id": "ex_61",
+      "name": "رفع الأرجل معلق (Hanging Leg Raise)",
+      "category": "abs",
+      "type": "weights",
+      "equip": "cable_body"
+    },
+    {
+      "id": "ex_62",
+      "name": "تمرين البلانك (Plank)",
+      "category": "abs",
+      "type": "weights",
+      "equip": "cable_body"
+    },
+    {
+      "id": "ex_63",
+      "name": "طحن معدة بالكيبل (Cable Crunch)",
+      "category": "abs",
+      "type": "weights",
+      "equip": "cable_body"
+    },
+    {
+      "id": "ex_64",
+      "name": "جهاز المشي (Treadmill)",
+      "category": "cardio",
+      "type": "treadmill",
+      "equip": "cardio"
+    },
+    {
+      "id": "ex_65",
+      "name": "دراجة تمارين ثابتة (Stationary Bike)",
+      "category": "cardio",
+      "type": "bike_elliptical",
+      "equip": "cardio"
+    },
+    {
+      "id": "ex_66",
+      "name": "جهاز الغزالة / أوبتكال (Elliptical Trainer)",
+      "category": "cardio",
+      "type": "bike_elliptical",
+      "equip": "cardio"
+    },
+    {
+      "id": "ex_67",
+      "name": "جهاز سلالم الدرج (Stair Master)",
+      "category": "cardio",
+      "type": "bike_elliptical",
+      "equip": "cardio"
+    },
+    {
+      "id": "ex_68",
+      "name": "جهاز التجديف (Rowing Machine)",
+      "category": "cardio",
+      "type": "bike_elliptical",
+      "equip": "cardio"
+    },
+    {
+      "id": "ex_69",
+      "name": "دراجة هوائية (Air Bike)",
+      "category": "cardio",
+      "type": "bike_elliptical",
+      "equip": "cardio"
+    },
+    {
+      "id": "ex_7",
+      "name": "ضغط صدر بالماكينة (Chest Press Machine)",
+      "category": "push",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_70",
+      "name": "ديدليفت بالبار (Barbell Deadlift)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "barbell"
+    },
+    {
+      "id": "ex_71",
+      "name": "ضغط صدر بالسميث (Smith Machine Bench Press)",
+      "category": "push",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_72",
+      "name": "ضغط صدر مائل بالسميث (Incline Smith Machine Press)",
+      "category": "push",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_73",
+      "name": "بنش بريس سفلي بالبار (Decline Barbell Bench Press)",
+      "category": "push",
+      "type": "weights",
+      "equip": "barbell"
+    },
+    {
+      "id": "ex_74",
+      "name": "تفتيح صدر بالكيبل من تحت لفوق (Low-to-High Cable Fly)",
+      "category": "push",
+      "type": "weights",
+      "equip": "cable_body"
+    },
+    {
+      "id": "ex_75",
+      "name": "ضغط صدر جهاز أقراص (Plate-Loaded Chest Press)",
+      "category": "push",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_76",
+      "name": "ضغط صدر سفلي بالماكينة (Decline Chest Press Machine)",
+      "category": "push",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_77",
+      "name": "ضغط أرضي (Push-ups)",
+      "category": "push",
+      "type": "weights",
+      "equip": "cable_body"
+    },
+    {
+      "id": "ex_78",
+      "name": "ضغط أكتاف بالسميث (Smith Machine Shoulder Press)",
+      "category": "push",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_79",
+      "name": "رفرفة أمامي بالكيبل (Cable Front Raise)",
+      "category": "push",
+      "type": "weights",
+      "equip": "cable_body"
+    },
+    {
+      "id": "ex_8",
+      "name": "ضغط صدر مائل بالماكينة (Incline Chest Press Machine)",
+      "category": "push",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_80",
+      "name": "سحب للذقن بالكيبل (Cable Upright Row)",
+      "category": "push",
+      "type": "weights",
+      "equip": "cable_body"
+    },
+    {
+      "id": "ex_81",
+      "name": "رفرفة خلفي بالكيبل (Cable Rear Delt Fly)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "cable_body"
+    },
+    {
+      "id": "ex_82",
+      "name": "ضغط أكتاف لاندماين (Landmine Press)",
+      "category": "push",
+      "type": "weights",
+      "equip": "barbell"
+    },
+    {
+      "id": "ex_83",
+      "name": "هز أكتاف بالبار (Barbell Shrugs)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "barbell"
+    },
+    {
+      "id": "ex_84",
+      "name": "سكل كراشر بالبار (EZ-Bar Skull Crusher)",
+      "category": "push",
+      "type": "weights",
+      "equip": "barbell"
+    },
+    {
+      "id": "ex_85",
+      "name": "ترايسيبس كيبل فوق الرأس (Cable Overhead Triceps Extension)",
+      "category": "push",
+      "type": "weights",
+      "equip": "cable_body"
+    },
+    {
+      "id": "ex_86",
+      "name": "بنش بريس قبضة ضيقة (Close-Grip Bench Press)",
+      "category": "push",
+      "type": "weights",
+      "equip": "barbell"
+    },
+    {
+      "id": "ex_87",
+      "name": "جهاز متوازي جالس (Seated Dip Machine)",
+      "category": "push",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_88",
+      "name": "جهاز تمديد الترايسيبس (Triceps Extension Machine)",
+      "category": "push",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_89",
+      "name": "مرجحة بايسبس بار EZ (EZ-Bar Curl)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "barbell"
+    },
+    {
+      "id": "ex_9",
+      "name": "تفتيح صدر جهاز الفراشة (Pec Deck / Fly Machine)",
+      "category": "push",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_90",
+      "name": "جهاز بايسبس الواعظ (Preacher Curl Machine)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_91",
+      "name": "مرجحة الواعظ ببار EZ (EZ-Bar Preacher Curl)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "barbell"
+    },
+    {
+      "id": "ex_92",
+      "name": "مرجحة هامر بالكيبل والحبل (Cable Rope Hammer Curl)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "cable_body"
+    },
+    {
+      "id": "ex_93",
+      "name": "مرجحة عكسية بالبار (Reverse Barbell Curl)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "barbell"
+    },
+    {
+      "id": "ex_94",
+      "name": "مرجحة الرسغ بالدمبل (Dumbbell Wrist Curl)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "dumbbell"
+    },
+    {
+      "id": "ex_95",
+      "name": "ديدليفت سومو (Sumo Deadlift)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "barbell"
+    },
+    {
+      "id": "ex_96",
+      "name": "ديدليفت بالبار السداسي (Trap Bar Deadlift)",
+      "category": "legs",
+      "type": "weights",
+      "equip": "barbell"
+    },
+    {
+      "id": "ex_97",
+      "name": "جهاز سحب ظهر صدر مسنود (Chest-Supported Row Machine)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_98",
+      "name": "جهاز سحب ظهر منخفض (Low Row Machine)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "machine"
+    },
+    {
+      "id": "ex_99",
+      "name": "سحب ظهر فردي بالكيبل (Single-Arm Cable Row)",
+      "category": "pull",
+      "type": "weights",
+      "equip": "cable_body"
+    },
+    {
+      "id": "ex_9951fe05-07d8-4e31-a07b-097b8eae0612",
+      "name": "Hip Thrust Barbell",
+      "category": "legs",
+      "type": "weights",
+      "equip": "machine",
+      "machine": "bike",
+      "isCustom": true,
+      "parts": {
+        "main": [
+          "glutes"
+        ],
+        "help": [
+          "hams",
+          "abductors"
+        ]
+      },
+      "muscle": "legs",
+      "archived": true,
+      "editedAt": 1792060713987
+    }
+  ],
+  "logs": [
+    {
+      "id": "log_16c27fad-1113-4f71-8af0-5a5d3dee504c",
+      "schemaVersion": 10,
+      "date": "2026-10-15",
+      "timestamp": 1792060503287,
+      "sessionId": "session_dd639dab-5635-44f1-a913-1577ef871036",
+      "exerciseId": "ex_1",
+      "exerciseName": "بنش بريس مستوي بالبار (Barbell Bench Press)",
+      "category": "push",
+      "type": "weights",
+      "weight": 61.235042773811365,
+      "displayWeight": 135,
+      "unit": "lbs",
+      "reps": 5,
+      "oneRepMax": 71.4,
+      "rir": null,
+      "setType": "normal",
+      "loadMode": "external",
+      "bodyWeightKgAtLog": 80,
+      "effectiveLoadKg": 61.235042773811365,
+      "volumeLoadKg": 61.235042773811365,
+      "durationSeconds": null,
+      "calories": 0,
+      "calculationVersion": "v10-session"
+    },
+    {
+      "id": "log_1f25661e-913c-4ed0-a1de-4983130cfbe4",
+      "schemaVersion": 10,
+      "date": "2026-10-15",
+      "timestamp": 1792060511203,
+      "exerciseId": "ex_64",
+      "exerciseName": "جهاز المشي (Treadmill)",
+      "category": "cardio",
+      "type": "treadmill",
+      "bodyWeightKgAtLog": 80,
+      "speed": 5.5,
+      "incline": 1,
+      "duration": 20,
+      "movement": "walking",
+      "calories": 86.5,
+      "caloriesEstimated": true,
+      "sessionId": "session_dd639dab-5635-44f1-a913-1577ef871036"
+    },
+    {
+      "id": "log_2b251e66-a835-410b-920b-a33b7ce05771",
+      "schemaVersion": 10,
+      "date": "2026-10-15",
+      "timestamp": 1792060512970,
+      "exerciseId": "ex_65",
+      "exerciseName": "دراجة تمارين ثابتة (Stationary Bike)",
+      "category": "cardio",
+      "type": "bike_elliptical",
+      "bodyWeightKgAtLog": 80,
+      "machine": "bike",
+      "intensity": "moderate",
+      "watts": null,
+      "duration": 15,
+      "calories": 116,
+      "caloriesEstimated": true,
+      "sessionId": "session_dd639dab-5635-44f1-a913-1577ef871036"
+    },
+    {
+      "id": "log_4425c190-f65a-4a85-846e-71e842bd06a1",
+      "schemaVersion": 10,
+      "date": "2026-10-15",
+      "timestamp": 1792060524622,
+      "sessionId": "session_dd639dab-5635-44f1-a913-1577ef871036",
+      "exerciseId": "ex_49",
+      "exerciseName": "جهاز تمديد الأرجل أمامي (Leg Extension Machine)",
+      "category": "legs",
+      "type": "weights",
+      "weight": 30,
+      "displayWeight": 30,
+      "unit": "kg",
+      "reps": 12,
+      "oneRepMax": 49,
+      "rir": null,
+      "setType": "normal",
+      "loadMode": "external",
+      "machineKg": 5,
+      "bodyWeightKgAtLog": 80,
+      "effectiveLoadKg": 35,
+      "volumeLoadKg": 35,
+      "durationSeconds": null,
+      "calories": 0,
+      "calculationVersion": "v10-session"
+    },
+    {
+      "id": "log_5e3988c5-0fbd-4296-bd20-3a16087cb1c7",
+      "schemaVersion": 10,
+      "date": "2026-10-15",
+      "timestamp": 1792060495537,
+      "sessionId": "session_dd639dab-5635-44f1-a913-1577ef871036",
+      "exerciseId": "ex_3",
+      "exerciseName": "ضغط صدر بالدمبل مستوي (Flat Dumbbell Bench Press)",
+      "category": "push",
+      "type": "weights",
+      "weight": 20,
+      "displayWeight": 20,
+      "unit": "kg",
+      "reps": 8,
+      "oneRepMax": 25.3,
+      "rir": null,
+      "setType": "normal",
+      "loadMode": "per_hand",
+      "bodyWeightKgAtLog": 80,
+      "effectiveLoadKg": 20,
+      "volumeLoadKg": 40,
+      "durationSeconds": null,
+      "calories": 0,
+      "calculationVersion": "v10-session"
+    },
+    {
+      "id": "log_5f82c69c-29c0-45b5-9e60-244e6384962c",
+      "schemaVersion": 10,
+      "date": "2026-10-15",
+      "timestamp": 1792060499303,
+      "sessionId": "session_dd639dab-5635-44f1-a913-1577ef871036",
+      "exerciseId": "ex_62",
+      "exerciseName": "تمرين البلانك (Plank)",
+      "category": "abs",
+      "type": "weights",
+      "weight": 0,
+      "displayWeight": 0,
+      "unit": "kg",
+      "reps": 1,
+      "oneRepMax": null,
+      "rir": null,
+      "setType": "normal",
+      "loadMode": "timed",
+      "bodyWeightKgAtLog": 80,
+      "effectiveLoadKg": 0,
+      "volumeLoadKg": 0,
+      "durationSeconds": 45,
+      "calories": 0,
+      "calculationVersion": "v10-session"
+    },
+    {
+      "id": "log_866e25d6-c9b4-4666-b408-41aae7d9cd94",
+      "schemaVersion": 10,
+      "date": "2026-10-15",
+      "timestamp": 1792060520987,
+      "sessionId": "session_dd639dab-5635-44f1-a913-1577ef871036",
+      "exerciseId": "ex_49",
+      "exerciseName": "جهاز تمديد الأرجل أمامي (Leg Extension Machine)",
+      "category": "legs",
+      "type": "weights",
+      "weight": 30,
+      "displayWeight": 30,
+      "unit": "kg",
+      "reps": 12,
+      "oneRepMax": 49,
+      "rir": null,
+      "setType": "normal",
+      "loadMode": "external",
+      "machineKg": 5,
+      "bodyWeightKgAtLog": 80,
+      "effectiveLoadKg": 35,
+      "volumeLoadKg": 35,
+      "durationSeconds": null,
+      "calories": 0,
+      "calculationVersion": "v10-session"
+    },
+    {
+      "id": "log_9bba052e-66cc-468f-9e5f-8ec03bf42b19",
+      "schemaVersion": 10,
+      "date": "2026-10-15",
+      "timestamp": 1792060485921,
+      "sessionId": "session_dd639dab-5635-44f1-a913-1577ef871036",
+      "exerciseId": "ex_1",
+      "exerciseName": "بنش بريس مستوي بالبار (Barbell Bench Press)",
+      "category": "push",
+      "type": "weights",
+      "weight": 60,
+      "displayWeight": 60,
+      "unit": "kg",
+      "reps": 12,
+      "oneRepMax": 84,
+      "rir": 2,
+      "setType": "normal",
+      "loadMode": "external",
+      "bodyWeightKgAtLog": 80,
+      "effectiveLoadKg": 60,
+      "volumeLoadKg": 60,
+      "calories": 0,
+      "calculationVersion": "v10-session",
+      "editedAt": 1792060554440
+    },
+    {
+      "id": "log_ef437087-b339-4946-ae96-4a1c198c0c6b",
+      "schemaVersion": 10,
+      "date": "2026-10-15",
+      "timestamp": 1792060497403,
+      "sessionId": "session_dd639dab-5635-44f1-a913-1577ef871036",
+      "exerciseId": "ex_31",
+      "exerciseName": "عقلة (Pull-ups / Chin-ups)",
+      "category": "pull",
+      "type": "weights",
+      "weight": 0,
+      "displayWeight": 0,
+      "unit": "kg",
+      "reps": 8,
+      "oneRepMax": 101.3,
+      "rir": null,
+      "setType": "normal",
+      "loadMode": "bodyweight",
+      "bodyWeightKgAtLog": 80,
+      "effectiveLoadKg": 80,
+      "volumeLoadKg": 80,
+      "durationSeconds": null,
+      "calories": 0,
+      "calculationVersion": "v10-session"
+    },
+    {
+      "id": "log_ae518b3d-3b4b-4ac0-b629-82fb518157b1",
+      "schemaVersion": 10,
+      "date": "2026-10-15",
+      "timestamp": 1792060588937,
+      "sessionId": "session_dd639dab-5635-44f1-a913-1577ef871036",
+      "exerciseId": "ex_1",
+      "exerciseName": "بنش بريس مستوي بالبار (Barbell Bench Press)",
+      "category": "push",
+      "type": "weights",
+      "weight": 60,
+      "displayWeight": 60,
+      "unit": "kg",
+      "reps": 10,
+      "oneRepMax": 80,
+      "rir": null,
+      "setType": "normal",
+      "loadMode": "external",
+      "bodyWeightKgAtLog": 80,
+      "effectiveLoadKg": 60,
+      "volumeLoadKg": 60,
+      "durationSeconds": null,
+      "calories": 0,
+      "calculationVersion": "v10-session"
+    },
+    {
+      "id": "log_5882d543-c900-4950-8016-879576800ce0",
+      "schemaVersion": 10,
+      "date": "2026-10-15",
+      "timestamp": 1792060605503,
+      "sessionId": "session_dd639dab-5635-44f1-a913-1577ef871036",
+      "exerciseId": "ex_1",
+      "exerciseName": "بنش بريس مستوي بالبار (Barbell Bench Press)",
+      "category": "push",
+      "type": "weights",
+      "weight": 60,
+      "displayWeight": 60,
+      "unit": "kg",
+      "reps": 10,
+      "oneRepMax": 80,
+      "rir": null,
+      "setType": "normal",
+      "loadMode": "external",
+      "bodyWeightKgAtLog": 80,
+      "effectiveLoadKg": 60,
+      "volumeLoadKg": 60,
+      "durationSeconds": null,
+      "calories": 0,
+      "calculationVersion": "v10-session"
+    }
+  ],
+  "sessions": [
+    {
+      "id": "session_dd639dab-5635-44f1-a913-1577ef871036",
+      "schemaVersion": 10,
+      "name": "جلسة حرة",
+      "routine": "free",
+      "date": "2026-10-15",
+      "startedAt": 1792057036738,
+      "endedAt": 1792060636738,
+      "status": "completed",
+      "estimatedCalories": 133.3,
+      "bodyWeightKgAtStart": 80,
+      "cardioCalories": 202.5,
+      "totalEstimatedCalories": 335.8,
+      "totalVolumeKg": 4026.1752138690567,
+      "workingSets": 9,
+      "exerciseIds": [
+        "ex_1",
+        "ex_64",
+        "ex_65",
+        "ex_49",
+        "ex_3",
+        "ex_62",
+        "ex_31"
+      ],
+      "editedAt": 1792060636738
+    }
+  ],
+  "schemaVersion": 10,
+  "exportDate": "2026-10-15T10:38:38.269Z"
+}
